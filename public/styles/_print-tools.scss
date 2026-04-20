@@ -1,0 +1,79 @@
+@mixin ticket-page-setup($width: 70mm) {
+    display: block;
+    visibility: visible;
+    
+    // Keinerlei Absolute Positioning mehr!
+    width: $width;
+    background: white;
+    
+    // Zentrierung über Margin - das ist für Drucker viel sicherer
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    
+    box-sizing: border-box;
+
+    * {
+        visibility: visible;
+        color: black;
+        box-sizing: border-box;
+    }
+}
+
+@mixin ticket-container-base {
+    width: 100%;
+    // Puffer nach innen, damit nichts am Rand klebt
+    padding: 5mm 3mm; 
+    font-family: 'Courier New', monospace;
+    font-size: 11pt;
+    display: block;
+    
+    // Wichtig für den Cut
+    break-after: page;
+    page-break-after: always;
+    border-bottom: 1px dashed #000;
+
+    ul, li {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+@mixin print-ticket-row($gap: 2mm) {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: $gap;
+    // Zusätzlicher Puffer rechts für den Preis
+    padding-right: 1mm; 
+
+    span:first-child {
+        flex: 1;
+        white-space: normal;
+        overflow-wrap: break-word;
+        text-align: left;
+    }
+
+    span:last-child {
+        flex-shrink: 0;
+        white-space: nowrap;
+        text-align: right;
+        // Festes Minimum für Preise, damit sie nicht "kleben"
+        min-width: 15mm; 
+    }
+}
+
+@mixin print-highlight-box {
+	background-color: black;
+	color: white;
+	padding: 2mm;
+	width: calc(100% - 4mm);
+	margin: 5mm auto;
+	text-align: center;
+	font-weight: bold;
+	print-color-adjust: exact;
+	-webkit-print-color-adjust: exact;
+}

@@ -1,0 +1,175 @@
+<section class="order-flow">
+
+    <div class="step" [class.active]="order.step() === 1">
+        @if (order.step() === 1) {
+        <div class="step-header">
+            <h2>Was darf es sein?</h2>
+        </div>
+
+        <div class="menu-grid">
+            @for (cat of categories(); track cat.key) {
+            <div class="food-card">
+                <div class="image-container">
+                    <img [src]="cat.img" [alt]="cat.label" />
+
+                    <div class="hover-details">
+                        <div class="ingredients-container" (click)="handleDescriptionClick(cat, $event)">
+                            @for (part of getIngredients(cat.description); track $index; let last = $last) {
+                            <span class="text-part" [class.clickable-text]="cat.id === TACO_ID">
+                                {{ part }}{{ last ? '' : ',' }}
+                            </span>
+                            }
+                        </div>
+
+                        <app-neon-button variant="ghost" class="modal-close-neon"
+                            (click)="passCategory(cat.key, $event)">
+                            Wählen
+                        </app-neon-button>
+                    </div>
+                </div>
+
+                <div class="card-info">
+                    <h3>{{ cat.label }}</h3>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+
+    <div class="step" [class.active]="order.step() === 2">
+        @if (order.step() === 2) {
+        <div class="step-header">
+            <app-neon-button variant="primary" (click)="order.back()">←</app-neon-button>
+            <h2>{{ selectedCategoryLabel() }}</h2>
+            <app-neon-button variant="primary" [disabled]="order.totalItemsCount() === 0" (click)="order.next()">
+                Fertig ({{ order.totalItemsCount() }})
+            </app-neon-button>
+        </div>
+
+        <div class="menu-grid-item">
+            @for (item of filteredItems(); track item.id) {
+            <div class="food-card-item">
+                <div class="image-container">
+                    <img [src]="item.imgPath" [alt]="item.name" />
+
+                    <div class="hover-details">
+                        <div class="ingredients-container"
+                            (click)="showAllIngredients(getSafeIdArray(item.ingredients), $event)">
+                            @for (idOrNum of item.ingredients; track $index; let last = $last) {
+                            <span class="text-part">
+                                {{ getIngredientName(idOrNum) }}{{ last ? '' : ',' }}
+                            </span>
+                            }
+                        </div>
+
+                        <app-neon-button variant="ghost" class="modal-close-neon" (click)="openExtras(item, $event)">
+                            Auswählen
+                        </app-neon-button>
+                    </div>
+                </div>
+
+                <div class="card-info">
+                    <h3>{{ item.name }}</h3>
+                    <p class="price">{{ item.price | number:'1.2-2' }} €</p>
+                </div>
+            </div>
+            }
+        </div>
+
+        @if (selectedItem()) {
+        <div class="modal-overlay" (click)="cancelSelection()">
+            <div class="extras-section table-layout" (click)="$event.stopPropagation()">
+                <div class="section-header">
+                    <h3>Sauce & Extras wählen:<br> {{ selectedItem()?.name }}</h3>
+                </div>
+                <div class="extras-table">
+                    <div class="table-header">
+                        <span>Zutat</span>
+                        <span></span>
+                        <span class="price-right">Preis</span>
+                    </div>
+                    <div class="table-body">
+                        @for (extra of extrasList; track extra.id) {
+                        <label class="table-row">
+                            <div class="cell-main">
+                                <input type="checkbox" [checked]="order.extras().includes(extra)"
+                                    (change)="toggleExtra(extra, $event)" />
+                                <span class="extra-name">{{ extra.name }}</span>
+                            </div>
+                            <div class="cell-price">
+                                @if (extra.price > 0) {
+                                <span class="cost">+{{ extra.price | number:'1.2-2' }} €</span>
+                                } @else {
+                                <!-- <span class="included">
+                                    {{ isTacoSauce(extra.name) ? 'Inklusive' : 'Inklusive nur Döner' }}
+                                </span> -->
+                                <span class="included">Inklusive</span>
+                                }
+                            </div>
+                        </label>
+                        }
+                    </div>
+                </div>
+                <div class="actions">
+                    <app-neon-button (click)="confirmOrder()">In den Warenkorb</app-neon-button>
+                    <app-neon-button variant="primary" (click)="cancelSelection()">Abbrechen</app-neon-button>
+                </div>
+            </div>
+        </div>
+        }
+        }
+    </div>
+
+    <div class="step" [class.active]="order.step() === 3">
+        @if (order.step() === 3) {
+        <app-order-summary></app-order-summary>
+        }
+    </div>
+
+</section>
+
+@if (selectedIngredientInfo()) {
+<div class="modal-overlay" (click)="selectedIngredientInfo.set(null)">
+    <div class="info-card ingredient-list" (click)="$event.stopPropagation()">
+        <div class="section-header">
+            <h3>{{ isSauceMode() ? 'Unsere Saucen' : 'Inhaltsstoffe & Allergene' }}</h3>
+            <p>{{ isSauceMode() ? 'Wähle deinen Favoriten im nächsten Schritt' : 'Wichtige Informationen für Allergiker'
+                }}</p>
+        </div>
+
+        <div class="ingredient-table">
+            <div class="table-header">
+                <span>{{ isSauceMode() ? 'Sauce' : 'Bezeichnung' }}</span>
+                <span>{{ isSauceMode() ? 'Geschmack' : 'Details' }}</span>
+                <span>{{ isSauceMode() ? '' : 'Allergene' }}</span>
+            </div>
+
+            <div class="table-body">
+                @for (info of selectedIngredientInfo(); track info.id) {
+                @let ingredient = dataService.getIngredient(info.id);
+
+                <div class="ingredient-row">
+                    <div class="main-content">
+                        <span class="name">{{ info.name }}</span>
+                        <span class="detail">{{ info.detail }}</span>
+                        <div class="composition-cell">
+                            @if (!isSauceMode() && ingredient?.composition) {
+                            <span [innerHTML]="info.composition | highlight: [
+                                'Marinaden und Gewürzmischungen:',
+                                'Getränke und Saucen:'
+                            ]"></span>
+                            } @else {
+                            <span class="no-data">-</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <app-neon-button (click)="selectedIngredientInfo.set(null)">Alles klar!</app-neon-button>
+    </div>
+</div>
+}

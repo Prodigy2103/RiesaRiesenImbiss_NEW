@@ -1,0 +1,52 @@
+<section class="hero">
+
+	<div class="hero-content">
+		<div class="badge">🔥 Riesa's #1 Imbiss</div>
+
+		<h1 class="hero-title">
+			<span class="line-top">AUTHENTISCH.</span>
+			<span class="line-mid">FRISCH.</span>
+			<span class="line-bot highlight">RIESIG.</span>
+		</h1>
+
+		<p class="hero-desc">
+			Fusion Food, das Riesa liebt! 🥙🌮
+			Echt. Frisch. Handgemacht. Vergiss Standard-Fast-Food. Wir bringen das Beste aus verschiedenen Welten direkt
+			auf deinen Teller. Ob der klassische Döner, ofenfrische Pide, unsere prall gefüllten Kumpir oder der
+			herzhafte Kick unserer Tacos – bei uns ist alles Handmade with Love.
+		</p>
+
+		<div class="hero-actions">
+			<app-neon-button variant="primary" (click)="goToOrder()">
+				Jetzt bestellen →
+			</app-neon-button>
+			<div class="hero-stats">
+				<div class="stat"><span class="stat-num">15+</span><span class="stat-label">Gerichte</span></div>
+				<div class="stat-divider"></div>
+				<div class="stat"><span class="stat-num">100%</span><span class="stat-label">Frisch</span></div>
+				<div class="stat-divider"></div>
+				<div class="stat">
+					<span class="stat-num">★ {{ averageRating() }}</span>
+					<span class="stat-label">Rating</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Rechte Seite: 3D Logo-Karte -->
+	<div class="hero-visual">
+		<div class="logo-card-wrap" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()"
+			[style.transform]="'perspective(800px) rotateX(' + current.rx + 'deg) rotateY(' + current.ry + 'deg)'">
+
+			<div class="card-glow"></div>
+			<div class="shine" [style.--mx.%]="current.mx" [style.--my.%]="current.my"></div>
+
+			<div class="card-inner">
+				<img src="assets/img/Logo_riesenImbiss_Font12.png" alt="Riesenimbiss Logo" class="hero-logo" />
+				<div class="card-tag">EST. RIESA</div>
+			</div>
+		</div>
+
+	</div>
+
+</section>

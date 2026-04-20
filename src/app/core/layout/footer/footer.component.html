@@ -1,0 +1,44 @@
+<app-neon-button variant="primary" class="modal-close-neon" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+	<span class="burger-line"></span>
+</app-neon-button>
+
+<footer class="sidebar-footer" [class.is-open]="isMenuOpen()">
+
+	<app-neon-button variant="ghost" class="modal-close-neon" (click)="closeMenu()">
+		X
+	</app-neon-button>
+
+	<div class="footer-section">
+		<div class="section-label">
+			<span class="label-dot"></span>
+			NEUIGKEITEN
+		</div>
+		<div class="news-list">
+			@for (n of news; track n.title) {
+			<div class="footer-row" (click)="ui.openNews(n)">
+				<span class="row-dot" [class.urgent]="n.urgent"></span>
+				<span class="row-text" [class.urgent-text]="n.urgent">{{ n.title }}</span>
+				<span class="row-arrow">›</span>
+			</div>
+			}
+		</div>
+	</div>
+
+	<div class="footer-divider"></div>
+
+	<div class="footer-section">
+		<div class="section-label">
+			<span class="label-dot accent"></span>
+			JOBS
+		</div>
+		@for (job of jobs; track job.title) {
+		<div class="footer-row" (click)="ui.openJob(job)">
+			<span class="row-dot" [class.urgent]="job.urgent"></span>
+			<span class="row-text">{{ job.title }}</span>
+			<span class="row-arrow">›</span>
+		</div>
+		}
+	</div>
+
+	<div class="footer-copy">© 2025 Riesenimbiss</div>
+</footer>

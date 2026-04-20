@@ -1,0 +1,196 @@
+@use '../../../../../public/styles/all_styles.scss' as all;
+
+:host {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	height: 100dvh;
+	position: sticky;
+	top: 0;
+	background: linear-gradient(180deg, all.$imbiss-orange 0%, #161b22 100%);
+	border-right: 1px solid all.$imbiss-border-dark;
+	box-sizing: border-box;
+	overflow: hidden;
+
+	@include all.tablet {
+		height: 10dvh; // Verhindert das Einnehmen der vollen Bildschirmhöhe
+		flex-direction: row;
+		border-right: none;
+		border-bottom: 1px solid all.$imbiss-border-dark;
+	}
+
+	/* ── Logo ── */
+	.sidebar-logo {
+		position: relative;
+		margin: 2rem 0 1.5rem;
+		width: 7rem;
+		height: 7rem;
+		flex-shrink: 0;
+
+		@include all.tablet {
+			display: none;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border-radius: 50%;
+			// border: 2px solid rgba(all.$imbiss-orange, 0.3);
+			transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			position: relative;
+			z-index: 2;
+
+			&:hover {
+				transform: scale(1.08) rotate(5deg);
+				// border-color: all.$imbiss-orange;
+				// filter: drop-shadow(0 0 16px rgba(all.$imbiss-orange, 0.6));
+			}
+		}
+	}
+
+	.logo-ring {
+		position: absolute;
+		inset: -4px;
+		border-radius: 50%;
+		border: 1px solid rgba(all.$imbiss-orange, 0.2);
+		animation: rotateGlow 8s linear infinite;
+		z-index: 1;
+	}
+
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		line-height: 1.1;
+		width: 100%;
+
+		@include all.tablet {
+			display: none;
+		}
+
+		span {
+			text-shadow: all.$imbiss-border-dark 0px 0px 4px;
+		}
+
+		.brand-name {
+			font: 800 1.3rem 'Orbitron', sans-serif;
+			color: all.$white;
+			letter-spacing: 0.05rem;
+		}
+
+		.brand-accent {
+			color: all.$imbiss-orange;
+		}
+
+		.brand-sub {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			font-size: 1rem;
+			color: all.$white;
+			letter-spacing: 0.1rem;
+			text-transform: uppercase;
+			border: 2px soid red;
+		}
+	}
+
+	/* ── Navigation ── */
+	.sidebar-nav {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		flex: 1;
+		padding: 0.5rem 0;
+		gap: 0.2rem;
+		margin-top: 3rem;
+
+		@include all.tablet {
+			margin-top: 0;
+			flex-direction: row;
+			justify-content: space-around; // Verteilt Icons gleichmäßig
+			padding: 0;
+		}
+	}
+
+	.nav-item {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		padding: 0.9rem 1.2rem;
+		text-decoration: none;
+		color: rgba(all.$white, 0.5);
+		font: 600 1rem 'Orbitron', sans-serif;
+		letter-spacing: 0.05rem;
+		text-transform: uppercase;
+		transition: all 0.25s ease;
+		overflow: hidden;
+
+		@include all.tablet {
+			padding: 1rem;
+			justify-content: center;
+			flex: 1; // Jedes Item nimmt gleichen Platz ein
+		}
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(90deg, rgba(all.$imbiss-orange, 0.08), transparent);
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+
+		&:hover {
+			color: all.$white;
+			padding-left: 1.5rem;
+
+			&::before {
+				opacity: 1;
+			}
+		}
+
+		&.active {
+			color: all.$white;
+			background: linear-gradient(90deg, rgba(all.$imbiss-orange, 0.82), transparent);
+
+			.nav-indicator {
+				opacity: 1;
+				height: 60%;
+			}
+		}
+	}
+
+	.nav-icon {
+		font-size: 1.1rem;
+		flex-shrink: 0;
+
+		@include all.tablet {
+			display: flex;
+		}
+	}
+
+	.nav-label {
+		flex: 1;
+
+		@include all.tablet {
+			display: none;
+		}
+	}
+
+	.nav-indicator {
+		position: absolute;
+		left: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 0.3rem;
+		height: 0;
+		background: all.$imbiss-bg-dark;
+		border-radius: 0 0.3rem 0.3rem 0;
+		box-shadow: 0 0 8px all.$white;
+		opacity: 0;
+		transition: all 0.3s ease;
+	}
+}

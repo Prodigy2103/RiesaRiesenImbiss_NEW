@@ -1,0 +1,108 @@
+@use '../../../../../public/styles/all_styles.scss' as all;
+
+:host {
+    display: inline-block; // Erlaubt dem Button, sich wie ein Element zu verhalten
+    width: auto;           // Standardmäßig nur so breit wie nötig
+    vertical-align: middle;
+}
+
+.neon-btn {
+    position: relative;
+    display: flex;         // Von inline-flex auf flex gewechselt
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;        // DAS sorgt für die Zentrierung im Host
+    padding: 0.7rem 1.6rem;
+    border: none;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    overflow: hidden;
+    font: 700 1rem 'Orbitron', sans-serif;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    width: 100%;           // Füllt den Host (oder das max-width des Parents) aus
+
+    @include all.mobile {
+        padding: 0.6rem 1rem; // Etwas mehr Fleisch als nur 0.4rem für bessere Klickbarkeit
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .btn-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 0.4rem;
+    }
+}
+
+.btn-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+    background-size: 200% 100%;
+    background-position: -100% center;
+    transition: background-position 1.5s ease;
+}
+
+.neon-btn:hover .btn-shine {
+    background-position: 200% center;
+}
+
+.primary {
+    background: linear-gradient(135deg, all.$imbiss-orange 0%, #c96f18 100%);
+    color: all.$white;
+    box-shadow: 0 4px 20px rgba(all.$imbiss-orange, 0.35);
+    font-size: clamp(0.8rem, 2.5vw, 1.5rem);
+
+    &:hover {
+        box-shadow: 0 6px 28px rgba(all.$imbiss-orange, 0.55);
+        transform: translateY(-2px);
+    }
+}
+
+.ghost {
+    background: transparent;
+    border: 1px solid rgba(all.$imbiss-orange, 0.5);
+    color: all.$imbiss-orange;
+    z-index: 2;
+    font-size: clamp(1.5rem, 2.5vw, 1.4rem);
+
+    &:hover {
+        background: rgba(all.$imbiss-orange, 0.1);
+        color: all.$white;
+    }
+}
+
+.danger {
+    background: rgba(all.$imbiss-red, 0.1);
+    border: 1px solid all.$imbiss-red;
+    color: all.$imbiss-red;
+
+    &:hover {
+        background: rgba(all.$imbiss-red, 0.25);
+    }
+}
+
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

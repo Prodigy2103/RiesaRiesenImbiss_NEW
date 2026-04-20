@@ -1,0 +1,309 @@
+@use '../../../../public/styles/all_styles.scss' as all;
+
+:host {
+	display: block;
+	background-color: #ede5d8;
+	min-height: 100vh;
+	padding: 20px;
+	font-family: 'Segoe UI', sans-serif;
+	color: #333;
+}
+
+// --- 1. KANBAN LAYOUT ---
+.kanban-board {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(320px, 1fr));
+	gap: 25px;
+	width: 100%;
+
+	@include all.tablet {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+.kanban-column {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+
+	.column-header {
+		position: sticky;
+		top: 0;
+		padding: 15px;
+		background: #121212;
+		border-bottom: 3px solid #333;
+		z-index: 10;
+		margin-bottom: 10px;
+	}
+
+	&.new .column-header {
+		color: #ffa500;
+		border-bottom-color: #ffa500;
+	}
+
+	&.preparing .column-header {
+		color: #2196f3;
+		border-bottom-color: #2196f3;
+	}
+
+	&.ready .column-header {
+		color: #4caf50;
+		border-bottom-color: #4caf50;
+	}
+}
+
+.column-content {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	overflow-y: auto;
+	height: 85dvh;
+
+	@include all.hide-scrollbar;
+}
+
+// --- 2. ORDER CARDS ---
+.order-card {
+	background: #575757;
+	border-radius: 12px;
+	padding: 18px;
+	border-left: 6px solid #333;
+	transition: transform 0.2s;
+	color: white;
+
+	&:hover {
+		transform: translateY(-4px);
+	}
+
+	&.new {
+		border-left-color: #ffa500;
+	}
+
+	&.preparing {
+		border-left-color: #2196f3;
+	}
+
+	&.ready {
+		border-left-color: #4caf50;
+	}
+
+	&.delivery {
+		border-left-color: #00bcd4;
+	}
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 10px;
+
+		.order-id {
+			color: #ffa500;
+			font-weight: 900;
+			font-size: 1.2rem;
+		}
+
+		.badge {
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 0.8rem;
+
+			&.delivery {
+				background: #673ab7;
+			}
+
+			&.pickup {
+				background: #e91e63;
+			}
+		}
+	}
+
+	.scheduled-time-badge {
+		background: rgba(255, 165, 0, 0.1);
+		padding: 8px;
+		border-radius: 6px;
+		margin: 10px 0;
+
+		strong {
+			color: #ffa500;
+		}
+	}
+
+	.items-list {
+		list-style: none;
+		padding: 0;
+
+		li {
+			padding: 6px 0;
+			border-bottom: 1px solid #2a2a2a;
+			color: white;
+
+			.qty {
+				color: #ffa500;
+				font-weight: bold;
+				margin-right: 5px;
+			}
+
+			.extras {
+				font-size: 0.85rem;
+				color: #888;
+				padding-left: 15px;
+			}
+		}
+	}
+
+	.card-footer {
+		margin-top: 15px;
+
+		.price {
+			font-size: 1.3rem;
+			font-weight: bold;
+			text-align: right;
+			margin-bottom: 10px;
+		}
+
+		.actions {
+			display: flex;
+			gap: 10px;
+		}
+	}
+}
+
+// --- 3. BUTTONS ---
+.status-btn {
+	flex: 1;
+	padding: 12px;
+	border-radius: 8px;
+	border: none;
+	font-weight: bold;
+	cursor: pointer;
+	background: #ffa500;
+
+	&.preparing {
+		background: #2196f3;
+		color: white;
+	}
+
+	&.ready {
+		background: #4caf50;
+		color: white;
+	}
+
+	&.delivery {
+		background: #00bcd4;
+		color: white;
+	}
+}
+
+.print-icon-btn {
+	width: 50px;
+	background: #333;
+	border: 1px solid #444;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 1.2rem;
+}
+
+#print-section {
+	display: none;
+}
+
+@media print {
+
+	// 1. Monitor-Elemente hart ausblenden
+	.kanban-board,
+	.overlay,
+	.attribution,
+	header,
+	footer {
+		display: none !important;
+	}
+
+	#print-section {
+		position: absolute;
+		top: 0;
+		left: 0;
+		@include all.ticket-page-setup(72mm);
+
+		.ticket-header {
+			text-align: center;
+			margin-bottom: 2mm;
+
+			.store-name {
+				font-size: 1.5rem;
+				font-weight: bold;
+				margin-bottom: 2px;
+			}
+
+			p {
+				font-size: 1rem;
+				margin: 0 0 2.5mm 0;
+			}
+		}
+
+		.ticket-container {
+			@include all.ticket-container-base;
+
+			.item-main,
+			.tax-row,
+			.ticket-total {
+				@include all.print-ticket-row(3mm);
+			}
+
+			.ticket-highlight {
+				@include all.print-highlight-box;
+			}
+
+			&:last-child {
+				break-after: auto !important;
+				page-break-after: auto !important;
+				border-bottom: none;
+			}
+		}
+	}
+
+	@page {
+		size: 80mm auto;
+		margin: 0;
+	}
+
+	div {
+		margin: 0 0 1mm 0;
+	}
+
+	.footer-info, .center {
+		font-size: 1rem;
+		text-align: center;
+		margin-top: 5mm;
+	}
+
+	.order-meta {
+		margin: 0 0 1.5mm 0;
+		text-align: center;
+	}
+
+	// 	strong {
+	// 		margin: 0 0 2mm 0;
+	// 	}
+	// }
+}
+
+// --- 5. OVERLAY ---
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.95);
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	button {
+		padding: 20px 40px;
+		font-size: 1.5rem;
+		background: #ffa500;
+		border: none;
+		border-radius: 50px;
+		font-weight: bold;
+	}
+}

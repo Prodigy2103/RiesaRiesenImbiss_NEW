@@ -1,0 +1,268 @@
+@use '../../../../public/styles/all_styles.scss' as all;
+
+:host {
+	@include all.size($w: 100%, $h: 90dvh);
+	@include all.fl($jc: center, $alit: center);
+	background: all.$imbiss-bg-light;
+	position: relative;
+	// padding: 1rem;
+	color: all.$imbiss-dark;
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.find-us-container {
+		@include all.size($w: 85dvw, $h: 85dvh);
+		@include all.marpad($pad: 2rem 3rem, $mar: 0);
+		@include all.borRad($c: rgba(255, 255, 255, 0.5), $radius: 1.6rem, $thick: 1px, $design: solid);
+		background: all.$imbiss-order-bg;
+		backdrop-filter: blur(1rem);
+		overflow: hidden;
+		isolation: isolate; // Erzeugt einen sauberen Stapelkontext
+		transform: translateZ(0); // Erzwingt Hardware-Rendering der Rundung
+		mask-image: radial-gradient(white, black);
+		-webkit-mask-image: -webkit-radial-gradient(white, black);
+		box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.8);
+		animation: slideInLeft 2.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+
+		@media(max-width: 900px) {
+			overflow-y: auto;
+			width: 100%;
+			margin: 0;
+			padding: 1rem; // Viel weniger Padding auf Mobile
+			// border-radius: 0;
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
+		}
+
+		@include all.tablet {
+			height: 78dvh;
+			width: 90dvw;
+			padding: 1rem;
+		}
+	}
+
+	.top-row,
+	.feedback-row {
+		display: grid;
+		grid-template-columns: 1fr 1.5fr;
+		gap: 2rem;
+
+		@media (max-width: 900px) {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+	}
+
+	.top-row {
+		height: 35dvh;
+		margin-bottom: 2rem;
+	}
+
+	.feedback-row {
+		height: 40dvh;
+	}
+
+	/* #region Elements & Cards */
+	.info-card {
+
+		.address {
+			color: all.$imbiss-dark;
+			line-height: 1.6;
+			margin-bottom: 1.5rem;
+		}
+
+		.hours-grid {
+			display: grid;
+			grid-template-columns: 100px 1fr;
+			gap: 8px;
+		}
+	}
+
+	.map-wrapper {
+		border-radius: 1rem;
+		overflow: hidden;
+		animation: slideInRightIframe 3.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+		display: block;
+		width: 100%;
+
+		iframe {
+			filter: invert(90%) hue-rotate(180deg) brightness(95%);
+			transition: filter 1s cubic-bezier(0.4, 0, 0.2, 1);
+			will-change: filter;
+
+			&:hover {
+				filter: invert(0%) hue-rotate(0deg) brightness(100%);
+			}
+		}
+	}
+
+	.feedback-form {
+		.star-rating {
+			@include all.fl($alit: center);
+			@include all.marpad($mar: 0 0 1.5rem 0, $pad: 0rem 1rem);
+			background: all.$imbiss-light-grey;
+
+			.star {
+				position: relative;
+				color: rgba(all.$white, 0.1); // Der "leere" Stern
+				font-size: 2.5rem;
+				cursor: pointer;
+
+				&::before {
+					content: '★';
+					position: absolute;
+					top: 0; // WICHTIG
+					left: 0; // WICHTIG
+					width: var(--percent);
+					overflow: hidden;
+					color: all.$imbiss-orange;
+					transition: width 0.3s ease; // Schöner Übergang beim Klicken
+				}
+			}
+
+			.rating-display {
+				color: all.$white;
+				margin-left: 2rem;
+			}
+		}
+	}
+
+	.cyber-title,
+	.cyber-subtitle {
+		color: all.$imbiss-orange;
+		text-transform: uppercase;
+		border-left: 0.25rem solid all.$imbiss-orange;
+		padding-left: 1rem;
+		margin-bottom: 0.8rem;
+	}
+
+	.input-group {
+		position: relative;
+		margin-bottom: 1rem;
+
+		input,
+		textarea {
+			width: 100%;
+			background: all.$imbiss-light-grey;
+			border: none;
+			border-bottom: 2px solid rgba(all.$white, 0.1);
+			color: all.$white;
+			padding: 0.8rem;
+			outline: none;
+
+			&:focus+.glow-line {
+				width: 100%;
+			}
+		}
+
+		.glow-line {
+			position: absolute;
+			bottom: 0;
+			width: 0;
+			height: 2px;
+			background: all.$imbiss-orange;
+			transition: width 0.5s ease;
+		}
+	}
+
+	.comments-display {
+		box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.8);
+		width: 100%;
+		padding: 0.3rem;
+		border-radius: 0.4rem;
+		animation: slideInBottom 3.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+
+		.scroll-area {
+			max-height: 300px;
+			overflow-y: auto;
+			padding-right: 10px;
+
+			&::-webkit-scrollbar {
+				width: 4px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background: all.$imbiss-orange;
+				border-radius: 10px;
+			}
+		}
+
+		.comment-entry {
+			background: rgba(all.$white, 0.03);
+			padding: 1rem;
+			border-radius: 10px;
+			margin-bottom: 1rem;
+			border-left: 2px solid all.$imbiss-orange;
+		}
+
+		.stars-display {
+			@include all.fl($alit: center);
+
+			.mini-star {
+				position: relative;
+				color: rgba(all.$white, 0.1);
+				font-size: 1rem;
+				margin-right: 2px;
+
+				&::before {
+					content: '★';
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: var(--percent);
+					overflow: hidden;
+					color: all.$imbiss-orange;
+				}
+			}
+		}
+	}
+
+	/* #endregion */
+
+	.entry-header {
+		@include all.fl($jc: space-between, $alit: center);
+		margin-bottom: 8px;
+		position: relative; // Wichtig für die Positionierung des Buttons
+
+		.user-id {
+			font: 700 0.85rem 'Orbitron', sans-serif;
+			color: all.$imbiss-orange;
+			letter-spacing: 1px;
+		}
+
+		.delete-btn {
+			background: rgba(255, 68, 68, 0.1);
+			border: 1px solid rgba(255, 68, 68, 0.5);
+			color: #ff4444;
+			font: 700 0.6rem 'Orbitron', sans-serif;
+			padding: 2px 8px;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-transform: uppercase;
+
+			// Damit er zwischen Name und Sternen schwebt
+			margin: 0 10px;
+
+			&:hover {
+				background: #ff4444;
+				color: #fff;
+				box-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+				transform: scale(1.05);
+			}
+
+			&:active {
+				transform: scale(0.95);
+			}
+
+			@include all.mobile {
+				font-size: 0.5rem;
+				padding: 1px 5px;
+			}
+		}
+	}
+}

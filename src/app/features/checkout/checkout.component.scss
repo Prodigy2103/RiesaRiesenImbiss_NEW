@@ -1,0 +1,218 @@
+@use '../../../../public/styles/all_styles.scss' as all;
+
+.checkout-container {
+	width: 90%;
+	max-width: 1000px;
+	height: 85dvh;
+	margin: 1.5rem auto;
+	padding: 35px;
+	border-radius: 30px;
+	background: rgba(18, 22, 27, 0.85);
+	backdrop-filter: blur(25px);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	box-shadow: 0 0 40px rgba(217, 131, 36, 0.2);
+	overflow-y: auto;
+
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-width: none; // Firefox
+	-ms-overflow-style: none; // IE/Edge
+
+	padding: 0 1rem; // Symmetrisches Padding verhindert "Leere rechts"
+	box-sizing: border-box;
+	width: 100%;
+
+	&::-webkit-scrollbar {
+		display: none; // Chrome/Safari
+		width: 0;
+		height: 0;
+	}
+
+	@include all.mobile {
+		width: 95%;
+		padding: 20px;
+		margin: 1rem auto;
+		height: 77dvh;
+	}
+}
+
+.status-stepper {
+	@include all.fl($jc: space-between);
+	margin: 40px 0;
+	position: relative;
+
+	.step {
+		flex: 1;
+		@include all.fl($flexdir: column, $alit: center);
+		position: relative;
+		z-index: 2;
+
+		.step-icon {
+			width: 45px;
+			height: 45px;
+			background: #1c252f;
+			border: 2px solid rgba(255, 255, 255, 0.1);
+			border-radius: 50%;
+			@include all.fl($jc: center, $alit: center);
+			transition: all 0.4s ease;
+			color: rgba(255, 255, 255, 0.3);
+
+			@include all.mobile {
+				width: 35px;
+				height: 35px;
+				font-size: 0.9rem;
+			}
+		}
+
+		.step-label {
+			margin-top: 10px;
+			font: 700 0.75rem 'Orbitron', sans-serif;
+			color: rgba(255, 255, 255, 0.4);
+			text-align: center;
+
+			@include all.mobile {
+				font-size: 0.6rem;
+			}
+		}
+
+		.step-line {
+			position: absolute;
+			top: 22px;
+			left: 50%;
+			width: 100%;
+			height: 2px;
+			background: rgba(255, 255, 255, 0.1);
+			z-index: -1;
+
+			@include all.mobile {
+				top: 17px;
+			}
+		}
+
+		&.active .step-icon {
+			border-color: all.$imbiss-orange;
+			color: all.$imbiss-orange;
+			box-shadow: 0 0 15px rgba(all.$imbiss-orange, 0.4);
+		}
+
+		&.completed {
+			.step-icon {
+				background: all.$imbiss-orange;
+				color: #fff;
+			}
+
+			.step-line {
+				background: all.$imbiss-orange;
+			}
+		}
+	}
+}
+
+.info-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+
+	@include all.tablet {
+		grid-template-columns: 1fr;
+	}
+}
+
+.info-card {
+	background: rgba(255, 255, 255, 0.03);
+	padding: 20px;
+	border-radius: 18px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+
+	h3 {
+		color: all.$imbiss-orange;
+		margin-bottom: 15px;
+		font: 400 1rem 'Orbitron', sans-serif;
+		text-transform: uppercase;
+	}
+
+	.order-items {
+		height: 20dvh;
+		overflow-y: auto;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	.customer-info {
+		@include all.fl($jc: space-between);
+		padding: 0 5%;
+
+		@include all.mobile {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+	}
+}
+
+.total-row.final {
+	margin-top: 15px;
+	padding-top: 10px;
+	border-top: 2px solid all.$imbiss-orange;
+	font: 700 1.3rem 'Orbitron', sans-serif;
+	color: all.$imbiss-orange;
+	@include all.fl($jc: space-between);
+}
+
+.success-header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    .check-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        border: 3px solid #00ff66;
+        color: #00ff66;
+        font-size: 2.5rem;
+        @include all.fl($jc: center, $alit: center);
+        box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+
+        @include all.mobile {
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+        }
+    }
+}
+/* #endregion */
+
+/* #region Actions */
+.btn-new-order {
+    display: block;
+    margin: 15px auto;
+    padding: 15px 30px;
+    background: transparent;
+    border: 2px solid all.$imbiss-orange;
+    color: all.$white;
+    border-radius: 15px;
+    font: 700 1rem 'Orbitron', sans-serif;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+
+    &:hover {
+        background: all.$imbiss-orange;
+        box-shadow: 0 0 20px rgba(all.$imbiss-orange, 0.4);
+        transform: translateY(-2px);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    @include all.mobile {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}
+/* #endregion */

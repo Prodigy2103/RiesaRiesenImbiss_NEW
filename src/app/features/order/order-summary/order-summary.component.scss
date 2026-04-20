@@ -1,0 +1,476 @@
+@use '../../../../../public/styles/all_styles.scss' as all;
+
+:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+#orderflow-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	height: 100%;
+
+	/* Scrollbar-Platz-Killer */
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-width: none; // Firefox
+	-ms-overflow-style: none; // IE/Edge
+
+	padding: 0 1rem; // Symmetrisches Padding verhindert "Leere rechts"
+	box-sizing: border-box;
+	width: 100%;
+
+	&::-webkit-scrollbar {
+		display: none; // Chrome/Safari
+		width: 0;
+		height: 0;
+	}
+
+	.step-header {
+		@include all.fl($jc: space-between, $alit: center);
+		flex-shrink: 0;
+
+		h2 {
+			font: 400 1.5rem 'Orbitron Medium', sans-serif;
+			margin: 0;
+		}
+	}
+
+	.summary-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		flex-shrink: 0;
+
+		.summary-list {
+			height: 16dvh;
+			overflow-y: auto;
+			padding-right: 5px;
+
+			&::-webkit-scrollbar {
+				width: 4px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background: all.$imbiss-orange;
+				border-radius: 10px;
+			}
+
+			.summary-row {
+				@include all.fl($jc: space-between, $alit: center, $gap: 3rem);
+				background: rgba(all.$white, 0.05);
+				padding: 0rem 1rem;
+				border-radius: 12px;
+				border: 1px solid rgba(all.$white, 0.1);
+				margin-bottom: 0.5rem;
+
+				.item-info {
+					background: rgba(0, 0, 0, 0.59);
+					width: 50%;
+					padding: 0.3rem;
+					border-radius: 0.8rem;
+					@include all.fl($alit: center, $gap: 1rem);
+
+					.main-item-line {
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						gap: 0.2rem;
+
+						.name {
+							font: 1.1rem 'Terminus', sans-serif;
+						}
+
+						.extra {
+							color: rgba(all.$white, 0.7);
+							font-size: 0.8rem;
+						}
+
+						.extra-badge {
+							background: rgba(all.$imbiss-orange, 0.15);
+							color: all.$imbiss-orange;
+							padding: 1px 6px;
+							border-radius: 4px;
+							font-size: 0.7rem;
+							border: 1px solid rgba(all.$imbiss-orange, 0.3);
+						}
+					}
+
+					.qty {
+						background: rgba(all.$imbiss-orange, 0.2);
+						color: all.$imbiss-orange;
+						padding: 2px 8px;
+						border-radius: 6px;
+						font-weight: 800;
+					}
+				}
+
+				.item-price {
+					font-weight: bold;
+					color: all.$white;
+					min-width: 4rem;
+					text-align: right;
+				}
+
+				.item-controls {
+					display: flex;
+					justify-content: space-around;
+					align-items: center;
+					width: 30%;
+					background: rgba(all.$imbiss-dark, 0.1);
+					padding: 0.5rem;
+				}
+			}
+		}
+	}
+
+	.extras-local {
+		flex-shrink: 0;
+
+		.customer-form {
+			display: flex;
+			justify-content: space-evenly;
+			min-height: 10dvh;
+			background: rgba(0, 0, 0, 0.59);
+			padding: 1.5rem;
+			border-radius: 15px;
+			border: 1px solid rgba(all.$white, 0.1);
+
+			.input-group {
+				@include all.fl($flexdir: column, $gap: 5px);
+
+				label {
+					font: 400 0.8rem 'Orbitron', sans-serif;
+					text-transform: uppercase;
+					color: all.$imbiss-orange;
+					opacity: 0.9;
+				}
+
+				input {
+					background: rgba(255, 255, 255, 0.05);
+					border: 1px solid rgba(255, 255, 255, 0.2);
+					padding: 0.8rem;
+					border-radius: 8px;
+					color: all.$white;
+					font-family: 'Orbitron', sans-serif;
+					transition: all 0.3s ease;
+					width: 100%;
+
+					&:focus {
+						border-color: all.$imbiss-orange;
+						outline: none;
+						box-shadow: 0 0 15px rgba(all.$imbiss-orange, 0.3);
+						background: rgba(255, 255, 255, 0.1);
+					}
+				}
+			}
+		}
+	}
+
+	.delivery-toggle {
+		flex-shrink: 0;
+		width: 100%;
+		max-width: 100%; // Absicherung gegen Overflow
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+		box-sizing: border-box;
+
+		.scheduled-time-group {
+			width: 100%;
+			text-align: center;
+
+			label {
+				display: block;
+				margin-bottom: 0.5rem;
+				color: #000;
+				font: 400 0.9rem 'Orbitron', sans-serif;
+			}
+
+			.time-picker-wrapper {
+				@include all.fl($flexdir: column, $alit: center);
+				width: 100%;
+
+				input[type="time"] {
+					width: 90%; // Leicht schmaler für Mobile-Safe-Zone
+					max-width: 14rem;
+					background: rgba(255, 255, 255, 0.05);
+					border: 1px solid rgba(0, 0, 0, 0.2);
+					color: black;
+					padding: 0.8rem;
+					border-radius: 8px;
+					text-align: center;
+				}
+
+				.time-hint {
+					display: block;
+					font-size: 0.75rem;
+					color: rgba(0, 0, 0, 0.5);
+					margin-top: 0.3rem;
+				}
+			}
+		}
+
+		/* Die Buttons jetzt in einem eigenen Flex-Row Container */
+		.buttons-container {
+			@include all.fl($jc: center, $alit: center, $gap: 2rem); // Absolut mittig
+			width: 100%;
+			// padding: 0; // Alle asymmetrischen Paddings löschen!
+			// margin: 1rem auto; // Zentriert den Container selbst
+			// box-sizing: border-box;
+			// flex-wrap: wrap; // Falls der Platz nicht reicht -> Umbruch statt Overflow
+
+			app-neon-button {
+				flex: 1; // BEIDE Buttons nehmen exakt den gleichen Platz ein
+				max-width: 18rem; // Deckelung, damit sie auf Desktop nicht zu riesig werden
+				display: flex;
+				justify-content: center;
+
+				&.active {
+					transform: scale(1.05);
+					opacity: 1;
+				}
+			}
+
+			@include all.mobile {
+				flex-direction: column; // Auf dem Handy sauber untereinander
+				gap: 1.2rem;
+
+				app-neon-button {
+					width: 90%; // Fast volle Breite für bessere Klickrate
+				}
+			}
+		}
+	}
+
+	label {
+		color: black;
+	}
+
+	.time-picker-wrapper {
+		position: relative;
+
+		input[type="time"] {
+			width: 100%;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid #444;
+			color: black;
+			padding: 10px;
+			border-radius: 8px;
+			font-family: inherit;
+			outline: none;
+
+			&:focus {
+				border-color: #ffa500;
+				box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+			}
+		}
+	}
+
+	.total-bar {
+		flex-shrink: 0;
+		background: all.$imbiss-orange;
+		padding: 1.2rem 1.5rem;
+		border-radius: 12px;
+		@include all.fl($flexdir: column, $gap: 0.8rem);
+		min-height: 20dvh;
+
+		p {
+			margin: 0;
+			font-weight: 800;
+			color: all.$white;
+			font-size: 1.1rem;
+		}
+
+		.zip-input-group {
+			@include all.fl($jc: flex-start, $alit: center, $gap: 1rem);
+
+			label {
+				font-family: 'Orbitron', sans-serif;
+				font-size: 0.9rem;
+				color: all.$white;
+				font-weight: 600;
+				text-transform: uppercase;
+			}
+
+			.neon-input {
+				width: 130px;
+				background: rgba(all.$imbiss-dark, 0.1);
+				border: 1px solid rgba(all.$imbiss-dark, 0.2);
+				padding: 0.4rem;
+				border-radius: 8px;
+				color: all.$white;
+				font-family: 'Orbitron', sans-serif;
+				font-weight: 700;
+				text-align: center;
+				outline: none;
+
+				&:focus {
+					background: rgba(all.$white, 0.2);
+					border-color: all.$white;
+				}
+			}
+		}
+
+		.total-row {
+			@include all.fl($jc: space-between, $alit: center);
+			width: 100%;
+			font-family: 'Orbitron', sans-serif;
+			font-size: 0.9rem;
+			color: all.$white;
+			border-top: 1px solid rgba(all.$imbiss-dark, 0.1);
+			padding-top: 0.5rem;
+
+			.text-danger {
+				color: #b30000;
+				font-weight: 900;
+			}
+		}
+	}
+
+	.status-alerts {
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: 0.5rem;
+		position: relative;
+		z-index: 99;
+		width: 100%;
+
+		.alert {
+			padding: 0.2rem 1rem;
+			border-radius: 0.25rem;
+			text-align: center;
+			font-weight: 600;
+			animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			color: all.$white;
+
+			&.alert-danger {
+				background: rgba(255, 77, 77, 0.9);
+				border-color: #ff4d4d;
+			}
+
+			&.alert-warning {
+				background: rgba(all.$imbiss-orange, 0.9);
+				border-color: all.$imbiss-orange;
+			}
+		}
+	}
+
+	.actions {
+		flex-shrink: 0;
+		width: 100%;
+		margin: 2rem 0; // Oben/Unten Abstand, keine Seiten-Margins
+		padding: 0; // Sicherstellen, dass kein Padding stört
+		@include all.fl($jc: center, $alit: center); // Flex-Zentrierung
+		pointer-events: all;
+
+		app-neon-button {
+			width: 100%;
+			max-width: 22rem;
+			margin: 0 auto; // Erzwingt die Zentrierung im Container
+			display: block;
+			cursor: pointer;
+
+			&[disabled] {
+				pointer-events: none;
+				opacity: 0.5;
+			}
+		}
+	}
+
+	/* --- RESPONSIVE SECTION --- */
+	@include all.tablet {
+		.step-header h2 {
+			font-size: 1.4rem;
+		}
+
+		.summary-container .summary-list {
+			height: auto;
+			max-height: 25dvh;
+
+			.summary-row {
+				@include all.fl($flexdir: column, $alit: stretch, $gap: 0.5rem);
+				padding: 1rem;
+
+				.item-info {
+					width: 100%;
+					justify-content: space-between;
+				}
+
+				.item-controls {
+					width: 100%;
+					justify-content: center;
+				}
+
+				.item-price {
+					text-align: center;
+					width: 100%;
+					border-top: 1px solid rgba(all.$white, 0.1);
+				}
+			}
+		}
+
+		.extras-local .customer-form {
+			flex-direction: column;
+			gap: 1.2rem;
+			padding: 1.2rem;
+
+			.input-group {
+				width: 100%;
+			}
+		}
+
+		.delivery-toggle {
+			// Hier erzwingen wir, dass die Buttons in einer Row bleiben
+			flex-direction: row;
+			justify-content: center;
+
+			.scheduled-time-group {
+				width: 100%;
+			}
+
+			app-neon-button {
+				width: 45%;
+				max-width: none;
+			}
+		}
+
+		.total-bar {
+			min-height: auto;
+
+			.zip-input-group {
+				flex-direction: column;
+				align-items: flex-start;
+
+				.neon-input {
+					width: 100%;
+				}
+			}
+		}
+	}
+
+	@include all.mobile {
+		.delivery-toggle {
+			// Auf Mobile untereinander für bessere Usability
+			flex-direction: column;
+
+			app-neon-button {
+				width: 100%;
+			}
+		}
+
+		.step-header {
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 0.5rem;
+			padding: 0.5rem;
+		}
+	}
+}

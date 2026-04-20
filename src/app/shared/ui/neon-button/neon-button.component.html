@@ -1,0 +1,7 @@
+<button [disabled]="disabled() || loading()" [class]="variant()" class="neon-btn">
+	@if (loading()) {
+	<span class="loader"></span>
+	} @else {
+	<ng-content></ng-content>
+	}
+</button>

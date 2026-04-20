@@ -1,0 +1,133 @@
+@use '../public/styles/all_styles.scss' as all;
+
+/* #region Typography - ZUERST für optimierten LCP */
+@font-face {
+    font-family: "Terminus";
+    src: url("/assets/fonts/BricolageGrotesque-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Orbitron Medium";
+    src: url("/assets/fonts/static/Orbitron-Medium.ttf") format("truetype");
+    font-display: swap;
+}
+/* #endregion */
+
+/* #region Base Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    user-select: none;
+}
+
+html, body {
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: "Terminus", monospace;
+    color: white;
+}
+
+body:has(app-kitchen-internal-monitor) {
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+
+    app-header, app-sidebar, app-footer {
+        display: none !important;
+    }
+
+    .layout {
+        display: block !important;
+        grid-template-areas: "canvas";
+        grid-template-columns: 1fr;
+        grid-template-rows: 100vh;
+        width: 100vw;
+        height: 100vh;
+    }
+}
+/* #endregion */
+
+/* #region Main Layout */
+.layout {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    grid-template-columns: 13rem 1fr;
+    grid-template-rows: 10dvh 90dvh;
+    grid-template-areas: "sidebar header" "sidebar canvas";
+
+    @include all.tablet {
+        grid-template-columns: 100%;
+        grid-template-rows: 10dvh 80dvh 10dvh;
+        grid-template-areas: "header" "canvas" "sidebar";
+    }
+
+    aside { grid-area: sidebar; z-index: 20; }
+    header { grid-area: header; z-index: 10; }
+}
+/* #endregion */
+
+/* #region Content Area */
+main {
+    grid-area: canvas;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+
+    .canvas-container {
+        position: absolute;
+        inset: 0; /* Kürzer für top/left/width/height: 100% */
+        z-index: 0;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #f5eddc;
+    }
+}
+/* #endregion */
+
+// Innerhalb deines Mixins bei .extras-table
+.table-body {
+    flex: 1;
+    overflow-y: auto !important; // Sicherstellen, dass hier das Scrollen stattfindet
+    padding-right: 6px;
+    -webkit-overflow-scrolling: touch; // Für flüssiges Scrollen auf iOS
+
+    /* Die radikale Lösung: Direktes Ansprechen über den Host-Kontext */
+    &::-webkit-scrollbar {
+        width: 5px !important;
+        height: 5px !important;
+        display: block !important;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05) !important;
+        border-radius: 10px !important;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: all.$imbiss-orange !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Firefox Fix */
+    scrollbar-width: thin !important;
+    scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05) !important;
+}

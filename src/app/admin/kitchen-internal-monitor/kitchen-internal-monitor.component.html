@@ -1,0 +1,208 @@
+@if (!isMonitorActive()) {
+<div class="overlay">
+	<button (click)="startMonitor()">👨‍🍳 Monitor & Sound aktivieren</button>
+</div>
+}
+
+<div class="kanban-board">
+	<div class="kanban-column new">
+		<h2 class="column-header">🆕 Neu</h2>
+		<div class="column-content">
+			@for (order of adminService.orders(); track order.id) {
+			@if (order.status === 'new') {
+			<ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
+			}
+			}
+		</div>
+	</div>
+
+	<div class="kanban-column preparing">
+		<h2 class="column-header">👨‍🍳 In Arbeit</h2>
+		<div class="column-content">
+			@for (order of adminService.orders(); track order.id) {
+			@if (order.status === 'preparing') {
+			<ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
+			}
+			}
+		</div>
+	</div>
+
+	<div class="kanban-column ready">
+		<h2 class="column-header">✅ Bereit / 🚚 Weg</h2>
+		<div class="column-content">
+			@for (order of adminService.orders(); track order.id) {
+			@if (order.status === 'ready' || order.status === 'delivery') {
+			<ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
+			}
+			}
+		</div>
+	</div>
+</div>
+
+<ng-template #orderCard let-order>
+	<div class="order-card" [class]="order.status">
+		<div class="card-header">
+			<span class="order-id">#{{ order.id.slice(-4) }}</span>
+			<span class="badge" [class]="order.deliveryType">
+				{{ order.deliveryType === 'delivery' ? '🚀 Lieferung' : '🥡 Abholung' }}
+			</span>
+		</div>
+		<h2 class="customer-name">{{ order.customer.name }}</h2>
+		<div class="scheduled-time-badge">
+			📅 Termin: <strong>{{ order.customer.scheduledTime || 'ASAP' }} Uhr</strong>
+		</div>
+		<p class="time">🕒 Eingang: {{ order.createdAt.toDate() | date:'HH:mm' }} Uhr</p>
+		<hr>
+		<ul class="items-list">
+			@for (item of order.items; track $index) {
+			<li>
+				<span class="qty">{{ item.quantity ?? 1 }}x</span>
+				<span class="item-name">{{ item.name }}</span>
+				@if (item.selectedExtras?.length) {
+				<ul class="extras">
+					@for (extra of item.selectedExtras; track $index) {
+					<li>+ {{ extra.name }}</li>
+					}
+				</ul>
+				}
+			</li>
+			}
+		</ul>
+		<div class="card-footer">
+			<div class="price">{{ order.finalTotal | number:'1.2-2' }} €</div>
+			<div class="actions">
+				<button class="print-icon-btn" (click)="printOrder(order)">🖨️</button>
+				<button class="status-btn" [class]="order.status" (click)="nextStep(order.id, order.status)">
+					<span>{{ getStatusLabel(order.status) }}</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</ng-template>
+
+<div id="print-section">
+    @if (selectedOrder(); as order) {
+        <div class="ticket-container print-page">
+            <div class="ticket-header">
+                <h2>RIESEN IMBISS UG</h2>
+                <p>DR.-SCHEIDER-STRASSE 36, 01589 RIESA</p>
+                <p>TELEFON: 03525/6577365</p>
+            </div>
+
+            <div class="separator-stars">****************************</div>
+
+            <div class="order-meta">
+                <strong>BESTELL-BON #{{ order.id.slice(-5).toUpperCase() }}</strong>
+                <p>Eingang: {{ getAsDate(order.createdAt) | date:'dd.MM.yy HH:mm' }} Uhr</p>
+                <p>Kunde: {{ order.customer.name }}</p>
+            </div>
+
+            <div class="ticket-highlight">
+                WUNSCHZEIT: {{ order.customer.scheduledTime || 'SOFORT' }} UHR
+            </div>
+
+            <div class="items-list-print">
+                @for (item of order.items; track $index) {
+                    <div class="item-row">
+                        <div class="item-main">
+                            <span>{{ item.quantity ?? 1 }}x {{ item.name }}</span>
+                            <span>{{ ((item.price || 0) * (item.quantity ?? 1)) | number:'1.2-2' }} €</span>
+                        </div>
+                        @if (item.selectedExtras && item.selectedExtras.length > 0) {
+                            <ul class="ticket-extras">
+                                @for (extra of item.selectedExtras; track $index) {
+                                    <li>+ {{ extra.name }}</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="ticket-total">
+                <span>GESAMT EUR</span>
+                <span>{{ order.finalTotal | number:'1.2-2' }} €</span>
+            </div>
+
+            <div class="footer-info">
+                <div class="separator-stars">****************************</div>
+                <p class="center">VIELEN DANK FÜR IHREN BESUCH</p>
+                <p class="center">STEUER NR.: 209/117/00337</p>
+            </div>
+        </div>
+
+        <div class="ticket-container tax-receipt print-page">
+            <div class="ticket-header">
+                <h2>RIESEN IMBISS UG</h2>
+                <p>RECHNUNGSBELEG (KOPIE)</p>
+            </div>
+
+            <div class="separator-stars">****************************</div>
+
+            <div class="items-list-print">
+                @for (item of order.items; track $index) {
+                    <div class="item-row">
+                        <div class="item-main">
+                            <span>{{ item.quantity ?? 1 }}x {{ item.name }}</span>
+                            <span>{{ ((item.price || 0) * (item.quantity ?? 1)) | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="tax-details">
+                <div class="tax-row">
+                    <span>{{ order.items.length }} Gesamt</span>
+                    <span>{{ order.finalTotal | number:'1.2-2' }}</span>
+                </div>
+                <div class="tax-row small">
+                    <span>Netto MwSt 2</span>
+                    <span>{{ calculateNet(order.finalTotal) | number:'1.2-2' }}</span>
+                </div>
+                <div class="tax-row small">
+                    <span>7% MwSt 2</span>
+                    <span>{{ calculateTax(order.finalTotal) | number:'1.2-2' }}</span>
+                </div>
+                <div class="tax-row small">
+                    <span>Netto</span>
+                    <span>{{ calculateNet(order.finalTotal) | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="ticket-total big-total">
+                <span>Bar €</span>
+                <span>{{ order.finalTotal | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="invoice-meta">
+                <p>Rechnungs Nummer: {{ order.invoiceNumber || 'RE-' + order.id.slice(-4).toUpperCase() }}</p>
+                <p>{{ getAsDate(order.createdAt) | date:'EEEE dd-MM-yyyy HH:mm:ss' }}</p>
+            </div>
+
+            <div class="separator-stars">****************************</div>
+            
+            @if (order.tseData) {
+                <div class="tse-block-final">
+                    <p>Serial#: {{ order.tseData.serial }}</p>
+                    <p>Signatur:</p>
+                    <p class="tse-signature-wrap">{{ formatSignature(order.tseData.signature) }}</p>
+                    <p>Transaktionsnummer: {{ order.tseData.transactionId }}</p>
+                    <p>TSE Start: {{ getAsDate(order.tseData.startDate) | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+                    <p>TSE Ende: {{ getAsDate(order.tseData.endDate) | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+                </div>
+            } @else {
+                <p class="center">TSE-SIGNATUR: {{ order.id.toUpperCase() }}</p>
+            }
+
+            <div class="footer-info">
+                <div class="separator-stars">****************************</div>
+                <p class="center">VIELEN DANK</p>
+            </div>
+        </div>
+    }
+</div>
+
+<footer class="attribution">
+	<p>Sound Effect by <a href="https://pixabay.com/de/users/kakaist-48093450/">kave msri</a> from <a
+			href="https://pixabay.com/">Pixabay</a></p>
+</footer>

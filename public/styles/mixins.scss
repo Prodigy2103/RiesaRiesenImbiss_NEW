@@ -1,0 +1,81 @@
+@use "sass:string";
+
+@mixin marpad($pad: 0, $mar: 0) {
+	padding: $pad;
+	margin: $mar;
+}
+
+@mixin fl($display: flex, $jc: flex-start, $alit: flex-start, $flexdir: row, $gap: 0, $rgap: 0, $cgap: 0, ) {
+	display: $display;
+	justify-content: $jc;
+	align-items: $alit;
+	flex-direction: $flexdir;
+	row-gap: $rgap;
+	column-gap: $cgap;
+	gap: $gap;
+}
+
+@mixin size($w: auto, $h: auto) {
+	width: $w;
+	height: $h;
+}
+
+@mixin absolute($pos: absolute, $top: auto, $left: auto, $bottom: auto, $right: auto) {
+	position: $pos;
+	top: $top;
+	left: $left;
+	bottom: $bottom;
+	right: $right;
+}
+
+@mixin borRad($c: white, $radius: 1.6rem, $thick: 1px, $design: solid) {
+	border: $thick $design $c;
+	border-radius: $radius;
+}
+
+@mixin text-style($align: center, $case: uppercase, $deco: none, $spacing: auto) {
+    text-align: $align;
+    text-transform: $case;
+    text-decoration: $deco;
+	letter-spacing: $spacing;
+}
+
+@mixin limiter() {
+	display: inline-block;
+	max-width: 100%;
+	white-space: nowrap;
+	word-wrap: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@mixin scrollbar() {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+
+@mixin bg-setup($bg-size: contain, $bg-pos: center, $bg-repeat: no-repeat) {
+	background-position: $bg-pos;
+	background-repeat: $bg-repeat;
+	background-size: $bg-size;
+}
+
+// Gemeinsames Mixin für den futuristischen Glanz-Effekt
+@mixin cyber-button {
+    border: none;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    &:active {
+        transform: scale(0.95);
+    }
+}

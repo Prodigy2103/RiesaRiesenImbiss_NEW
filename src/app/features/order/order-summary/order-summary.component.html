@@ -1,0 +1,125 @@
+<div id="orderflow-summary">
+    <div class="step-header">
+        <app-neon-button variant="primary" (click)="order.back()">←</app-neon-button>
+        <h2>Zusammenfassung</h2>
+    </div>
+
+    <div class="summary-container">
+        <div class="summary-list">
+            @for (item of order.items(); track (item.id + $index)) {
+            <div class="summary-row">
+                <div class="item-info">
+                    <div class="main-item-line">
+                        <span class="qty animate-pop">{{ item.quantity }}x</span>
+                        <span class="name">{{ item.name }}</span>
+                    </div>
+
+                    @if (item.selectedExtras && item.selectedExtras.length > 0) {
+                    <div class="item-extras-inline">
+                        @for (extra of item.selectedExtras; track extra.id) {
+                        <span class="extra-badge">+ {{ extra.name }}</span>
+                        }
+                    </div>
+                    }
+                </div>
+
+                <div class="item-controls">
+                    <app-neon-button variant="primary" (click)="order.decrementQuantity($index)">-</app-neon-button>
+                    <span class="item-price">{{ (item.price * item.quantity) | number:'1.2-2' }} €</span>
+                    <app-neon-button variant="primary" (click)="order.incrementQuantity($index)">+</app-neon-button>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="extras-local">
+            <div class="customer-btn">
+                <div class="customer-form">
+                    <div class="input-group">
+                        <label>Name</label>
+                        <input type="text" [ngModel]="customer().name"
+                            (ngModelChange)="updateCustomerField('name', $event)"
+                            [style.color]="customer().name ? 'white' : 'rgba(255,255,255,0.4)'"
+                            placeholder="Dein Name" />
+                    </div>
+
+                    @if (order.deliveryType() === 'delivery') {
+                    <div class="input-group">
+                        <label>Adresse</label>
+                        <input type="text" [ngModel]="customer().address"
+                            (ngModelChange)="updateCustomerField('address', $event)"
+                            [style.color]="customer().address ? 'white' : 'rgba(255,255,255,0.4)'"
+                            placeholder="Straße, Hausnummer, PLZ" />
+                    </div>
+                    }
+
+                    <div class="input-group">
+                        <label>Telefon</label>
+                        <input type="tel" [ngModel]="customer().phone"
+                            (ngModelChange)="updateCustomerField('phone', $event)"
+                            [style.color]="customer().phone ? 'white' : 'rgba(255,255,255,0.4)'"
+                            placeholder="Für Rückfragen" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-bar">
+            <p>Zwischensumme: {{ order.total() | number:'1.2-2' }} €</p>
+
+            @if (order.deliveryType() === 'delivery') {
+            <div class="zip-input-group">
+                <label for="zipCode">Liefer-PLZ</label>
+                <input id="zipCode" type="text" class="neon-input" [value]="order.zipCode()"
+                    (input)="onZipInput($event)" placeholder="00000" maxlength="5">
+            </div>
+
+            <div class="status-alerts mt-2">
+                @if (order.zipCode().length === 5) {
+                @if (!order.isAreaSupported()) {
+                <div class="alert alert-danger">Wir liefern leider nicht nach {{ order.zipCode() }}.</div>
+                } @else if (!order.isMovReached()) {
+                <div class="alert alert-warning">
+                    Noch <strong>{{ order.missingAmount() | number:'1.2-2' }} €</strong> bis zum Minimum.
+                </div>
+                } @else {
+                <div class="alert alert-success">Mindestbestellwert erreicht! ✅</div>
+                }
+                } @else {
+                <div class="alert alert-info">Bitte geben Sie eine gültige PLZ ein.</div>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="delivery-toggle">
+            <div class="input-group scheduled-time-group">
+                <label>
+                    {{ order.deliveryType() === 'delivery' ? 'Gewünschte Lieferzeit' : 'Abholzeit' }}
+                </label>
+                <div class="time-picker-wrapper">
+                    <input type="time" [ngModel]="customer().scheduledTime"
+                        (ngModelChange)="updateCustomerField('scheduledTime', $event)" class="neon-input"
+                        [min]="minTime()" />
+                    <span class="time-hint">Standard: Schnellstmöglich</span>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <app-neon-button [class.active]="order.deliveryType() === 'pickup'" (click)="setMode('pickup')">
+                    Abholung
+                </app-neon-button>
+                <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
+                    Lieferung
+                </app-neon-button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <app-neon-button variant="primary" [disabled]="isOrderInvalid()"
+                (click)="submitOrder()">
+                Jetzt zahlungspflichtig bestellen
+            </app-neon-button>
+        </div>
+    </div>
+</div>

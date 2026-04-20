@@ -1,0 +1,10 @@
+# RiesaRiesenImbiss Robots.txt
+User-agent: *
+Allow: /
+
+# Verhindert das Crawlen von sensiblen Pfaden (falls vorhanden)
+Disallow: /admin/
+Disallow: /kitchen-monitor/
+
+# Link zur Sitemap (sobald du eine generierst)
+# Sitemap: https://riesenimbiss.marcus-guehne.com/sitemap.xml

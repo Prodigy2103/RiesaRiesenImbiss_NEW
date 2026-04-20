@@ -1,0 +1,29 @@
+@keyframes scanline {
+	from {
+		transform: translateY(-100%);
+	}
+
+	to {
+		transform: translateY(100vh);
+	}
+}
+
+@keyframes neonFlicker {
+
+	0%,
+	19%,
+	21%,
+	23%,
+	25%,
+	54%,
+	56%,
+	100% {
+		text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 42px #e8892a;
+	}
+
+	20%,
+	24%,
+	55% {
+		text-shadow: none;
+	}
+}

@@ -1,0 +1,7 @@
+RewriteEngine On
+# Wenn die angeforderte Ressource keine vorhandene Datei ist...
+RewriteCond %{REQUEST_FILENAME} !-f
+# ...und auch kein vorhandenes Verzeichnis ist...
+RewriteCond %{REQUEST_FILENAME} !-d
+# ...dann leite alles an die index.html weiter.
+RewriteRule . /index.html [L]

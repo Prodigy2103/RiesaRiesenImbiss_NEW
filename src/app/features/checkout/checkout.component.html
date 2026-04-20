@@ -1,0 +1,99 @@
+<div class="checkout-container">
+
+	<div class="success-header">
+		<div class="check-icon">✓</div>
+		<h1>Vielen Dank für deine Bestellung!</h1>
+		<p>Deine Bestellung wird gerade frisch zubereitet.</p>
+	</div>
+
+	<div class="status-stepper">
+		@for (step of statusSteps(); track step.id) {
+		<div class="step" [class.active]="currentStatus() === step.id" [class.completed]="currentStatus() > step.id">
+
+			<div class="step-icon">
+				<i [class]="step.icon"></i>
+			</div>
+
+			<div class="step-label">{{ step.label }}</div>
+
+			@if (!$last) {
+			<div class="step-line"></div>
+			}
+		</div>
+		}
+	</div>
+
+	<div class="info-grid">
+
+		<div class="info-card">
+			<h3>Lieferdetails</h3>
+
+			<p class="customer-info"><strong>Name:</strong> {{ order.customer().name }}</p>
+
+			@if (order.deliveryType() === 'delivery') {
+			<p class="customer-info"><strong>Adresse:</strong> {{ order.customer().address }}</p>
+			} @else {
+			<p><strong>Typ:</strong> Selbstabholung</p>
+			}
+
+			<p class="customer-info"><strong>Telefon:</strong> {{ order.customer().phone }}</p>
+
+			<div class="time-highlight" style="margin-top: 20px;">
+				<p>
+					<span>
+						{{ order.deliveryType() === 'delivery'
+						? 'Voraussichtliche Lieferung'
+						: 'Voraussichtliche Abholung' }}
+					</span><br>
+					<strong>{{ estimatedTime() }} Uhr</strong>
+				</p>
+			</div>
+		</div>
+
+		<div class="info-card">
+			<h3>DEINE BESTELLUNG</h3>
+
+			@if (order.summary(); as data) {
+			<div class="order-items">
+				@for (item of data.items; track $index) {
+				<div class="line-item" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+					<span>{{ item.quantity }}x {{ item.name }}</span>
+					<span>{{ (item.price * item.quantity) | number:'1.2-2' }} €</span>
+				</div>
+
+				@for (extra of item.selectedExtras; track $index) {
+				<div class="extra-item" style="font-size: 0.85em; color: #aaa; padding-left: 15px;">
+					+ {{ extra.name }} ({{ extra.price | number:'1.2-2' }} €)
+				</div>
+				}
+				}
+			</div>
+
+			<hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+
+			<div class="total-summary">
+				<div class="row" style="display: flex; justify-content: space-between; color: #ffa500;">
+					<span>Zwischensumme</span>
+					<span>{{ data.total | number:'1.2-2' }} €</span>
+				</div>
+
+				<div class="row final"
+					style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em; margin-top: 10px;">
+					<span style="color: #ffa500;">Gesamtbetrag</span>
+					<span style="color: #ffa500;">{{ data.finalTotal | number:'1.2-2' }} €</span>
+				</div>
+			</div>
+			} @else {
+			<p style="color: #888; text-align: center;">Keine Bestelldaten verfügbar.</p>
+			}
+		</div>
+
+	</div>
+
+	<div class="checkout-footer">
+		<button class="btn-new-order" (click)="newOrder()">
+			Neue Bestellung aufgeben
+		</button>
+	</div>
+
+</div>
