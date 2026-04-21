@@ -28,7 +28,6 @@ export class AdminService {
     }
 
     private processSnapshot(snapshot: QuerySnapshot<Order>): void {
-        // Fix: 'id' Überschreibung verhindern durch explizite Zuweisung
         const updated = snapshot.docs.map(d => ({
             ...d.data(),
             id: d.id

@@ -1,13 +1,10 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { OrderItem, CustomerData } from '../modals/order.model';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { OrderItem, CustomerData, Order } from '../modals/order.model';
+import { collection, doc, Firestore, getDocs, query, where, writeBatch } from '@angular/fire/firestore';
 
 export type OrderStep = 1 | 2 | 3;
 export type DeliveryType = 'delivery' | 'pickup';
 
-/**
- * Interface für den Abschluss der Bestellung.
- * Entspricht exakt dem, was DataService.sendOrder erwartet.
- */
 export interface OrderSummary {
     id?: string;
     customer: CustomerData;
@@ -23,10 +20,11 @@ export interface CartItem extends OrderItem {
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
+    private readonly firestore = inject(Firestore);
+
     private readonly CUSTOMER_KEY = 'imbiss_customer';
     private readonly SUMMARY_KEY = 'last_order_summary';
 
-    // --- 1. STATES ---
     step = signal<OrderStep>(1);
     category = signal<string | null>(null);
     deliveryType = signal<DeliveryType>('delivery');
@@ -37,7 +35,6 @@ export class OrderService {
     customer = signal<CustomerData>(this.getInitialCustomer());
     summary = signal<OrderSummary | null>(this.getSavedSummary());
 
-    // --- 2. COMPUTED ---
     totalItemsCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
     total = computed(() => this.calculateFullTotal());
     finalTotal = computed(() => this.total());
@@ -48,14 +45,13 @@ export class OrderService {
     isMovReached = computed(() => this.isAreaSupported() && this.total() >= this.minOrderValue());
     missingAmount = computed(() => Math.max(0, this.minOrderValue() - this.total()));
 
-    // --- 3. WARENKORB LOGIK ---
     addItem(item: OrderItem): void {
         const currentExtras = [...this.extras()];
         this.items.update(list => {
-            const match = list.find(i => i.id === item.id && 
+            const match = list.find(i => i.id === item.id &&
                 JSON.stringify(i.selectedExtras) === JSON.stringify(currentExtras));
-            
-            return match 
+
+            return match
                 ? list.map(it => it === match ? { ...it, quantity: it.quantity + 1 } : it)
                 : [...list, { ...item, quantity: 1, selectedExtras: currentExtras }];
         });
@@ -81,7 +77,6 @@ export class OrderService {
 
     resetExtras(): void { this.extras.set([]); }
 
-    // --- 4. NAVIGATION & PERSISTENCE ---
     complete(data: CustomerData): void {
         const snapshot: OrderSummary = {
             customer: { ...data },
@@ -127,5 +122,57 @@ export class OrderService {
             const eSum = (item.selectedExtras || []).reduce((s, e) => s + e.price, 0);
             return sum + (item.price + eSum) * item.quantity;
         }, 0);
+    }
+
+    async archiveOrder(order: Order): Promise<void> {
+        if (!order.id) return;
+
+        const batch = writeBatch(this.firestore);
+        const archiveRef = doc(this.firestore, `archivedOrders/${order.id}`);
+        const activeRef = doc(this.firestore, `orders/${order.id}`);
+
+        batch.set(archiveRef, {
+            ...order,
+            archivedAt: new Date(),
+            createdAt: order.createdAt || new Date()
+        });
+        batch.delete(activeRef);
+
+        try {
+            await batch.commit();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getArchivedOrders(dateStr: string): Promise<Order[]> {
+        const archiveRef = collection(this.firestore, 'archivedOrders');
+
+        const start = new Date(dateStr + 'T00:00:00');
+        const end = new Date(dateStr + 'T23:59:59');
+
+        const q = query(archiveRef,
+            where('createdAt', '>=', start),
+            where('createdAt', '<=', end)
+        );
+
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+    }
+
+    async getArchiveRange(endDate: string): Promise<Order[]> {
+        const start = new Date(endDate + 'T00:00:00');
+        start.setDate(start.getDate() - 7);
+
+        const end = new Date(endDate + 'T23:59:59');
+
+        const q = query(
+            collection(this.firestore, 'archivedOrders'),
+            where('createdAt', '>=', start),
+            where('createdAt', '<=', end)
+        );
+
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
     }
 }

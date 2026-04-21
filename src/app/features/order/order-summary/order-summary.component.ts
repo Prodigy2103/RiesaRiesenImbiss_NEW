@@ -12,7 +12,7 @@ import { DataService } from '../../../shared/services/data.services';
   imports: [NeonButtonComponent, FormsModule, DecimalPipe],
   templateUrl: './order-summary.component.html',
   styleUrl: './order-summary.component.scss',
-  host: { 'id': 'orderflow-summary' } // ID korrigiert für SCSS
+  host: { 'id': 'orderflow-summary' }
 })
 export class OrderSummaryComponent implements OnInit {
   public order = inject(OrderService);
@@ -24,7 +24,6 @@ export class OrderSummaryComponent implements OnInit {
   public minTime = signal('');
   public customer = signal({ name: '', address: '', phone: '', scheduledTime: '' });
 
-  // Angular 19 Computed Signal für Validierung (Sauber & Performant)
   public isOrderInvalid = computed(() => {
     const c = this.customer();
     const basic = c.name.trim().length > 0 && c.phone.trim().length > 5 && !!c.scheduledTime;

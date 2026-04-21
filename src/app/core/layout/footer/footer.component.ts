@@ -45,7 +45,7 @@ export class FooterComponent {
     {
       title: 'Cyber-Cook',
       urgent: true,
-      description: 'Verantwortlich für die Hochgeschwindigkeits-Burger-Produktion.',
+      description: 'Derzeit kein Jobangebot.',
       tasks: ['Zubereitung von Riesen-Burgern', 'Qualitätskontrolle der Saucen', 'Terminal-Pflege']
     },
     {

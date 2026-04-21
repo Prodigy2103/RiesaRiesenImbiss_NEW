@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Firestore, collection, getDocs, query, orderBy, addDoc, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, collection, getDocs, query, orderBy, addDoc, serverTimestamp, where, Timestamp } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { from, map } from 'rxjs';
 import { OrderItem, Category, IngredientDetail, Order } from '../modals/order.model';
@@ -29,12 +29,11 @@ export class DataService {
         from(getDocs(query(collection(this.fire, 'categories'), orderBy('order', 'asc')))).pipe(
             map(snap => snap.docs.map(doc => {
                 const data = doc.data() as Category;
-                // Wir erstellen ein Objekt, das alle Felder von Category erfüllt
                 const category: Category = {
                     ...data,
                     id: doc.id,
                     key: data.key || doc.id,
-                    order: Number(data.order || 0) // Hier garantieren wir eine Zahl
+                    order: Number(data.order || 0)
                 };
                 return category;
             }))
@@ -57,13 +56,8 @@ export class DataService {
         };
     }
 
-    /**
-     * Sendet eine neue Bestellung an Firestore.
-     * Typsicher: Erwartet nur die Daten, die vom User kommen.
-     */
     async sendOrder(orderData: Omit<Order, 'id' | 'createdAt' | 'status'>): Promise<string> {
         try {
-            // 1. Sicherstellen, dass keine Signals oder Funktionen im Objekt sind
             const cleanData = JSON.parse(JSON.stringify(orderData));
 
             const docRef = await addDoc(collection(this.fire, 'orders'), {
@@ -76,6 +70,29 @@ export class DataService {
         } catch (error) {
             throw error;
         }
+    }
+
+    public async getOrdersByDate(date: Date): Promise<Order[]> {
+        const range = this.calculateDayRange(date);
+        const q = query(
+            collection(this.fire, 'orders'),
+            where('createdAt', '>=', range.start),
+            where('createdAt', '<=', range.end),
+            orderBy('createdAt', 'desc')
+        );
+        const snap = await getDocs(q);
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+    }
+
+    private calculateDayRange(date: Date) {
+        const start = new Date(date);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(date);
+        end.setHours(23, 59, 59, 999);
+        return {
+            start: Timestamp.fromDate(start),
+            end: Timestamp.fromDate(end)
+        };
     }
 
     getIngredient(id: number | string): IngredientDetail | undefined {

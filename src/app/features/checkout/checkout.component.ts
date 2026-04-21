@@ -21,18 +21,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private readonly statusMap: Record<string, number> = {
     'new': 1,
     'preparing': 2,
-    // Beide Stati sollen den dritten Punkt im Stepper beleuchten
     'ready': 3,
     'delivery': 3,
-    // 'completed' (oder 'done') setzt den Status auf 4, 
-    // wodurch alle 3 Steps die Klasse .completed erhalten
     'completed': 4,
     'done': 4
   };
 
   public currentStatus = signal<number>(1);
 
-  // 1. Estimated Time als computed Signal (fixt den Template-Fehler)
   public readonly estimatedTime = computed(() => {
     const summary = this.order.summary();
     return summary?.customer?.scheduledTime || this.calculateDefaultTime();
@@ -53,7 +49,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private listenToOrderStatus(): void {
-    // Wir holen die ID direkt aus dem Service-Signal
     const orderId = this.order.summary()?.id;
 
     if (!orderId) {
@@ -78,7 +73,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.orderSub?.unsubscribe(); // Sauber abmelden
+    this.orderSub?.unsubscribe();
   }
 
   public newOrder(): void {

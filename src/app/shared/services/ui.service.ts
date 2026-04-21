@@ -27,8 +27,6 @@ export class UiService {
 
 	openContact(data: Job | News | Contact | null) {
 		if (!data) return;
-
-		// Wir mappen die Daten auf ein Contact-Objekt
 		const contactData: Contact = {
 			title: 'title' in data ? data.title : 'Allgemeine Anfrage'
 		};

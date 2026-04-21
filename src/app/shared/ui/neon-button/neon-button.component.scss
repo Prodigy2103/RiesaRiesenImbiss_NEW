@@ -1,17 +1,17 @@
 @use '../../../../../public/styles/all_styles.scss' as all;
 
 :host {
-    display: inline-block; // Erlaubt dem Button, sich wie ein Element zu verhalten
-    width: auto;           // Standardmäßig nur so breit wie nötig
+    display: inline-block;
+    width: auto;
     vertical-align: middle;
 }
 
 .neon-btn {
     position: relative;
-    display: flex;         // Von inline-flex auf flex gewechselt
+    display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;        // DAS sorgt für die Zentrierung im Host
+    margin: 0 auto;
     padding: 0.7rem 1.6rem;
     border: none;
     border-radius: 0.6rem;
@@ -19,10 +19,10 @@
     overflow: hidden;
     font: 700 1rem 'Orbitron', sans-serif;
     transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
-    width: 100%;           // Füllt den Host (oder das max-width des Parents) aus
+    width: 100%;
 
     @include all.mobile {
-        padding: 0.6rem 1rem; // Etwas mehr Fleisch als nur 0.4rem für bessere Klickbarkeit
+        padding: 0.6rem 1rem;
     }
 
     &:active {

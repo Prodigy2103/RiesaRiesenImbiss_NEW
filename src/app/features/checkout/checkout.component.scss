@@ -1,174 +1,174 @@
 @use '../../../../public/styles/all_styles.scss' as all;
 
 .checkout-container {
-	width: 90%;
-	max-width: 1000px;
-	height: 85dvh;
-	margin: 1.5rem auto;
-	padding: 35px;
-	border-radius: 30px;
-	background: rgba(18, 22, 27, 0.85);
-	backdrop-filter: blur(25px);
-	border: 1px solid rgba(255, 255, 255, 0.05);
-	box-shadow: 0 0 40px rgba(217, 131, 36, 0.2);
-	overflow-y: auto;
+    @include all.size($w: 100%, $h: 85dvh);
+    @include all.marpad($pad: 1rem, $mar: 1.5rem auto);
+    max-width: 80dvw;
+    border-radius: 1rem;
+    background: rgb(122, 118, 112);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 40px rgba(all.$imbiss-orange, 0.2);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    box-sizing: border-box;
 
-	overflow-y: auto;
-	overflow-x: hidden;
-	scrollbar-width: none; // Firefox
-	-ms-overflow-style: none; // IE/Edge
+    &::-webkit-scrollbar {
+        display: none;
+    }
 
-	padding: 0 1rem; // Symmetrisches Padding verhindert "Leere rechts"
-	box-sizing: border-box;
-	width: 100%;
+    @include all.tablet {
+        @include all.marpad($pad: 0.5rem, $mar: 1rem auto);
+        @include all.size($w: 100dvw, $h: 77dvh);
+    }
 
-	&::-webkit-scrollbar {
-		display: none; // Chrome/Safari
-		width: 0;
-		height: 0;
-	}
-
-	@include all.mobile {
-		width: 95%;
-		padding: 20px;
-		margin: 1rem auto;
-		height: 77dvh;
-	}
+    span, p, .extra-item {
+        color: all.$imbiss-card-dark;
+    }
 }
 
 .status-stepper {
-	@include all.fl($jc: space-between);
-	margin: 40px 0;
-	position: relative;
+    @include all.fl($jc: space-between);
+    margin: 2.5rem 0;
+    position: relative;
 
-	.step {
-		flex: 1;
-		@include all.fl($flexdir: column, $alit: center);
-		position: relative;
-		z-index: 2;
+    .step {
+        flex: 1;
+        @include all.fl($flexdir: column, $alit: center);
+        position: relative;
+        z-index: 2;
 
-		.step-icon {
-			width: 45px;
-			height: 45px;
-			background: #1c252f;
-			border: 2px solid rgba(255, 255, 255, 0.1);
-			border-radius: 50%;
-			@include all.fl($jc: center, $alit: center);
-			transition: all 0.4s ease;
-			color: rgba(255, 255, 255, 0.3);
+        .step-icon {
+            @include all.size($w: 2.5rem, $h: 2.5rem);
+            background: #1c252f;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            @include all.fl($jc: center, $alit: center);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.3);
 
-			@include all.mobile {
-				width: 35px;
-				height: 35px;
-				font-size: 0.9rem;
-			}
-		}
+            @include all.mobile {
+                @include all.size($w: 2.1rem, $h: 2.1rem);
+                font-size: 1rem;
+            }
+        }
 
-		.step-label {
-			margin-top: 10px;
-			font: 700 0.75rem 'Orbitron', sans-serif;
-			color: rgba(255, 255, 255, 0.4);
-			text-align: center;
+        .step-label {
+            margin-top: 1rem;
+            font: 700 1rem 'Orbitron', sans-serif;
+            color: all.$imbiss-card-dark;
+            text-align: center;
+            transition: color 0.3s ease;
 
-			@include all.mobile {
-				font-size: 0.6rem;
-			}
-		}
+            @include all.mobile {
+                font-size: 0.75rem;
+            }
+        }
 
-		.step-line {
-			position: absolute;
-			top: 22px;
-			left: 50%;
-			width: 100%;
-			height: 2px;
-			background: rgba(255, 255, 255, 0.1);
-			z-index: -1;
+        .step-line {
+            @include all.size($w: 100%, $h: 0.15rem);
+            @include all.absolute($top: 1.6rem, $left: 22%);
+            background: rgba(255, 255, 255, 0.1);
+            z-index: -1;
+            transition: background 0.4s ease;
 
-			@include all.mobile {
-				top: 17px;
-			}
-		}
+            @include all.mobile {
+                top: 17px;
+            }
+        }
 
-		&.active .step-icon {
-			border-color: all.$imbiss-orange;
-			color: all.$imbiss-orange;
-			box-shadow: 0 0 15px rgba(all.$imbiss-orange, 0.4);
-		}
+        &.active {
+            .step-icon {
+                background: all.$imbiss-orange;
+                border-color: all.$imbiss-orange;
+                color: #fff;
+                box-shadow: 0 0 0.8rem rgba(all.$imbiss-orange, 0.5);
+                transform: scale(1.1);
+            }
 
-		&.completed {
-			.step-icon {
-				background: all.$imbiss-orange;
-				color: #fff;
-			}
+            .step-label {
+                color: all.$imbiss-orange;
+            }
+        }
 
-			.step-line {
-				background: all.$imbiss-orange;
-			}
-		}
-	}
+        &.completed {
+            .step-icon {
+                background: all.$imbiss-orange;
+                color: #fff;
+                border-color: all.$imbiss-orange;
+            }
+
+            .step-line {
+                background: all.$imbiss-orange;
+            }
+
+            .step-label {
+                color: all.$imbiss-card-dark;
+                opacity: 0.8;
+            }
+        }
+    }
 }
 
 .info-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
 
-	@include all.tablet {
-		grid-template-columns: 1fr;
-	}
+    @include all.tablet {
+        grid-template-columns: 1fr;
+    }
 }
 
 .info-card {
-	background: rgba(255, 255, 255, 0.03);
-	padding: 20px;
-	border-radius: 18px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.5rem;
+    border-radius: 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 
-	h3 {
-		color: all.$imbiss-orange;
-		margin-bottom: 15px;
-		font: 400 1rem 'Orbitron', sans-serif;
-		text-transform: uppercase;
-	}
+    h3 {
+        color: all.$imbiss-orange;
+        margin-bottom: 15px;
+        font: 400 1rem 'Orbitron', sans-serif;
+        text-transform: uppercase;
+    }
 
-	.order-items {
-		height: 20dvh;
-		overflow-y: auto;
-		scrollbar-width: none;
+    .order-items {
+        height: 20dvh;
+        overflow-y: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
+    }
 
-		&::-webkit-scrollbar {
-			display: none;
-		}
-	}
+    .customer-info {
+        @include all.fl($jc: space-between);
+        padding: 0 2%;
+        margin-bottom: 8px;
 
-	.customer-info {
-		@include all.fl($jc: space-between);
-		padding: 0 5%;
-
-		@include all.mobile {
-			flex-direction: column;
-			gap: 0.5rem;
-		}
-	}
+        @include all.mobile {
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+    }
 }
 
 .total-row.final {
-	margin-top: 15px;
-	padding-top: 10px;
-	border-top: 2px solid all.$imbiss-orange;
-	font: 700 1.3rem 'Orbitron', sans-serif;
-	color: all.$imbiss-orange;
-	@include all.fl($jc: space-between);
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 2px solid all.$imbiss-orange;
+    font: 700 1.3rem 'Orbitron', sans-serif;
+    color: all.$imbiss-orange;
+    @include all.fl($jc: space-between);
 }
 
 .success-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
 
     .check-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 15px;
+        @include all.size($w: 7rem, $h: 7rem);
+        margin: 0.5rem auto 1rem;
         border-radius: 50%;
         border: 3px solid #00ff66;
         color: #00ff66;
@@ -177,42 +177,41 @@
         box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
 
         @include all.mobile {
-            width: 60px;
-            height: 60px;
-            font-size: 1.8rem;
+            @include all.size($w: 5rem, $h: 5rem);
+            font-size: 1.6rem;
         }
     }
-}
-/* #endregion */
 
-/* #region Actions */
+    h1 {
+        font-size: clamp(1.5rem, 2.5dvw, 3rem);
+    }
+}
+
 .btn-new-order {
     display: block;
-    margin: 15px auto;
-    padding: 15px 30px;
+    margin: 2.5rem auto 0.8rem;
+    padding: 1rem 2.5rem;
     background: transparent;
     border: 2px solid all.$imbiss-orange;
-    color: all.$white;
-    border-radius: 15px;
+    color: #fff;
+    border-radius: 1rem;
     font: 700 1rem 'Orbitron', sans-serif;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
 
     &:hover {
         background: all.$imbiss-orange;
-        box-shadow: 0 0 20px rgba(all.$imbiss-orange, 0.4);
-        transform: translateY(-2px);
+        box-shadow: 0 0 25px rgba(all.$imbiss-orange, 0.5);
+        transform: translateY(-3px);
     }
 
     &:active {
-        transform: scale(0.98);
+        transform: scale(0.96);
     }
 
     @include all.mobile {
         width: 100%;
         padding: 12px 20px;
-        font-size: 0.9rem;
     }
 }
-/* #endregion */

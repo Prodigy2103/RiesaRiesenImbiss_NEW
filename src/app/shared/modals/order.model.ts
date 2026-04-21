@@ -24,9 +24,9 @@ export interface OrderItem {
     name: string;
     category: string;
     price: number;
+    amount: number;
     imgPath?: string;
     quantity?: number;
-    // KORREKTUR: Hier müssen Objekte erlaubt sein, damit CartItem kompatibel ist
     ingredients?: (string | number)[]; 
     selectedExtras?: OrderItem[]; 
 }
@@ -54,16 +54,14 @@ export interface Order {
     status: OrderStatus;
     customer: CustomerData;
     items: OrderItem[];
+    total: number;
     finalTotal: number;
     deliveryType: 'delivery' | 'pickup';
     createdAt: Timestamp; 
     notes?: string;
+    orderNumber?: string;
+    invoiceNumber?: string; 
     
-    // --- Neue Felder für den Kassenbon ---
-    orderNumber?: string;       // z.B. #FQgC
-    invoiceNumber?: string;     // Rechnungsnummer für das Finanzamt
-    
-    // Fiskaldaten (TSE)
     tseData?: {
         serial: string;
         signature: string;
@@ -71,9 +69,9 @@ export interface Order {
         processData: string;
         processType: string;
         signatureCounter: number;
-        startDate: string;      // Oder Timestamp
-        endDate: string;        // Oder Timestamp
+        startDate: string;
+        endDate: string;
     };
     
-    qrCodeData?: string;        // Der String für den fiskalischen QR-Code
+    qrCodeData?: string; 
 }

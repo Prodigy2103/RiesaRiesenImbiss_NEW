@@ -48,14 +48,6 @@ export class HeroThreeComponent implements OnInit {
   }
 
   /**
-   * Handles mouse entry into the hero area.
-   * Why: Placeholder for future visual "lift" or hover effects.
-   */
-  onMouseEnter() {
-    // Logic can be added here if a hover-start effect is needed
-  }
-
-  /**
    * Calculates rotation and shine targets based on mouse position.
    * @param e The mouse movement event.
    */

@@ -62,7 +62,7 @@
 				</div>
 
 				@for (extra of item.selectedExtras; track $index) {
-				<div class="extra-item" style="font-size: 0.85em; color: #aaa; padding-left: 15px;">
+				<div class="extra-item" style="font-size: 0.85em; padding-left: 15px;">
 					+ {{ extra.name }} ({{ extra.price | number:'1.2-2' }} €)
 				</div>
 				}

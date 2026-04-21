@@ -67,17 +67,13 @@ export class OrderFlowComponent {
   getIngredientName(idOrObj: string | number | IngredientDetail | null | undefined): string {
     if (!idOrObj) return '';
 
-    // Fall: Es ist eine ID (String oder Number)
     if (typeof idOrObj === 'string' || typeof idOrObj === 'number') {
         const found = this.dataService.getIngredient(idOrObj.toString());
         return found ? (found.detail || found.name) : idOrObj.toString();
     }
-
-    // Fall: Es ist bereits ein Objekt vom Typ IngredientDetail
     return idOrObj.name || 'Unbekannt';
 }
 
-  // Hilfsmethode für das Klick-Event (String-Array für die Info-Karte)
   public getSafeIdArray(data: (string | number)[] | undefined): string[] {
   if (!data || !Array.isArray(data)) return [];
   
@@ -85,7 +81,7 @@ export class OrderFlowComponent {
 }
 
   someFunction(item: OrderItem) {
-    console.log(item.name);
+    (item.name);
   }
 
   handleDescriptionClick(category: Category, event: Event): void {
@@ -136,7 +132,6 @@ export class OrderFlowComponent {
     return typeof val === 'string';
 }
 
-  // Konvertiert das Array sicher für die showAllIngredients Funktion
   public getAsStringArray(data: (string | OrderItem)[] | undefined): string[] {
     if (!data) return [];
     return data.filter((item): item is string => typeof item === 'string');

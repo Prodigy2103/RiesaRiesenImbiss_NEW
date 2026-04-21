@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { OrderArchiveComponent } from './shared/order-archive/order-archive.component';
 
 export const routes: Routes = [
 	{
@@ -24,6 +25,13 @@ export const routes: Routes = [
 		loadComponent: () => import('./admin/kitchen-internal-monitor/kitchen-internal-monitor.component')
 			.then(m => m.KitchenInternalMonitorComponent)
 	},
+
+	{
+        path: 'riesa-admin-archive',
+        // Prüfe hier den Pfad: ist es './shared/order-archive/...'?
+        loadComponent: () => import('./shared/order-archive/order-archive.component')
+            .then(m => m.OrderArchiveComponent)
+    },
 	// Sicherheitsnetz: Unbekannte Pfade leiten zur Startseite
 	{
 		path: '**',

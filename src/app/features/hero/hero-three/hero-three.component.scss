@@ -1,29 +1,24 @@
 @use '../../../../../public/styles/all_styles.scss' as all;
 
-// 1. HOST-EBENE: Der Anker für das Scrollen
 :host {
     display: block;
-    width: 100%;
-    min-height: 100dvh; // Mindestens Bildschirmhöhe
-    height: auto; // Erlaubt Wachstum, wenn Content länger ist
+    @include all.size($w: 100%);
+    min-height: 100dvh;
     overflow-x: hidden;
-    overflow-y: auto; // Hier lebt der Scrollbalken
+    overflow-y: auto;
 
     @media (min-width: 1025px) {
-        height: 100dvh; // Auf Desktop bleibt es ein festes Fenster
+        height: 100dvh;
         overflow: hidden;
     }
 }
 
-// 2. MAIN SECTION
 .hero {
     position: relative;
     width: 100%;
+    height: 100%;
     min-height: 80dvh;
-    height: 100%; // Füllt den Host auf Desktop
-
     display: grid;
-    // Desktop: 2 Spalten | Tablet/Mobile: 1 Spalte
     grid-template-columns: 1fr 1fr;
     align-items: center;
     padding: 0 10%;
@@ -31,14 +26,12 @@
     background: linear-gradient(135deg, all.$imbiss-bg-light 0%, #e8ddd0 100%);
     z-index: 1;
 
-    // @include all.notebook 
     @media (max-width: 1400px) {
         grid-template-columns: 1fr;
-        height: auto; // Wichtig: Fixierung lösen
         padding: 1rem;
         gap: 0;
         height: 90dvh;
-        justify-items: center; // Zentriert die Grid-Items horizontal
+        justify-items: center;
 
         @include all.tablet {
             padding: 0;
@@ -46,7 +39,6 @@
         }
     }
 
-    /* -- HINTERGRUND -- */
     .hero-bg {
         position: absolute;
         inset: 0;
@@ -65,17 +57,16 @@
         }
     }
 
-    /* -- CONTENT (TEXT-BEREICH) -- */
     .hero-content {
         position: relative;
         z-index: 2;
         display: flex;
         flex-direction: column;
         gap: 1.8rem;
-        height: auto; // Verhindert das Rausfallen bei Mobile
+        height: auto;
 
-        @media (max-width: 1200px) {
-            order: 2; // Text nach unten
+        @media (max-width: 1400px) {
+            order: 2;
             justify-content: center;
             align-items: center;
             text-align: center;
@@ -95,7 +86,7 @@
             background: rgba(all.$imbiss-orange, 0.12);
             border: 1px solid rgba(all.$imbiss-orange, 0.35);
             border-radius: 2rem;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             color: all.$imbiss-dark-orange;
             width: fit-content;
@@ -111,7 +102,7 @@
             display: flex;
             flex-direction: column;
             line-height: 1.1;
-            margin: 0;
+            margin: 0 0 2rem 0;
 
             .line-top,
             .line-mid,
@@ -119,8 +110,7 @@
                 width: 100%;
                 color: all.$text-main;
                 font-family: 'Orbitron Medium', sans-serif;
-                // Dynamische Schriftgröße: Passt sich zwischen 1.8rem und 4rem an
-                font-size: clamp(1.8rem, 4.5vw, 4rem);
+                font-size: clamp(1.8rem, 3dvw, 4rem);
                 will-change: transform, opacity;
                 animation: slideInLeftLineHero 2.5s cubic-bezier(0.23, 1, 0.32, 1) both;
             }
@@ -199,36 +189,33 @@
         }
     }
 
-    /* -- VISUAL (BILD/CARD-BEREICH) -- */
     .hero-visual {
         position: relative;
         z-index: 2;
         width: 100%;
-        // Clamp: Min 280px, skaliert mit 35% der Viewport-Breite, Max 550px
-        width: clamp(280px, 35vw, 550px);
+        width: clamp(350px, 35vw, 550px);
         aspect-ratio: 1 / 1;
         display: flex;
         justify-content: center;
         align-items: center;
         perspective: 1500px;
-        margin: 0 auto;
+        margin: 1rem auto;
 
         animation:
             slideInRight 2s cubic-bezier(0.23, 1, 0.32, 1) both,
             floatingCard 6s ease-in-out infinite 2.5s;
 
         @media(max-width: 1400px) {
-            // Auf Tablets wird es kompakter, damit der Content darunter Platz hat
             width: clamp(200px, 50vw, 320px);
-            margin-bottom: 3rem;
+            margin-bottom: 1rem;
             order: 1;
         }
 
         .logo-card-wrap {
             width: 100%;
             height: 100%;
-            border-radius: clamp(1.5rem, 5vw, 2.5rem); // Auch der Radius atmet mit
-            background: linear-gradient(145deg, #2a1e12, #120d07);
+            border-radius: clamp(1.5rem, 5vw, 2.5rem);
+            background: linear-gradient(145deg, #dcd9d6, #412f1a);
             transform-style: preserve-3d;
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 
@@ -240,10 +227,10 @@
                 width: 100%;
                 height: 100%;
                 @include all.fl($flexdir: column, $jc: center, $alit: center);
-                padding: 10%; // Prozentuales Padding hält die Abstände stabil
+                padding: 10%;
 
                 .hero-logo {
-                    width: 80%; // Nimmt proportionalen Platz in der Card ein
+                    width: 80%;
                     height: auto;
                     filter: drop-shadow(0 25px 45px rgba(250, 246, 246, 0.6));
                     transform: translateZ(70px);

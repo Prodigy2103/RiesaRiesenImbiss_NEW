@@ -28,9 +28,10 @@
 	right: $right;
 }
 
-@mixin borRad($c: white, $radius: 1.6rem, $thick: 1px, $design: solid) {
-	border: $thick $design $c;
-	border-radius: $radius;
+@mixin borRad($c: white, $radius: 1.6rem, $thick: 1px, $design: solid, $side: "") {
+    $prop: if($side == "", "border", "border-#{$side}");
+    #{$prop}: $thick $design $c;
+    border-radius: $radius;
 }
 
 @mixin text-style($align: center, $case: uppercase, $deco: none, $spacing: auto) {

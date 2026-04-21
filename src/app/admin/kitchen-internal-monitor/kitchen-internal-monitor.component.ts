@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../shared/services/admin.service';
 import { Order, OrderStatus } from '../../shared/modals/order.model';
+import { OrderService } from '../../shared/services/order.service';
 
 @Component({
   selector: 'app-kitchen-internal-monitor',
@@ -14,6 +15,7 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
   adminService = inject(AdminService);
   isMonitorActive = signal(false);
   selectedOrder = signal<Order | null>(null);
+  private readonly orderService = inject(OrderService);
 
   ngOnInit(): void {
     this.adminService.startListening();
@@ -25,19 +27,30 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
 
   async nextStep(orderId: string, currentStatus: OrderStatus): Promise<void> {
     const workflow: Partial<Record<OrderStatus, OrderStatus>> = {
-      'new': 'preparing', 'preparing': 'ready', 'ready': 'delivery', 'delivery': 'completed'
+      'new': 'preparing',
+      'preparing': 'ready',
+      'ready': 'delivery',
+      'delivery': 'completed'
     };
+
     const next = workflow[currentStatus];
+
     if (next === 'completed') {
-      await this.adminService.deleteOrder(orderId);
+      const orderToArchive = this.adminService.orders().find(o => o.id === orderId);
+      if (orderToArchive) {
+        await this.orderService.archiveOrder(orderToArchive);
+      }
     } else if (next) {
       await this.adminService.updateStatus(orderId, next);
     }
   }
 
+  async handleStatusClick(order: Order): Promise<void> {
+    this.nextStep(order.id, order.status);
+  }
+
   printOrder(order: Order): void {
     this.selectedOrder.set(order);
-    // Timeout gibt Angular Zeit, das #print-section HTML zu rendern
     setTimeout(() => {
       window.print();
       this.selectedOrder.set(null);
@@ -74,12 +87,10 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
   }
 
   generateTempInvoiceNumber(orderId: string): string {
-    // Generiert eine temporäre Nummer basierend auf dem aktuellen Tag und der ID
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     return `RE-${datePart}-${orderId.slice(-4).toUpperCase()}`;
   }
 
-  // In kitchen-internal-monitor.component.ts
   getItemTotal(price: number | undefined, qty: number | undefined): number {
     const safePrice = price ?? 0;
     const safeQty = qty ?? 1;

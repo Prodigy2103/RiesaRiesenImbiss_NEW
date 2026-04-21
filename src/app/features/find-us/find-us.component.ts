@@ -62,30 +62,25 @@ export class FindUsComponent implements OnInit {
   const star = event.currentTarget as HTMLElement;
   const width = star.offsetWidth;
   const x = event.offsetX;
-  
-  // Wenn links geklickt -> 0.5, wenn rechts -> 1.0
   const value = x < width / 2 ? 0.5 : 1;
   this.currentRating = index + value;
 }
 
-  /**
-   * Präzisere Fill-Logik
-   */
   getStarFill(index: number, rating: number): string {
     const diff = rating - index;
     if (diff >= 1) return '100%';
-    if (diff <= 0) return '0%'; // Explizit alles unter oder gleich 0 abfangen
-    return '50%'; // Nur der Fall 0.5 bleibt übrig
+    if (diff <= 0) return '0%';
+    return '50%'; 
   }
 
   averageRating = computed(() => {
     const list = this.comments();
-    if (list.length === 0) return '5.0'; // Fallback
+    if (list.length === 0) return '5.0';
     
     const sum = list.reduce((acc, c) => acc + c.rating, 0);
     const avg = sum / list.length;
     
-    return avg.toFixed(1); // Formatiert auf eine Nachkommastelle
+    return avg.toFixed(1);
   });
 
   submitFeedback(): void {

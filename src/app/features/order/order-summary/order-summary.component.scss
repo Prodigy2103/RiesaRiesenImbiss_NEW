@@ -10,21 +10,19 @@
 #orderflow-summary {
 	display: flex;
 	flex-direction: column;
+	padding: 1rem;
 	gap: 1rem;
 	height: 100%;
-
-	/* Scrollbar-Platz-Killer */
 	overflow-y: auto;
 	overflow-x: hidden;
-	scrollbar-width: none; // Firefox
-	-ms-overflow-style: none; // IE/Edge
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 
-	padding: 0 1rem; // Symmetrisches Padding verhindert "Leere rechts"
 	box-sizing: border-box;
 	width: 100%;
 
 	&::-webkit-scrollbar {
-		display: none; // Chrome/Safari
+		display: none;
 		width: 0;
 		height: 0;
 	}
@@ -32,10 +30,12 @@
 	.step-header {
 		@include all.fl($jc: space-between, $alit: center);
 		flex-shrink: 0;
+		margin-top: 1rem;
 
 		h2 {
 			font: 400 1.5rem 'Orbitron Medium', sans-serif;
 			margin: 0;
+			color: all.$imbiss-card-dark;
 		}
 	}
 
@@ -62,7 +62,7 @@
 			.summary-row {
 				@include all.fl($jc: space-between, $alit: center, $gap: 3rem);
 				background: rgba(all.$white, 0.05);
-				padding: 0rem 1rem;
+				padding: 1rem;
 				border-radius: 12px;
 				border: 1px solid rgba(all.$white, 0.1);
 				margin-bottom: 0.5rem;
@@ -173,7 +173,7 @@
 	.delivery-toggle {
 		flex-shrink: 0;
 		width: 100%;
-		max-width: 100%; // Absicherung gegen Overflow
+		max-width: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -189,7 +189,7 @@
 				display: block;
 				margin-bottom: 0.5rem;
 				color: #000;
-				font: 400 0.9rem 'Orbitron', sans-serif;
+				font: 400 1rem 'Orbitron', sans-serif;
 			}
 
 			.time-picker-wrapper {
@@ -197,7 +197,7 @@
 				width: 100%;
 
 				input[type="time"] {
-					width: 90%; // Leicht schmaler für Mobile-Safe-Zone
+					width: 90%;
 					max-width: 14rem;
 					background: rgba(255, 255, 255, 0.05);
 					border: 1px solid rgba(0, 0, 0, 0.2);
@@ -209,25 +209,20 @@
 
 				.time-hint {
 					display: block;
-					font-size: 0.75rem;
+					font-size: 1rem;
 					color: rgba(0, 0, 0, 0.5);
 					margin-top: 0.3rem;
 				}
 			}
 		}
 
-		/* Die Buttons jetzt in einem eigenen Flex-Row Container */
 		.buttons-container {
-			@include all.fl($jc: center, $alit: center, $gap: 2rem); // Absolut mittig
+			@include all.fl($jc: center, $alit: center, $gap: 2rem);
 			width: 100%;
-			// padding: 0; // Alle asymmetrischen Paddings löschen!
-			// margin: 1rem auto; // Zentriert den Container selbst
-			// box-sizing: border-box;
-			// flex-wrap: wrap; // Falls der Platz nicht reicht -> Umbruch statt Overflow
 
 			app-neon-button {
-				flex: 1; // BEIDE Buttons nehmen exakt den gleichen Platz ein
-				max-width: 18rem; // Deckelung, damit sie auf Desktop nicht zu riesig werden
+				flex: 1;
+				max-width: 18rem;
 				display: flex;
 				justify-content: center;
 
@@ -238,11 +233,11 @@
 			}
 
 			@include all.mobile {
-				flex-direction: column; // Auf dem Handy sauber untereinander
+				flex-direction: column;
 				gap: 1.2rem;
 
 				app-neon-button {
-					width: 90%; // Fast volle Breite für bessere Klickrate
+					width: 90%;
 				}
 			}
 		}
@@ -292,7 +287,7 @@
 
 			label {
 				font-family: 'Orbitron', sans-serif;
-				font-size: 0.9rem;
+				font-size: 1rem;
 				color: all.$white;
 				font-weight: 600;
 				text-transform: uppercase;
@@ -321,7 +316,7 @@
 			@include all.fl($jc: space-between, $alit: center);
 			width: 100%;
 			font-family: 'Orbitron', sans-serif;
-			font-size: 0.9rem;
+			font-size: 1rem;
 			color: all.$white;
 			border-top: 1px solid rgba(all.$imbiss-dark, 0.1);
 			padding-top: 0.5rem;
@@ -366,15 +361,15 @@
 	.actions {
 		flex-shrink: 0;
 		width: 100%;
-		margin: 2rem 0; // Oben/Unten Abstand, keine Seiten-Margins
-		padding: 0; // Sicherstellen, dass kein Padding stört
-		@include all.fl($jc: center, $alit: center); // Flex-Zentrierung
+		margin: 2rem 0;
+		padding: 0;
+		@include all.fl($jc: center, $alit: center);
 		pointer-events: all;
 
 		app-neon-button {
 			width: 100%;
 			max-width: 22rem;
-			margin: 0 auto; // Erzwingt die Zentrierung im Container
+			margin: 0 auto;
 			display: block;
 			cursor: pointer;
 
@@ -385,7 +380,6 @@
 		}
 	}
 
-	/* --- RESPONSIVE SECTION --- */
 	@include all.tablet {
 		.step-header h2 {
 			font-size: 1.4rem;
@@ -428,7 +422,6 @@
 		}
 
 		.delivery-toggle {
-			// Hier erzwingen wir, dass die Buttons in einer Row bleiben
 			flex-direction: row;
 			justify-content: center;
 
@@ -458,7 +451,6 @@
 
 	@include all.mobile {
 		.delivery-toggle {
-			// Auf Mobile untereinander für bessere Usability
 			flex-direction: column;
 
 			app-neon-button {
@@ -470,7 +462,6 @@
 			flex-direction: row;
 			align-items: flex-start;
 			gap: 0.5rem;
-			padding: 0.5rem;
 		}
 	}
 }

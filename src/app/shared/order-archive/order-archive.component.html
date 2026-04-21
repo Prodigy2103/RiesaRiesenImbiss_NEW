@@ -1,0 +1,101 @@
+<div class="archive-wrapper no-print">
+	<div class="archive-container">
+		<h2>Bestell-Archiv</h2>
+		<input type="date" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event); loadOrders()" />
+		<button (click)="printReport()">📄 Tagesabschluss Drucken</button>
+
+		<div class="summary-preview">
+			<p>Bestellungen: {{ orders().length }}</p>
+			<p>Gesamtumsatz: {{ totalRevenue() | number: "1.2-2" }} €</p>
+		</div>
+	</div>
+
+	<div class="dashboard-container no-print">
+		<div class="chart-card main-chart">
+			<div class="card-header">
+				<div class="header-text">
+					<h3>Umsatz EUR</h3>
+					<span class="subtitle">LETZTE 7 TAGE</span>
+				</div>
+				<div class="header-stats">
+					<div class="stat-box">
+						<span class="label">AVERAGE VALUE</span>
+						<span class="val">{{ averageRevenue() | number: "1.2-2" }}</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="main-value">
+				{{ totalRevenue() | number:'1.2-2' }} €
+
+				<span class="trend" [class.negative]="!isPositiveTrend()">
+					@if (isPositiveTrend()) {
+					▲ {{ absTrend() | number:'1.0-0' }}%
+					} @else {
+					▼ {{ absTrend() | number:'1.0-0' }}%
+					}
+				</span>
+			</div>
+
+			<div class="chart-main-area">
+				<div class="y-axis">
+					<span>{{ maxRevenue() | number: "1.0-0" }}€</span>
+					<span>{{ maxRevenue() / 2 | number: "1.0-0" }}€</span>
+					<span>0€</span>
+				</div>
+
+				<div class="simple-bar-chart">
+					@for (data of dashboardData(); track data.day) {
+					<div class="bar-wrapper">
+						<div class="bar" [style.height.%]="(data.revenue / maxRevenue()) * 100">
+							<span class="tooltip">{{ data.revenue | number: "1.2-2" }}€</span>
+						</div>
+						<span class="day-label">{{ data.day }}</span>
+					</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		<div class="side-stats">
+			<div class="chart-card mini">
+				<h3>Kunden (Bons)</h3>
+				<span class="subtitle">LETZTE 7 TAGE</span>
+				<div class="mini-value">{{ orders().length }}</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="print-report only-print">
+	<h1>Tagesabschluss</h1>
+
+	<div class="stat-row">
+		<span>Datum:</span>
+		<span>{{ selectedDate() | date: "dd.MM.yyyy" }}</span>
+	</div>
+	<div class="stat-row">
+		<span>Anzahl Bons:</span>
+		<span>{{ orders().length }}</span>
+	</div>
+	<div class="stat-row">
+		<span>Umsatz Brutto:</span>
+		<span>{{ totalRevenue() | number: "1.2-2" }} €</span>
+	</div>
+	<div class="stat-row">
+		<span>MwSt (7%):</span>
+		<span>{{ totalRevenue() - totalRevenue() / 1.07 | number: "1.2-2" }} €</span>
+	</div>
+
+	<hr />
+	<strong>VERKAUFTE ARTIKEL:</strong>
+
+	<div class="report-table">
+		@for (item of orderStats(); track item[0]) {
+		<div class="item-row">
+			<span>{{ item[1] }}x</span>
+			<span>{{ item[0] }}</span>
+		</div>
+		}
+	</div>
+</div>

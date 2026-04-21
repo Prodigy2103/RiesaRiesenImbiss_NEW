@@ -12,6 +12,7 @@
     src: url("/assets/fonts/static/Orbitron-Medium.ttf") format("truetype");
     font-display: swap;
 }
+
 /* #endregion */
 
 /* #region Base Reset */
@@ -23,7 +24,8 @@
     user-select: none;
 }
 
-html, body {
+html,
+body {
     height: 100vh;
     height: 100dvh;
     width: 100vw;
@@ -39,12 +41,14 @@ body:has(app-kitchen-internal-monitor) {
     padding: 0;
     background-color: #121212;
 
-    app-header, app-sidebar, app-footer {
-        display: none !important;
+    app-header,
+    app-sidebar,
+    app-footer {
+        display: none ;
     }
 
     .layout {
-        display: block !important;
+        display: block ;
         grid-template-areas: "canvas";
         grid-template-columns: 1fr;
         grid-template-rows: 100vh;
@@ -52,6 +56,7 @@ body:has(app-kitchen-internal-monitor) {
         height: 100vh;
     }
 }
+
 /* #endregion */
 
 /* #region Main Layout */
@@ -70,9 +75,17 @@ body:has(app-kitchen-internal-monitor) {
         grid-template-areas: "header" "canvas" "sidebar";
     }
 
-    aside { grid-area: sidebar; z-index: 20; }
-    header { grid-area: header; z-index: 10; }
+    aside {
+        grid-area: sidebar;
+        z-index: 20;
+    }
+
+    header {
+        grid-area: header;
+        z-index: 10;
+    }
 }
+
 /* #endregion */
 
 /* #region Content Area */
@@ -86,7 +99,8 @@ main {
 
     .canvas-container {
         position: absolute;
-        inset: 0; /* Kürzer für top/left/width/height: 100% */
+        inset: 0;
+        /* Kürzer für top/left/width/height: 100% */
         z-index: 0;
     }
 
@@ -100,34 +114,48 @@ main {
         background: #f5eddc;
     }
 }
+
 /* #endregion */
 
 // Innerhalb deines Mixins bei .extras-table
 .table-body {
     flex: 1;
-    overflow-y: auto !important; // Sicherstellen, dass hier das Scrollen stattfindet
+    overflow-y: auto ; // Sicherstellen, dass hier das Scrollen stattfindet
     padding-right: 6px;
     -webkit-overflow-scrolling: touch; // Für flüssiges Scrollen auf iOS
 
     /* Die radikale Lösung: Direktes Ansprechen über den Host-Kontext */
     &::-webkit-scrollbar {
-        width: 5px !important;
-        height: 5px !important;
-        display: block !important;
+        width: 5px ;
+        height: 5px ;
+        display: block ;
     }
 
     &::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05) !important;
-        border-radius: 10px !important;
+        background: rgba(0, 0, 0, 0.05) ;
+        border-radius: 10px ;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: all.$imbiss-orange !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background-color: all.$imbiss-orange ;
+        border-radius: 10px ;
+        border: 1px solid rgba(255, 255, 255, 0.1) ;
     }
 
     /* Firefox Fix */
-    scrollbar-width: thin !important;
-    scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05) !important;
+    scrollbar-width: thin ;
+    scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05) ;
+}
+
+@media print {
+
+    app-header,
+    app-sidebar,
+    .nav-container {
+        display: none ;
+    }
+}
+
+a, span:hover {
+    cursor: pointer;
 }

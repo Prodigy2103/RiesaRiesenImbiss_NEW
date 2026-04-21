@@ -10,11 +10,8 @@ interface Comment {
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
 	private readonly STORAGE_KEY = 'cyber_imbiss_logs';
-
-	// Das zentrale Signal für alle Komponenten
 	comments = signal<Comment[]>([]);
 
-	// Das Computed Signal für den Durchschnitt
 	averageRating = computed(() => {
 		const list = this.comments();
 		if (list.length === 0) return '5.0';
