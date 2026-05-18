@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { OrderItem, CustomerData, Order } from '../modals/order.model';
 import { collection, doc, Firestore, getDocs, query, where, writeBatch } from '@angular/fire/firestore';
 
@@ -24,16 +24,25 @@ export class OrderService {
 
     private readonly CUSTOMER_KEY = 'imbiss_customer';
     private readonly SUMMARY_KEY = 'last_order_summary';
+    private readonly CART_KEY = 'imbiss_active_cart'; // Neuer Key für den Warenkorb
 
     step = signal<OrderStep>(1);
     category = signal<string | null>(null);
     deliveryType = signal<DeliveryType>('delivery');
     zipCode = signal<string>('');
 
-    items = signal<CartItem[]>([]);
+    // Initialisierung direkt aus dem Storage
+    items = signal<CartItem[]>(this.loadCartFromStorage());
     extras = signal<OrderItem[]>([]);
     customer = signal<CustomerData>(this.getInitialCustomer());
     summary = signal<OrderSummary | null>(this.getSavedSummary());
+
+    constructor() {
+        // Automatisches Speichern bei jeder Änderung der Items
+        effect(() => {
+            localStorage.setItem(this.CART_KEY, JSON.stringify(this.items()));
+        });
+    }
 
     totalItemsCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
     total = computed(() => this.calculateFullTotal());
@@ -85,8 +94,11 @@ export class OrderService {
             finalTotal: this.finalTotal(),
             deliveryType: this.deliveryType()
         };
+
+        this.customer.set({ ...data });
         this.summary.set(snapshot);
         sessionStorage.setItem(this.SUMMARY_KEY, JSON.stringify(snapshot));
+        localStorage.setItem(this.CUSTOMER_KEY, JSON.stringify(data));
     }
 
     updateId(orderId: string): void {
@@ -97,15 +109,31 @@ export class OrderService {
         sessionStorage.setItem(this.SUMMARY_KEY, JSON.stringify(updated));
     }
 
+    // Diese Methode wird gerufen, wenn die Küche "Abschließen" klickt
     reset(): void {
         this.step.set(1);
         this.items.set([]);
         this.zipCode.set('');
         this.resetExtras();
+        localStorage.removeItem(this.CART_KEY); // Explizites Löschen
     }
 
-    next(): void { this.step.update(s => (s < 3 ? (s + 1) as OrderStep : s)); }
+    next(): void {
+        const current = this.step();
+        if (current === 2 && this.totalItemsCount() === 0) return;
+        this.step.update(s => (s < 3 ? (s + 1) as OrderStep : s));
+    }
+
     back(): void { this.step.update(s => (s > 1 ? (s - 1) as OrderStep : s)); }
+
+    private loadCartFromStorage(): CartItem[] {
+        const saved = localStorage.getItem(this.CART_KEY);
+        try {
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    }
 
     private getInitialCustomer(): CustomerData {
         const saved = localStorage.getItem(this.CUSTOMER_KEY);
@@ -125,26 +153,25 @@ export class OrderService {
     }
 
     async archiveOrder(order: Order): Promise<void> {
-        if (!order.id) return;
+        if (!order.id) throw new Error('Keine Order-ID zum Archivieren gefunden');
 
         const batch = writeBatch(this.firestore);
         const archiveRef = doc(this.firestore, `archivedOrders/${order.id}`);
         const activeRef = doc(this.firestore, `orders/${order.id}`);
 
+        // Wir nutzen das aktuelle Datum, falls createdAt fehlt
+        const createdAt = order.createdAt || new Date();
+
         batch.set(archiveRef, {
             ...order,
             archivedAt: new Date(),
-            createdAt: order.createdAt || new Date()
+            status: 'archived' // Status explizit ändern
         });
+
         batch.delete(activeRef);
 
-        try {
-            await batch.commit();
-        } catch (error) {
-            throw error;
-        }
+        await batch.commit(); // Triggert automatisch den Snapshot-Listener im UI
     }
-
     async getArchivedOrders(dateStr: string): Promise<Order[]> {
         const archiveRef = collection(this.firestore, 'archivedOrders');
 

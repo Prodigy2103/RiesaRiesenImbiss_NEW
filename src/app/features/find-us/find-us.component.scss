@@ -15,7 +15,7 @@
 		@include all.size($w: 85dvw, $h: 85dvh);
 		@include all.marpad($pad: 2rem 3rem, $mar: 0);
 		@include all.borRad($c: rgba(255, 255, 255, 0.5), $radius: 1.6rem, $thick: 1px, $design: solid);
-		background: all.$imbiss-order-bg;
+		background: all.$white;
 		backdrop-filter: blur(1rem);
 		overflow: hidden;
 		isolation: isolate;

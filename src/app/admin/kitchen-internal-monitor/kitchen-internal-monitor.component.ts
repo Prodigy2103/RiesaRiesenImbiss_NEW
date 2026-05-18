@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../shared/services/admin.service';
 import { Order, OrderStatus } from '../../shared/modals/order.model';
@@ -12,10 +12,16 @@ import { OrderService } from '../../shared/services/order.service';
   styleUrl: './kitchen-internal-monitor.component.scss'
 })
 export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
-  adminService = inject(AdminService);
+  public adminService = inject(AdminService);
+  private readonly orderService = inject(OrderService);
+
   isMonitorActive = signal(false);
   selectedOrder = signal<Order | null>(null);
-  private readonly orderService = inject(OrderService);
+
+  // Computed Signals für saubere Performance im Template
+  newOrders = computed(() => this.adminService.orders().filter(o => o.status === 'new'));
+  preparingOrders = computed(() => this.adminService.orders().filter(o => o.status === 'preparing'));
+  readyOrders = computed(() => this.adminService.orders().filter(o => o.status === 'ready' || o.status === 'delivery'));
 
   ngOnInit(): void {
     this.adminService.startListening();
@@ -25,28 +31,30 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
     this.adminService.stopListening();
   }
 
-  async nextStep(orderId: string, currentStatus: OrderStatus): Promise<void> {
-    const workflow: Partial<Record<OrderStatus, OrderStatus>> = {
-      'new': 'preparing',
-      'preparing': 'ready',
-      'ready': 'delivery',
-      'delivery': 'completed'
-    };
+  async handleStatusClick(order: Order): Promise<void> {
+    const isFinalStep = this.checkIfFinalStep(order);
 
-    const next = workflow[currentStatus];
-
-    if (next === 'completed') {
-      const orderToArchive = this.adminService.orders().find(o => o.id === orderId);
-      if (orderToArchive) {
-        await this.orderService.archiveOrder(orderToArchive);
-      }
-    } else if (next) {
-      await this.adminService.updateStatus(orderId, next);
+    if (isFinalStep) {
+      await this.orderService.archiveOrder(order);
+    } else {
+      const next = this.getNextStatus(order.status);
+      if (next) await this.adminService.updateStatus(order.id, next);
     }
   }
 
-  async handleStatusClick(order: Order): Promise<void> {
-    this.nextStep(order.id, order.status);
+  private checkIfFinalStep(order: Order): boolean {
+    const isPickupReady = order.deliveryType === 'pickup' && order.status === 'ready';
+    const isDeliveryDone = order.status === 'delivery';
+    return isPickupReady || isDeliveryDone;
+  }
+
+  private getNextStatus(current: OrderStatus): OrderStatus | null {
+    const transitions: Partial<Record<OrderStatus, OrderStatus>> = {
+      'new': 'preparing',
+      'preparing': 'ready',
+      'ready': 'delivery'
+    };
+    return transitions[current] ?? null;
   }
 
   printOrder(order: Order): void {
@@ -54,46 +62,24 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       window.print();
       this.selectedOrder.set(null);
-    }, 300);
-  }
-
-  getStatusLabel(status: OrderStatus): string {
-    const labels: Record<string, string> = {
-      'new': 'STARTEN', 'preparing': 'FERTIG', 'ready': 'LIEFERN', 'delivery': 'ABSCHLIESSEN'
-    };
-    return labels[status] || 'OK';
+    }, 350);
   }
 
   startMonitor(): void {
     this.isMonitorActive.set(true);
   }
+
+  getStatusLabel(status: OrderStatus, type?: string): string {
+    if (status === 'ready' && type === 'pickup') return 'ABSCHLIESSEN';
+    const labels: Record<string, string> = {
+      'new': 'STARTEN', 'preparing': 'FERTIG', 
+      'ready': 'LIEFERN', 'delivery': 'ABSCHLIESSEN'
+    };
+    return labels[status] || 'OK';
+  }
+
   getAsDate(ts: any): Date | null {
     if (!ts) return null;
     return typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
-  }
-
-  calculateNet(total: number | undefined): number {
-    return (total ?? 0) / 1.07;
-  }
-
-  calculateTax(total: number | undefined): number {
-    const totalVal = total ?? 0;
-    return totalVal - this.calculateNet(totalVal);
-  }
-
-  formatSignature(sig: string | undefined): string {
-    if (!sig) return 'N/A';
-    return sig.match(/.{1,30}/g)?.join('\n') ?? sig;
-  }
-
-  generateTempInvoiceNumber(orderId: string): string {
-    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    return `RE-${datePart}-${orderId.slice(-4).toUpperCase()}`;
-  }
-
-  getItemTotal(price: number | undefined, qty: number | undefined): number {
-    const safePrice = price ?? 0;
-    const safeQty = qty ?? 1;
-    return safePrice * safeQty;
   }
 }

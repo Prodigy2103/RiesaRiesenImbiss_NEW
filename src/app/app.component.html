@@ -10,79 +10,8 @@
 
   <main>
     <div class="canvas-container"></div>
-
     <div class="content-wrapper">
       <router-outlet></router-outlet>
     </div>
   </main>
 </div>
-
-@if (ui.showJobModal()) {
-<div class="mini-modal-overlay" (click)="ui.closeJob()">
-  <div class="mini-modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <span class="code-text">JOB: {{ ui.selectedJob()?.title }}</span>
-      <app-neon-button variant="ghost" class="modal-close-neon" (click)="ui.closeJob()">
-        X
-      </app-neon-button>
-    </div>
-    <div class="modal-body">
-      <h3>{{ ui.selectedJob()?.title }}</h3>
-      <p>{{ ui.selectedJob()?.description }}</p>
-      <button class="apply-btn" (click)="ui.openContact(ui.selectedJob())">
-        ANFRAGE SENDEN
-      </button>
-    </div>
-  </div>
-</div>
-}
-
-@if (ui.showNewsModal()) {
-<div class="mini-modal-overlay" (click)="ui.closeNews()">
-  <div class="mini-modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <span class="code-text">SYSTEM: {{ ui.selectedNews()?.urgent ? "CRITICAL" : "INFO" }}</span>
-      <app-neon-button variant="ghost" class="modal-close-neon" (click)="ui.closeNews()">
-        X
-      </app-neon-button>
-    </div>
-    <div class="modal-body">
-      <h3 [style.color]="ui.selectedNews()?.urgent ? '#ff4444' : '#d98324'">
-        {{ ui.selectedNews()?.title }}
-      </h3>
-      <p class="desc">{{ ui.selectedNews()?.description }}</p>
-      <button class="apply-btn" (click)="ui.closeNews()">Close</button>
-    </div>
-  </div>
-</div>
-}
-
-@if (ui.showContactModal()) {
-<div class="mini-modal-overlay" (click)="ui.closeContact()">
-  <div class="mini-modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <span class="code-text">CONTACT</span>
-      <app-neon-button variant="ghost" class="modal-close-neon" (click)="ui.closeContact()">
-        X
-      </app-neon-button>
-    </div>
-
-    <div class="modal-body">
-      <h3>MODAL_TARGET: {{ ui.selectedContact()?.title }}</h3>
-
-      <div class="form-group">
-        <input [ngModel]="ui.userName()" (ngModelChange)="ui.userName.set($event)" placeholder="NAME_IDENTIFIER"
-          class="cyber-input" />
-        <input [ngModel]="ui.userMail()" (ngModelChange)="ui.userMail.set($event)" placeholder="EMAIL"
-          class="cyber-input" />
-        <textarea [ngModel]="ui.userMessage()" (ngModelChange)="ui.userMessage.set($event)" placeholder="MESSAGE..."
-          class="cyber-input"></textarea>
-      </div>
-
-      <button class="apply-btn" [disabled]="!ui.userName() || !ui.userMail()" (click)="ui.closeContact()">
-        DATEN ÜBERMITTELN
-      </button>
-    </div>
-  </div>
-</div>
-}

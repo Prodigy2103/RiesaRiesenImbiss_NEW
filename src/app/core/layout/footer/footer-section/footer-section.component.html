@@ -1,0 +1,18 @@
+<div class="footer-section">
+    <div class="section-label">
+        <span class="label-dot accent"></span>
+        {{ title() }}
+    </div>
+
+    @for (item of items(); track $index) {
+    <div class="footer-row" (click)="select.emit(item)">
+        <span class="row-dot" [class.urgent]="item.urgent"></span>
+        
+        <span class="row-text" [class.urgent-text]="item.urgent">
+            {{ item[displayKey()] }}
+        </span>
+        
+        <span class="row-arrow">›</span>
+    </div>
+    }
+</div>

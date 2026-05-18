@@ -6,6 +6,7 @@
     min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
+    background: white;
 
     @media (min-width: 1025px) {
         height: 100dvh;
@@ -23,20 +24,20 @@
     align-items: center;
     padding: 0 10%;
     gap: 4rem;
-    background: linear-gradient(135deg, all.$imbiss-bg-light 0%, #e8ddd0 100%);
+    background: white;
     z-index: 1;
 
     @media (max-width: 1400px) {
         grid-template-columns: 1fr;
         padding: 1rem;
-        gap: 0;
-        height: 90dvh;
+        height: auto;
+        min-height: 90dvh;
         justify-items: center;
+        gap: 0.5rem;
+    }
 
-        @include all.tablet {
-            padding: 0;
-            height: 50dvh;
-        }
+    @include all.tablet {
+        min-height: 80dvh;
     }
 
     .hero-bg {
@@ -145,7 +146,7 @@
 
             @media (max-width: 1024px) {
                 max-width: 100%;
-                padding: 0.5rem 1rem;
+                padding: 0 1rem;
             }
         }
 
@@ -153,6 +154,10 @@
             display: flex;
             flex-direction: column;
             gap: 2rem;
+
+            @include all.tablet {
+                gap: 1rem;
+            }
 
             .hero-stats {
                 display: flex;
@@ -193,67 +198,36 @@
         position: relative;
         z-index: 2;
         width: 100%;
-        width: clamp(350px, 35vw, 550px);
-        aspect-ratio: 1 / 1;
+        max-width: 600px; // Standard Desktop-Größe
         display: flex;
         justify-content: center;
         align-items: center;
-        perspective: 1500px;
         margin: 1rem auto;
 
         animation:
-            slideInRight 2s cubic-bezier(0.23, 1, 0.32, 1) both,
-            floatingCard 6s ease-in-out infinite 2.5s;
+            slideInRight 1.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+
+        @include all.tablet {
+            max-width: 85%;
+            width: 85%;
+            margin: 2rem auto;
+        }
 
         @media(max-width: 1400px) {
-            width: clamp(200px, 50vw, 320px);
-            margin-bottom: 1rem;
+            width: clamp(280px, 70vw, 500px);
             order: 1;
         }
 
-        .logo-card-wrap {
+        .hero-logo {
             width: 100%;
-            height: 100%;
-            border-radius: clamp(1.5rem, 5vw, 2.5rem);
-            background: linear-gradient(145deg, #dcd9d6, #412f1a);
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-
-            box-shadow:
-                0 30px 60px rgba(0, 0, 0, 0.6),
-                inset 0 1px 1px rgba(255, 255, 255, 0.05);
-
-            .card-inner {
-                width: 100%;
-                height: 100%;
-                @include all.fl($flexdir: column, $jc: center, $alit: center);
-                padding: 10%;
-
-                .hero-logo {
-                    width: 80%;
-                    height: auto;
-                    filter: drop-shadow(0 25px 45px rgba(250, 246, 246, 0.6));
-                    transform: translateZ(70px);
-                    transition: transform 0.5s ease-out-back, filter 0.5s ease;
-                }
-
-                .card-tag {
-                    font: 700 0.7rem 'Orbitron', sans-serif;
-                    color: rgba(all.$imbiss-orange, 0.8);
-                    letter-spacing: 0.4rem;
-                    text-transform: uppercase;
-                    transform: translateZ(40px);
-                    opacity: 0.7;
-                }
-            }
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 30px rgba(all.$imbiss-orange, 0.15));
+            transition: transform 0.4s ease-in-out;
 
             &:hover {
-                transform: rotateX(10deg) rotateY(-10deg);
-
-                .hero-logo {
-                    transform: translateZ(120px) scale(1.1);
-                    filter: drop-shadow(0 60px 90px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 20px rgba(all.$imbiss-orange, 0.2));
-                }
+                transform: scale(1.05);
+                filter: drop-shadow(0 30px 50px rgba(all.$imbiss-orange, 0.3));
             }
         }
     }

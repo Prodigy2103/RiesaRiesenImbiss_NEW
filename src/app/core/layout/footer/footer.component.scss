@@ -1,23 +1,56 @@
 @use '../../../../../public/styles/all_styles.scss' as all;
 
-.burger-line {
-  display: block;
-  width: 1.8rem;
-  height: 0.2rem;
-  background: all.$white;
-  border-radius: 2px;
-  transition: all 0.3s ease;
+$transition-speed: 0.4s;
+$ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+.footer-btn {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 20; // Über der Sidebar
+  display: none;
+
+  @include all.tablet {
+    display: flex; // Auf Desktop/Tablet brauchen wir keinen Burger
+  }
+}
+
+// Die Linien-Logik
+.burger-menu {
+  @include all.fl($flexdir: column, $gap: 0.4rem);
+  padding: 0.2rem;
+
+  .burger-line {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  &.active {
+    .burger-line:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .burger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .burger-line:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+  }
 }
 
 .sidebar-footer {
   width: 100%;
   padding: 0.8rem 0.6rem 0.6rem;
-  box-sizing: border-box;
   border-top: 1px solid all.$imbiss-border-dark;
   background: rgba(255, 140, 0, 0.1);
   backdrop-filter: blur(10px);
-  flex-shrink: 0;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform $transition-speed $ease-out-expo;
 
   @include all.tablet {
     display: flex;
@@ -27,132 +60,56 @@
     z-index: 10;
     padding: 3rem 2rem;
     background: all.$imbiss-card-dark;
-    backdrop-filter: blur(20px);
-    border: none;
     transform: translateY(100%);
 
     &.is-open {
       transform: translateY(0);
-      display: flex;
       justify-content: center;
     }
-
-    margin-bottom: 0;
   }
 }
 
-.modal-close-neon {
-  display: none;
+// --- SOCIAL MEDIA (Manuelle Sektion im Footer) ---
+.social-links-row {
+  @include all.fl($jc: center, $gap: 1.5rem);
+  padding: 1rem 0.8rem;
 
-  @include all.tablet {
-    display: flex;
-    width: 10dvw;
+  .social-icon-link {
+    transition: transform 0.2s $ease-out-expo;
+
+    img {
+      width: 24px;
+      filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.3));
+    }
+
+    &:hover {
+      transform: scale(1.2) rotate(5deg);
+    }
   }
 }
 
-@include all.tablet {
-  .section-label {
-    font-size: 1.5rem;
-    margin: 3rem 1rem;
-    justify-content: center;
-  }
-
-  .footer-row {
-    padding: 0.8rem 1rem;
-    border-bottom: 1px solid all.$imbiss-card-dark;
-    margin: 2rem 0;
-  }
-
-  .news-list {
-    margin-bottom: 1.5rem;
-  }
-}
-
+// Wir brauchen diese Klassen hier nur für das "SOCIAL MEDIA" Label im Footer-HTML
 .footer-section {
   margin-bottom: 0.6rem;
-}
 
-.section-label {
-  @include all.fl($alit: center, $gap: 0.4rem);
-  font: 700 1.2rem 'Orbitron', sans-serif;
-  color: all.$white;
-  letter-spacing: 0.15rem;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
+  .section-label {
+    @include all.fl($alit: center, $gap: 0.4rem);
+    font: 700 1.2rem 'Orbitron', sans-serif;
+    color: white;
+    text-transform: uppercase;
 
-.label-dot {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 50%;
-  background: all.$imbiss-orange;
-  animation: pulse-glow 2s infinite;
-
-  &.accent {
-    background: all.$imbiss-teal;
-  }
-}
-
-.footer-row {
-  @include all.fl($alit: center, $gap: 0.5rem);
-  padding: 0.35rem 0.4rem;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: rgba(all.$imbiss-orange, 0.08);
-
-    .row-arrow {
-      opacity: 1;
-      transform: translateX(2px);
+    .label-dot.accent {
+      background: all.$imbiss-teal;
+      width: 0.3rem;
+      height: 0.3rem;
+      border-radius: 50%;
     }
-  }
-}
-
-.row-dot {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 50%;
-  background: rgba(all.$white, 0.25);
-  flex-shrink: 0;
-
-  &.urgent {
-    background: all.$imbiss-red;
-    box-shadow: 0 0 6px all.$imbiss-red;
-    animation: pulse-glow 1.5s infinite;
 
     @include all.tablet {
-      display: none;
+      justify-content: center;
+      font-size: 1.5rem;
     }
   }
-}
-
-.row-text {
-  flex: 1;
-  font-size: 1rem;
-  color: all.$white-glass;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  z-index: 10;
-
-  @include all.tablet {
-    display: flex;
-    justify-content: center;
-  }
-
-  &.urgent-text {
-    color: all.$imbiss-red;
-    font-weight: 700;
-  }
-}
-
-.row-arrow {
-  font-size: 1rem;
-  color: all.$imbiss-orange;
-  opacity: 0;
-  transition: all 0.2s ease;
 }
 
 .footer-divider {
@@ -163,8 +120,7 @@
 
 .footer-copy {
   font-size: 0.8rem;
-  color: all.$white;
+  color: white;
   text-align: center;
-  letter-spacing: 0.05rem;
   padding-top: 0.3rem;
 }

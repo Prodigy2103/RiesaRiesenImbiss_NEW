@@ -28,11 +28,11 @@ export class AdminService {
     }
 
     private processSnapshot(snapshot: QuerySnapshot<Order>): void {
-        const updated = snapshot.docs.map(d => ({
-            ...d.data(),
-            id: d.id
-        }));
-        
+        // Wir mappen die Dokumente und filtern sicherheitshalber undefined aus
+        const updated = snapshot.docs
+            .filter(d => d.exists())
+            .map(d => ({ ...d.data(), id: d.id }));
+
         this.orders.set(updated);
         this.handleNotificationSound(snapshot);
         this.isInitialLoad = false;

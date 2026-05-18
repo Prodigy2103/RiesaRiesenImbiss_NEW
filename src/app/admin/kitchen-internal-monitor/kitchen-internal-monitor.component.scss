@@ -1,307 +1,329 @@
 @use '../../../../public/styles/all_styles.scss' as all;
 
+/* #region Host & Base Reset */
 :host {
 	display: block;
+	width: 100vw;
+	height: 100vh;
+	position: fixed; // Verhindert, dass das orange Layout durchschimmert
+	top: 0;
+	left: 0;
+	z-index: 1000; // Legt sich über Header/Sidebar der Haupt-App
 	background-color: #ede5d8;
-	width: 100dvw;
-	min-height: 100vh;
-	padding: 1.2rem;
-	font-family: 'Terminus', sans-serif;
-	color: all.$imbiss-dark;
-}
+	font-family: "Terminus", monospace;
 
-.kanban-board {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(20rem, 1fr));
-	gap: 1.8rem;
-	width: 100%;
-
-	@include all.tablet {
-		@include all.fl($flexdir: column);
-	}
-}
-
-.kanban-column {
-	@include all.fl($flexdir: column);
-	min-width: 0;
-
-	.column-header {
-		position: sticky;
+	main {
 		width: 100%;
-		top: 0;
-		background: #121212;
-		border-bottom: 3px solid #333;
-		z-index: 10;
-		@include all.marpad($pad: 1rem, $mar: 0 0 0.8rem 0);
-	}
+		height: 100%;
+		overflow: hidden;
+		background-color: #ede5d8;
 
-	&.new .column-header {
-		color: #ffa500;
-		border-bottom-color: #ffa500;
-	}
-
-	&.preparing .column-header {
-		color: #2196f3;
-		border-bottom-color: #2196f3;
-	}
-
-	&.ready .column-header {
-		color: #4caf50;
-		border-bottom-color: #4caf50;
-	}
-}
-
-.column-content {
-	@include all.fl($flexdir: column, $gap: 1.8rem);
-	@include all.size($w: 100%, $h: 85dvh);
-	overflow-y: auto;
-	@include all.hide-scrollbar;
-}
-
-.order-card {
-	@include all.borRad($c: all.$imbiss-terminus, $radius: 0.8rem, $thick: 0.4rem, $design: solid, $side: left);
-	width: 100%;
-	background: #575757;
-	padding: 1.1rem;
-	transition: transform 0.2s;
-	color: white;
-
-	&.new {
-		border-left-color: #ffa500;
-	}
-
-	&.preparing {
-		border-left-color: #2196f3;
-	}
-
-	&.ready {
-		border-left-color: #4caf50;
-	}
-
-	&.delivery {
-		border-left-color: #00bcd4;
-	}
-
-	.card-header {
-		@include all.fl($jc: space-between);
-		margin-bottom: 0.7rem;
-
-		.order-id {
-			color: #ffa500;
-			font-weight: 700;
-			font-size: 1.2rem;
-		}
-
-		.badge {
-			padding: 0.25rem 0.5rem;
-			border-radius: 4px;
-			font-size: 0.8rem;
-
-			&.delivery {
-				background: #673ab7;
-			}
-
-			&.pickup {
-				background: #e91e63;
-			}
-		}
-	}
-
-	.scheduled-time-badge {
-		background: rgba(255, 165, 0, 0.1);
-		padding: 0.5rem;
-		border-radius: 0.35rem;
-		margin: 0.8rem 0;
-		@include all.fl($jc: space-between);
-
-		strong {
-			color: #ffa500;
-		}
-	}
-
-	.time {
-		@include all.fl($jc: space-between);
-		padding: 0.5rem;
-	}
-
-	.items-list {
-		list-style: none;
-		padding: 0;
-
-		.order-item {
-			@include all.borRad($c: all.$imbiss-terminus, $radius: 0, $thick: 1px, $side: bottom);
-			@include all.fl($jc: space-between, $alit: flex-start);
-			padding: 0.6rem;
-
-			.qty {
-				color: all.$imbiss-amber;
-				font-weight: bold;
-				flex-shrink: 0;
-			}
-
-			.item-info {
-				@include all.fl($flexdir: column, $alit: flex-end);
-				text-align: right;
-
-				.item-name {
-					font-weight: 600;
-					color: all.$white;
-				}
-
-				.extras {
-					@include all.marpad($pad: 0, $mar: 0.2rem 0 0 0);
-					list-style: none;
-					font-size: 1rem;
-					color: all.$white;
-				}
-			}
-		}
-	}
-
-	.card-footer {
-		margin-top: 1rem;
-
-		.price {
-			font-size: 1.3rem;
-			font-weight: bold;
-			text-align: right;
-			margin-bottom: 0.8rem;
-		}
-
-		.actions {
+		.content-wrapper {
+			width: 100%;
+			height: 100%;
 			display: flex;
-			gap: 0.9rem;
+			flex-direction: column;
+			padding: 1.5rem;
 		}
 	}
-}
 
-.status-btn {
-	flex: 1;
-	padding: 0.65rem;
-	border-radius: 0.5rem;
-	border: none;
-	font-weight: bold;
-	cursor: pointer;
-	background: all.$imbiss-orange-glow;
+	/* #endregion */
 
-	&.preparing {
-		background: #2196f3;
-		color: all.$white;
+	/* #region Kanban Board */
+	.kanban-board {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.8rem;
+		width: 100%;
+		height: 100%;
+
+		@include all.tablet {
+			grid-template-columns: 1fr;
+			overflow-y: auto;
+		}
 	}
 
-	&.ready {
-		background: #4caf50;
-		color: all.$white;
-	}
+	.kanban-column {
+		@include all.fl($flexdir: column);
+		background: rgba(0, 0, 0, 0.03);
+		border-radius: 15px;
+		padding: 10px;
+		overflow-y: auto;
 
-	&.delivery {
-		background: #00bcd4;
-		color: all.$white;
-	}
-
-	span {
-		color: all.$imbiss-card-dark;
-	}
-}
-
-.print-icon-btn {
-	width: 3.6rem;
-	background: #333;
-	border-radius: 8px;
-	cursor: pointer;
-	font-size: 1.2rem;
-}
-
-#print-section {
-	display: none;
-}
-
-@media print {
-
-	.kanban-board,
-	.overlay,
-	.attribution,
-	header,
-	footer {
-		display: none;
-	}
-
-	#print-section {
-		@include all.absolute($top: 0, $left: 0);
-		@include all.ticket-page-setup(72mm);
-
-		.ticket-header {
+		.column-header {
+			position: sticky;
+			top: 0;
+			background: #121212;
+			color: white;
 			text-align: center;
-			margin-bottom: 2mm;
+			border-radius: 10px;
+			z-index: 10;
+			width: 100%;
+			@include all.marpad($pad: 1rem, $mar: 0 0 1rem 0);
+		}
 
-			.store-name {
-				font-size: 1.5rem;
+		&.new .column-header {
+			border-bottom: 4px solid #ffa500;
+			color: #ffa500;
+		}
+
+		&.preparing .column-header {
+			border-bottom: 4px solid #2196f3;
+			color: #2196f3;
+		}
+
+		&.ready .column-header {
+			border-bottom: 4px solid #4caf50;
+			color: #4caf50;
+		}
+	}
+
+	.column-content {
+		@include all.fl($flexdir: column, $gap: 1.2rem);
+		width: 100%;
+		height: 100%;
+		overflow-y: auto;
+		@include all.hide-scrollbar;
+	}
+
+	/* #endregion */
+
+	/* #region Order Card */
+	.order-card {
+		background: #575757;
+		border-left: 8px solid transparent;
+		border-radius: 12px;
+		padding: 1.2rem;
+		color: white;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+		width: 100%;
+
+		&.new {
+			border-left-color: #ffa500;
+		}
+
+		&.preparing {
+			border-left-color: #2196f3;
+		}
+
+		&.ready {
+			border-left-color: #4caf50;
+		}
+
+		&.delivery {
+			border-left-color: #00bcd4;
+		}
+
+		.card-header {
+			@include all.fl($jc: space-between);
+			margin-bottom: 0.8rem;
+
+			.order-id {
+				color: #ffa500;
+				font-weight: 800;
+				font-size: 1.3rem;
+			}
+		}
+
+		.scheduled-time-badge {
+			background: rgba(255, 165, 0, 0.15);
+			padding: 0.6rem;
+			border-radius: 8px;
+			margin: 10px 0;
+			text-align: center;
+
+			strong {
+				color: #ffa500;
+			}
+		}
+
+		.items-list {
+			list-style: none;
+			padding: 10px 0;
+
+			.order-item {
+				@include all.fl($jc: space-between);
+				padding: 5px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+				.qty {
+					color: #ffa500;
+					font-weight: bold;
+				}
+			}
+		}
+
+		.card-footer {
+			margin-top: 15px;
+
+			.price {
+				font-size: 1.4rem;
 				font-weight: bold;
-				margin-bottom: 0.1rem;
+				text-align: right;
+				margin-bottom: 10px;
 			}
 
-			p {
-				font-size: 1rem;
-				margin: 0 0 2.5mm 0;
-			}
-		}
-
-		.ticket-container {
-			@include all.ticket-container-base;
-
-			.item-main,
-			.tax-row,
-			.ticket-total {
-				@include all.print-ticket-row(3mm);
-			}
-
-			.ticket-highlight {
-				@include all.print-highlight-box;
-			}
-
-			&:last-child {
-				break-after: auto;
-				page-break-after: auto;
-				border-bottom: none;
+			.actions {
+				@include all.fl($gap: 10px);
 			}
 		}
 	}
 
-	@page {
-		size: 80mm auto;
-		margin: 0;
-	}
+	/* #endregion */
 
-	div {
-		margin: 0 0 1mm 0;
-	}
+	/* #region Interactive Elements */
+	.status-btn {
+		flex: 1;
+		padding: 0.8rem;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		font-weight: bold;
+		text-transform: uppercase;
 
-	.footer-info,
-	.center {
-		font-size: 1rem;
-		text-align: center;
-		margin-top: 5mm;
-	}
+		&.new {
+			background: #ffa500;
+		}
 
-	.order-meta {
-		margin: 0 0 1.5mm 0;
-		text-align: center;
+		&.preparing {
+			background: #2196f3;
+			color: white;
+		}
+
+		&.ready {
+			background: #4caf50;
+			color: white;
+		}
+
+		span {
+			color: inherit;
+		}
 	}
 }
 
 .overlay {
-	@include all.fl($jc: center, $alit: center);
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.95);
-	z-index: 10;
+	background: rgba(0, 0, 0, 0.9);
+	@include all.fl($jc: center, $alit: center);
+	z-index: 20;
 
 	button {
-		padding: 1.2rem 1.8rem;
+		padding: 1.5rem 3rem;
 		font-size: 1.5rem;
 		background: #ffa500;
 		border: none;
 		border-radius: 50px;
+		cursor: pointer;
 		font-weight: bold;
+
+		&:hover {
+			transform: scale(1.05);
+		}
+	}
+}
+
+.print-icon-btn {
+	background: #333;
+	border: 1px solid #444;
+	color: white;
+	width: 50px;
+	height: 40px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 1.3em;
+
+	&:hover {
+		background: #444;
+		border-color: #ffa500;
+	}
+}
+
+/* #endregion */
+
+@media print {
+
+    :host-context(body) {
+
+        app-header,
+        app-sidebar,
+        app-footer,
+        .no-print,
+        header,
+        aside,
+        .kanban-board {
+            display: none;
+        }
+    }
+
+    @page {
+        margin: 0;
+        size: auto;
+    }
+
+    #print-section {
+        display: block;
+        visibility: visible;
+        background: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10; // Sauber getrennt
+        @include all.ticket-page-setup(72mm);
+
+        &, span, p, div, strong, h2, td, th {
+            visibility: visible;
+            color: black; // Absolute Priorität
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .ticket-container {
+            @include all.ticket-container-base;
+            display: block;
+            background: white;
+
+            .ticket-header h2 {
+                color: black;
+            }
+
+            .item-main, .tax-row, .ticket-total {
+                @include all.print-ticket-row(2mm);
+                display: flex;
+
+                span {
+                    color: black;
+                }
+            }
+
+            .ticket-highlight {
+                @include all.print-highlight-box;
+                background-color: black;
+                color: white;
+
+                strong, span {
+                    color: white;
+                }
+            }
+        }
+    }}
+
+.attribution {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	margin-top: 40px;
+	padding: 20px;
+	text-align: center;
+	font-size: 0.8em;
+	color: #666;
+
+	a {
+		color: #ffa500;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
 	}
 }

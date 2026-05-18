@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgOptimizedImage } from '@angular/common';
 import { NeonButtonComponent } from "../../../shared/ui/neon-button/neon-button.component";
 import { OrderService } from '../../../shared/services/order.service';
 import { ReviewService } from '../../../shared/services/review.service';
@@ -9,71 +10,20 @@ import { ReviewService } from '../../../shared/services/review.service';
   selector: 'feature-hero-three',
   templateUrl: './hero-three.component.html',
   styleUrls: ['./hero-three.component.scss'],
-  imports: [NeonButtonComponent]
+  imports: [NeonButtonComponent, NgOptimizedImage]
 })
-export class HeroThreeComponent implements OnInit {
-  private MAX_ROTATE = 15;
-  public target = { rx: 0, ry: 0, mx: 50, my: 50 };
-  public current = { rx: 0, ry: 0, mx: 50, my: 50 };
+export class HeroThreeComponent {
   private router = inject(Router);
   public order = inject(OrderService);
   private reviewService = inject(ReviewService);
 
-  /**
-   * Starts the animation loop on initialization.
-   * Why: To ensure smooth visual transitions from the start.
-   */
-  ngOnInit() {
-    this.animate();
-  }
-
-  averageRating = this.reviewService.averageRating;
-
-  private lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  readonly averageRating = this.reviewService.averageRating;
 
   /**
-   * Main animation loop for 3D effects.
-   * Why: Constantly updates visual state via requestAnimationFrame.
+   * Navigiert zur Bestellseite und setzt den ersten Schritt.
+   * Maximale Zeilenanzahl: 4 (Limit: 14)
    */
-  private animate() {
-    this.updateCurrentValues();
-    requestAnimationFrame(() => this.animate());
-  }
-
-  private updateCurrentValues() {
-    this.current.rx = this.lerp(this.current.rx, this.target.rx, 0.08);
-    this.current.ry = this.lerp(this.current.ry, this.target.ry, 0.08);
-    this.current.mx = this.lerp(this.current.mx, this.target.mx, 0.12);
-    this.current.my = this.lerp(this.current.my, this.target.my, 0.12);
-  }
-
-  /**
-   * Calculates rotation and shine targets based on mouse position.
-   * @param e The mouse movement event.
-   */
-  onMouseMove(e: MouseEvent) {
-    const el = e.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    this.target.mx = (x / rect.width) * 100;
-    this.target.my = (y / rect.height) * 100;
-    this.target.ry = ((x / rect.width) - 0.5) * (this.MAX_ROTATE * 2);
-    this.target.rx = ((y / rect.height) - 0.5) * -(this.MAX_ROTATE * 2);
-  }
-
-  /**
-   * Resets the card position when the mouse leaves.
-   */
-  onMouseLeave() {
-    this.target = { rx: 0, ry: 0, mx: 50, my: 50 };
-  }
-
-  /**
-   * Navigates to the order page.
-   */
-  goToOrder() {
+  goToOrder(): void {
     this.order.step.set(1);
     this.router.navigate(['/order']);
   }

@@ -1,0 +1,46 @@
+@use '../../../../public/styles/all_styles.scss' as all;
+
+:host {
+    display: block;
+    background-color: #f5eddc;
+    height: 100vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    @include all.hide-scrollbar;
+}
+
+.legal-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    color: #121212;
+    font-family: "Terminus", sans-serif;
+    padding-bottom: 5rem;
+
+    h1 {
+        @include all.marpad($mar: 0 0 2rem 0);
+        font-size: 2.5rem;
+        border-bottom: 2px solid all.$imbiss-orange;
+    }
+
+    h2 {
+        @include all.marpad($mar: 1.5rem 0 0.5rem 0);
+        font-size: 1.5rem;
+        color: all.$imbiss-orange;
+    }
+
+    .legal-block {
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    a {
+        color: all.$imbiss-orange;
+        text-decoration: underline;
+
+        &:hover {
+            color: all.$imbiss-orange, 10%;
+        }
+    }
+}

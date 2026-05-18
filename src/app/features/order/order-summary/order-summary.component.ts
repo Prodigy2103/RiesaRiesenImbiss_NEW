@@ -25,16 +25,30 @@ export class OrderSummaryComponent implements OnInit {
   public customer = signal({ name: '', address: '', phone: '', scheduledTime: '' });
 
   public isOrderInvalid = computed(() => {
-    const c = this.customer();
-    const basic = c.name.trim().length > 0 && c.phone.trim().length > 5 && !!c.scheduledTime;
-    if (this.order.deliveryType() === 'pickup') return !basic;
-    return !(basic && c.address.trim().length > 5 && this.order.isMovReached());
-  });
+  const c = this.customer();
+  const items = this.order.items();
+  
+  if (items.length === 0) return true;
+
+  const hasValidName = c.name.trim().length >= 6;
+  const hasValidPhone = c.phone.trim().length >= 11;
+  const hasTime = !!c.scheduledTime;
+
+  const basic = hasValidName && hasValidPhone && hasTime;
+
+  if (this.order.deliveryType() === 'pickup') {
+    return !basic;
+  }
+
+  const hasValidAddress = c.address.trim().length > 10;
+  return !(basic && hasValidAddress && this.order.isMovReached());
+});
 
   ngOnInit() {
-    this.loadSavedData();
-    this.calculateMinTime();
-  }
+  this.order.deliveryType.set('pickup'); // Zeile wenn lieferung läuft entfernen
+  this.loadSavedData();
+  this.calculateMinTime();
+}
 
   private loadSavedData(): void {
     const saved = localStorage.getItem('imbiss_customer');
@@ -43,7 +57,7 @@ export class OrderSummaryComponent implements OnInit {
 
   private calculateMinTime(): void {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 20);
+    now.setMinutes(now.getMinutes() + 60);
     const time = now.toTimeString().slice(0, 5);
     this.minTime.set(time);
     if (!this.customer().scheduledTime) {
@@ -52,21 +66,30 @@ export class OrderSummaryComponent implements OnInit {
   }
 
   public setMode(mode: 'pickup' | 'delivery'): void {
+    if (mode !== 'pickup') return; // Zeile wenn lieferung läuft entfernen
     this.order.deliveryType.set(mode);
   }
 
   async submitOrder(): Promise<void> {
-    const data = this.createOrderSnapshot();
-    if (this.order.items().length === 0 || this.isLoading()) return;
-
-    this.isLoading.set(true);
-    try {
-      const orderId = await this.dataService.sendOrder(data);
-      this.processSuccess(orderId, data.customer);
-    } catch (e) {
-      this.ngZone.run(() => this.isLoading.set(false));
-    }
+  // 1. GUARD: Verhindert Klicks bei Invalidität, laufendem Prozess oder leerem Warenkorb
+  if (this.isOrderInvalid() || this.isLoading() || this.order.items().length === 0) {
+    return;
   }
+
+  this.isLoading.set(true);
+  const orderSnapshot = this.createOrderSnapshot();
+
+  try {
+    const orderId = await this.dataService.sendOrder(orderSnapshot);
+
+    this.processSuccess(orderId, orderSnapshot.customer);
+    localStorage.removeItem('imbiss_customer');
+  } catch (error) {
+
+    this.ngZone.run(() => this.isLoading.set(false));
+    console.error('Bestellfehler:', error);
+  }
+}
 
   private createOrderSnapshot() {
     return {

@@ -1,9 +1,9 @@
 <header class="top-bar">
 
 	<nav class="top-nav">
-		<a href="#" class="nav-link">Datenschutz</a>
+		<a routerLink="/privacy" class="nav-link" routerLinkActive="active-link">Datenschutz</a>
 		<span class="nav-sep">·</span>
-		<a href="#" class="nav-link">Impressum</a>
+		<a routerLink="/impressum" class="nav-link" routerLinkActive="active-link">Impressum</a>
 		<div class="status-chip" [ngClass]="currentStatus">
 			<span class="status-dot"></span>
 			<span>{{ statusText }}</span>

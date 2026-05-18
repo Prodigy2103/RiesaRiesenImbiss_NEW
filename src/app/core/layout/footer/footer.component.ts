@@ -1,134 +1,59 @@
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UiService } from '../../../shared/services/ui.service';
+import { DataService } from '../../../shared/services/data.services';
+import { SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
+import { Job, News } from '../../../shared/interfaces/footer.interface';
+import { FooterSectionComponent } from './footer-section/footer-section.component';
+import { FooterModalsComponent } from "../footer-modals/footer-modals.component";
 import { NeonButtonComponent } from '../../../shared/ui/neon-button/neon-button.component';
-
-interface JobDetail {
-  title: string;
-  urgent: boolean;
-  description: string;
-  tasks: string[];
-}
-
-interface SystemNews {
-  title: string;
-  description: string;
-  urgent: boolean;
-}
-
-interface ContactForm {
-  title: string;
-  description: string;
-  urgent: boolean;
-}
 
 @Component({
   selector: 'app-footer',
-  imports: [CommonModule, FormsModule, NeonButtonComponent],
+  standalone: true,
+  imports: [CommonModule, FormsModule, FooterSectionComponent, FooterModalsComponent, NeonButtonComponent,],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
   public ui = inject(UiService);
+  private dataService = inject(DataService);
+
   readonly isMenuOpen = signal(false);
 
-  news: SystemNews[] = [
+  readonly infoCategories = computed(() => [
+    {
+      id: 'ingredients',
+      label: 'Inhaltsstoffe',
+      data: Object.values(this.dataService.ingredientDetailsMap())
+    },
+    {
+      id: 'sauces',
+      label: 'Unsere Saucen',
+      data: SAUCE_INFO_LIST
+    }
+  ]);
+
+  news: News[] = [
     {
       title: 'Ausfall Lieferservice',
-      description: 'Derzeit steht der Lieferservice nicht zur Verfügung. Wir arbeiten an einer Lösung. Sie können Ihre Bestellungen weiterhin vor Ort abholen.',
+      description: 'Derzeit steht der Lieferservice nicht zur Verfügung.',
       urgent: true
     }
   ];
 
-  jobs: JobDetail[] = [
+  jobs: Job[] = [
     {
       title: 'Cyber-Cook',
-      urgent: true,
       description: 'Derzeit kein Jobangebot.',
-      tasks: ['Zubereitung von Riesen-Burgern', 'Qualitätskontrolle der Saucen', 'Terminal-Pflege']
+      phone: '+4917640106841'
     },
     {
       title: 'Delivery Pilot',
-      urgent: true,
-      description: 'Schnellste Lieferung im Sektor Riesa.',
-      tasks: ['Sichere Auslieferung', 'Kundeninteraktion', 'Fahrzeug-Check']
+      description: 'Mission Control ruft: Wir brauchen Verstärkung auf der Straße! Bring den besten Döner der Stadt ans Ziel. Klick unten auf den Button und melde dich bei uns.'
     }
   ];
-
-  // Korrigiert: Nutze das Interface, das du oben definiert hast
-  contact: ContactForm[] = [
-    {
-      title: 'Contact',
-      urgent: true,
-      description: 'Testweise'
-    }
-  ];
-
-  selectedJob: JobDetail | null = null;
-  showJobModal = false;
-  selectedNews: SystemNews | null = null;
-  showNewsModal = false;
-  selectedContact: ContactForm | null = null;
-  showContactFormModal = false;
-
-  userName: string = '';
-  userMail: string = '';
-  userMessage: string = '';
-
-  showSuccessToast = false;
-
-  /**
-   * Sets the selected job and triggers the modal visibility.
-   * Used to show detailed job information to the user.
-   * @param job The job object to be displayed.
-   */
-  openJobDetails(job: JobDetail) {
-    this.selectedJob = job;
-    this.showJobModal = true;
-  }
-
-  /**
-   * Resets the job selection and hides the modal.
-   * Ensures no stale data remains when the UI is closed.
-   */
-  closeJobModal() {
-    this.showJobModal = false;
-    this.selectedJob = null;
-  }
-
-  /**
-   * Sets the selected news item and opens the news modal.
-   * Allows users to read full system announcements.
-   * @param news The specific news entry to focus on.
-   */
-  openNewsDetails(news: SystemNews) {
-    this.selectedNews = news;
-    this.showNewsModal = true;
-  }
-
-  /**
-   * Closes the news modal and clears the current selection.
-   * Cleans up the component state after the user finishes reading.
-   */
-  closeNewsModal() {
-    this.showNewsModal = false;
-    this.selectedNews = null;
-  }
-
-  openContactForm(data?: ContactForm) {
-    this.userName = '';
-    this.userMail = '';
-    this.userMessage = '';
-    this.selectedContact = data || this.contact[0];
-    this.showJobModal = false;
-    this.showContactFormModal = true;
-  }
-
-  closeContactForm() {
-    this.showContactFormModal = false;
-    this.selectedContact = null;
-  }
 
   toggleMenu(): void {
     this.isMenuOpen.update(open => !open);
@@ -136,5 +61,21 @@ export class FooterComponent {
 
   closeMenu(): void {
     this.isMenuOpen.set(false);
+  }
+
+  // In der footer.component.ts
+openCategoryInfo(category: { id: string, data: any[] }): void {
+    const type = category.id === 'sauces' ? 'sauce' : 'ingredient';
+    this.ui.openIngredients(category.data, type);
+}
+
+  handleNewsClick(n: News): void {
+    this.ui.openNews(n);
+    // this.closeMenu();
+  }
+
+  handleJobClick(j: Job): void {
+    this.ui.openJob(j);
+    // this.closeMenu();
   }
 }

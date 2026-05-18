@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Firestore, collection, getDocs, query, orderBy, addDoc, serverTimestamp, where, Timestamp } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { from, map } from 'rxjs';
@@ -7,7 +7,7 @@ import { OrderItem, Category, IngredientDetail, Order } from '../modals/order.mo
 @Injectable({ providedIn: 'root' })
 export class DataService {
     private fire = inject(Firestore);
-    private ingredientDetailsMap = signal<Record<string, IngredientDetail>>({});
+    public readonly ingredientDetailsMap = signal<Record<string, IngredientDetail>>({});
 
     constructor() {
         this.loadIngredientDetails();
@@ -57,19 +57,20 @@ export class DataService {
     }
 
     async sendOrder(orderData: Omit<Order, 'id' | 'createdAt' | 'status'>): Promise<string> {
-        try {
-            const cleanData = JSON.parse(JSON.stringify(orderData));
+        const { name, phone } = orderData.customer;
 
-            const docRef = await addDoc(collection(this.fire, 'orders'), {
-                ...cleanData,
-                createdAt: serverTimestamp(),
-                status: 'new'
-            });
-
-            return docRef.id;
-        } catch (error) {
-            throw error;
+        // Senior-Schutzschild: Harte Validierung
+        if (!name || name.length < 5 || !phone || phone.trim().length < 5) {
+            throw new Error('SYSTEM_FAILURE: Invalid Customer Data (Name or Phone missing)');
         }
+
+        const docRef = await addDoc(collection(this.fire, 'orders'), {
+            ...orderData,
+            createdAt: serverTimestamp(),
+            status: 'new'
+        });
+
+        return docRef.id;
     }
 
     public async getOrdersByDate(date: Date): Promise<Order[]> {
@@ -97,5 +98,9 @@ export class DataService {
 
     getIngredient(id: number | string): IngredientDetail | undefined {
         return this.ingredientDetailsMap()[id.toString()];
+    }
+
+    public getIngredientsList() {
+        return computed(() => Object.values(this.ingredientDetailsMap()));
     }
 }

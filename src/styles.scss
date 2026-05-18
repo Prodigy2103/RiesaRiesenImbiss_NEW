@@ -148,11 +148,31 @@ main {
 }
 
 @media print {
+    // Blendet die gesamte Navigation und App-Struktur aus
+    app-header, 
+    app-sidebar, 
+    app-footer,
+    .sidebar,
+    .header-container,
+    .navigation,
+    aside,
+    header {
+        display: none;
+    }
 
-    app-header,
-    app-sidebar,
-    .nav-container {
-        display: none ;
+    // Sorgt dafür, dass der Inhalt (der Bon) ganz oben links startet
+    body, html {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    main, .layout, .content-wrapper {
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: none;
+        width: auto;
     }
 }
 

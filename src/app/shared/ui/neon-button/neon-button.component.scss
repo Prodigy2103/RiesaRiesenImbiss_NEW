@@ -22,7 +22,7 @@
     width: 100%;
 
     @include all.mobile {
-        padding: 0.6rem 1rem;
+        padding: 0.6rem;
     }
 
     &:active {
@@ -77,6 +77,19 @@
 
     &:hover {
         background: rgba(all.$imbiss-orange, 0.1);
+        color: all.$white;
+    }
+}
+
+.link {
+    background: transparent;
+    border: 1px solid all.$white;
+    color: all.$white;
+    z-index: 2;
+    font-size: clamp(1.5rem, 2.5vw, 1.4rem);
+
+    &:hover {
+        background: rgba(all.$imbiss-orange, 0.6);
         color: all.$white;
     }
 }

@@ -16,88 +16,145 @@
         height: 100dvh;
     }
 
-    .order-flow {
-        @include all.size($w: 85dvw, $h: 85dvh);
-        @include all.borRad($c: rgba(255, 255, 255, 0.5), $radius: 1.6rem, $thick: 1px, $design: solid);
-        background: all.$imbiss-order-bg;
-        backdrop-filter: blur(1rem);
-        box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.8);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        animation: fadeIn 0.3s ease-out;
 
-        @include all.tablet {
-            @include all.size($w: 100%, $h: 100%);
-            border-radius: 0;
+        /* Gemeinsame Card-Basis für beide Modale */
+        .extras-section.table-layout,
+        .info-card.ingredient-list {
+            width: 95%;
+            max-width: 50rem;
+            max-height: 70dvh;
+            background: #ede5d8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            @include all.borRad($radius: 2rem, $thick: 1px, $c: rgba(0, 0, 0, 0.1));
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+            @include all.tablet {
+                width: 100%;
+                height: 85dvh;
+                padding: 1.2rem;
+            }
         }
 
-        .modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 100;
-            @include all.fl($jc: center, $alit: center);
+        .section-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
 
-            .extras-section.table-layout {
-                background: #ede5d8;
-                @include all.borRad($radius: 1.5rem, $thick: 1px, $c: rgba(0, 0, 0, 0.1));
-                padding: 1.5rem;
-                width: 90%;
-                max-width: 45rem;
-                height: 80dvh;
+            h3 {
+                font-family: 'Orbitron', sans-serif;
+                font-size: 1.3rem;
+                color: all.$imbiss-dark;
+            }
+        }
+
+        /* Scroll-Basis */
+        .extras-table,
+        .sauce-list {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- 1. Saucen / Inhaltsstoffe (ul-Struktur) --- */
+        .sauce-list {
+            list-style: none;
+            padding: 0;
+
+            .sauce-item {
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid #eee;
+
+                .sauce-name {
+                    font-weight: 700;
+                    color: all.$imbiss-dark;
+                }
+
+                .detail-list {
+                    list-style: none;
+                    margin-top: 0.5rem;
+                    padding-left: 1rem;
+                    border-left: 2px solid all.$imbiss-orange;
+
+                    .detail-item {
+                        font-size: 0.9rem;
+                        color: #666;
+                        font-style: italic;
+                    }
+                }
+            }
+        }
+
+        /* --- 2. Extras-Tabelle (Grid-Struktur) --- */
+        .extras-table {
+            display: flex;
+            flex-direction: column;
+
+            .table-header {
                 display: flex;
-                flex-direction: column;
-                color: #333;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 1rem 2rem;
+                background: #f1ede6;
+                font-weight: 800;
+                border-bottom: 2px solid #ddd;
+            }
 
-                .extras-table {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
+            .table-body {
+                overflow-y: auto;
 
-                    .table-body {
-                        flex: 1;
-                        overflow-y: auto;
-                        padding-right: 4px;
+                .table-row {
+                    display: grid;
+                    grid-template-columns: 1fr auto;
+                    align-items: center;
+                    padding: 1rem 1.5rem;
+                    border-bottom: 1px solid #eee;
+                    cursor: pointer;
 
-                        &::ng-deep {
-                            &::-webkit-scrollbar {
-                                width: 4px ;
-                            }
+                    &:hover {
+                        background: #fdfaf5;
+                    }
 
-                            &::-webkit-scrollbar-track {
-                                background: rgba(0, 0, 0, 0.05) ;
-                                border-radius: 10px;
-                            }
+                    .cell-main {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
 
-                            &::-webkit-scrollbar-thumb {
-                                background: all.$imbiss-orange ;
-                                border-radius: 10px;
-                            }
-
-                            scrollbar-width: thin ;
-                            scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05) ;
+                        input[type="checkbox"] {
+                            width: 1.2rem;
+                            height: 1.2rem;
                         }
 
-                        .table-row {
-                            display: grid ;
-                            grid-template-columns: 1fr 100px;
-                            align-items: center;
-                            padding: 0.8rem;
-                            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                        .extra-name {
+                            font-weight: 600;
+                        }
+                    }
 
-                            .cell-main {
-                                display: flex ;
-                                flex-direction: row ;
-                                align-items: center;
-                                gap: 1rem;
+                    .cell-price {
+                        text-align: right;
 
-                                input[type="checkbox"] {
-                                    width: 1.2rem;
-                                    height: 1.2rem;
-                                    accent-color: all.$imbiss-orange;
-                                }
-                            }
+                        .cost {
+                            color: #c0392b;
+                            font-weight: bold;
+                        }
+
+                        .included {
+                            color: #27ae60;
+                            font-weight: bold;
+                            font-size: 0.85rem;
                         }
                     }
                 }
@@ -105,12 +162,28 @@
         }
 
         .actions {
+            margin-top: 1.5rem;
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .order-flow {
+        @include all.size($w: 85dvw, $h: 85dvh);
+        @include all.borRad($c: rgba(255, 255, 255, 0.5), $radius: 1.6rem, $thick: 1px, $design: solid);
+        background: all.$white;
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.8);
+        animation: slideInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+        color: all.$white;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        @include all.tablet {
+            @include all.size($w: 100%, $h: 100%);
+            border-radius: 0;
         }
 
         .step {
@@ -128,12 +201,61 @@
             flex-shrink: 0;
             @include all.fl($jc: space-between, $alit: center);
             @include all.marpad($pad: 1.5rem 3rem, $mar: 0);
-            font: 400 1.4rem 'Orbitron Medium', sans-serif;
+            font: 400 1.6rem 'Orbitron Medium', sans-serif;
             color: all.$imbiss-dark;
             border-bottom: 1px solid rgba(all.$white, 0.1);
 
-            @include all.mobile {
-                font: 400 1rem 'Orbitron Medium', sans-serif;
+            @include all.tablet {
+                @include all.marpad($pad: 1rem 1rem 0 1rem, $mar: 0);
+                flex-direction: column;
+                align-items: center;
+            }
+
+            h2 {
+                font-size: clamp(1.25rem, 2.5dvw, 2rem);
+            }
+
+            a {
+                color: all.$imbiss-dark;
+                font-weight: 700;
+                text-decoration: none;
+                transition: color 0.2s;
+                font-size: clamp(1rem, 1.5vw, 2rem);
+                cursor: default;
+
+                @include all.tablet {
+                    @include all.marpad($pad: 1rem 1rem 0 1rem, $mar: 0);
+                    text-align: center;
+                }
+
+                span {
+                    color: all.$imbiss-orange;
+                    font-weight: 700;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                    font-size: clamp(1rem, 1.5vw, 2rem);
+
+                    &:hover {
+                        color: all.$imbiss-dark-orange;
+                    }
+                }
+            }
+        }
+
+        .step-header-two {
+            flex-shrink: 0;
+            @include all.fl($jc: space-between, $alit: center);
+            @include all.marpad($pad: 1.5rem 3rem, $mar: 0);
+            font: 400 1.6rem 'Terminus', sans-serif;
+            color: all.$imbiss-dark;
+            border-bottom: 1px solid rgba(all.$white, 0.1);
+
+            @include all.tablet {
+                @include all.marpad($pad: 1rem 1rem 0 1rem, $mar: 0);
+            }
+
+            h2 {
+                font-size: clamp(1rem, 2.5vw, 2rem);
             }
         }
 
@@ -141,8 +263,9 @@
         .menu-grid-item {
             flex: 1;
             overflow-y: auto;
+            scrollbar-width: none;
             display: grid;
-            gap: 0.5rem;
+            gap: 1.5rem;
             @include all.marpad($pad: 1.3rem 3rem, $mar: 0);
             grid-template-columns: repeat(4, 1fr);
             grid-auto-rows: minmax(20rem, auto);
@@ -151,7 +274,11 @@
                 display: none;
             }
 
-            @include all.notebook {
+            @media(max-width: 1350px) {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            @media(max-width: 1150px) {
                 grid-template-columns: repeat(2, 1fr);
                 @include all.marpad($pad: 1rem, $mar: 0);
             }
@@ -167,11 +294,13 @@
                 position: relative;
                 display: flex;
                 flex-direction: column;
-                height: 100%;
+                height: auto;
+                min-height: 35dvh;
                 overflow: hidden;
                 transition: all 0.4s ease;
 
                 &:hover {
+                    transform: translateY(-5px);
                     border-color: all.$imbiss-orange;
                 }
 
@@ -179,14 +308,15 @@
                     height: 80%;
                     flex-shrink: 0;
                     position: relative;
-                    background-image: url('../../../../../public/assets/CatImg/imgContainerBg.webp');
+                    background: all.$imbiss-dark;
                     background-size: cover;
                     @include all.fl($jc: center, $alit: center);
 
                     img {
                         @include all.size($w: 70%, $h: 70%);
                         object-fit: contain;
-                        filter: drop-shadow(0 0 1rem all.$imbiss-orange);
+                        filter: drop-shadow(0 0 1rem all.$white-glass);
+                        padding: 2rem 0 0 0;
                     }
 
                     .hover-details {
@@ -196,17 +326,28 @@
                         @include all.fl($flexdir: column, $jc: end, $alit: center);
                         gap: 0.8rem;
                         padding: 1rem;
-                        background: rgba(0, 0, 0, 0.4);
+                        // background: rgba(0, 0, 0, 0.4);
                         pointer-events: none;
 
                         .ingredients-container {
                             pointer-events: auto;
                             font-size: 1rem;
                             text-align: center;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
                             display: -webkit-box;
                             line-clamp: 2;
                             -webkit-box-orient: vertical;
                             overflow: hidden;
+                            // background: rgba(182, 181, 181, 0.5);
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            padding: 0.8rem;
+                            height: 15dvh;
+                            width: 100%;
+                            color: #ffffff;
                         }
 
                         app-neon-button {
@@ -218,36 +359,45 @@
                 }
 
                 .card-info {
-                    flex: 0 0 auto;
+                    height: auto;
+                    flex: 1;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    height: 4rem;
-                    padding: 0.5rem;
-
+                    padding: 0 0.8rem;
                     text-align: center;
-                    background: #a8a399;
+                    background: all.$white;
                     border-top: 1px solid rgba(all.$white, 0.05);
+                    min-width: 0;
 
                     h3 {
-                        font-size: 0.95rem;
-                        margin: 0;
-                        line-height: 1.2;
-                        color: all.$imbiss-card-dark;
-                        white-space: nowrap;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2; // Zeige maximal 2 Zeilen
+                        line-clamp: 2;
+                        -webkit-box-orient: vertical;
                         overflow: hidden;
                         text-overflow: ellipsis;
+                        white-space: normal; // Erlaube Zeilenumbrüche
+                        font-size: 1rem; // Evtl. minimal kleiner, damit mehr Text passt
+                        line-height: 1.2;
+                        color: all.$imbiss-card-dark;
                     }
 
                     .price {
-                        font-size: 1rem;
-                        margin-top: 0.1rem;
-                        color: all.$imbiss-card-dark;
+                        color: all.$imbiss-orange;
+                        font-weight: bold;
+                        margin-top: 0.3rem;
                     }
                 }
             }
         }
     }
+}
+
+.modal-close-neon {
+    position: absolute;
+    bottom: 0rem;
+    z-index: 30;
 }
 
 ::ng-deep b {

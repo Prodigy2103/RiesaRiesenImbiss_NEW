@@ -68,7 +68,7 @@
 
 .nav-link {
 	font: 600 0.8rem 'Orbitron', sans-serif;
-	color: rgba(all.$white, 0.6);
+	color: all.$white;
 	text-decoration: none;
 	text-transform: uppercase;
 	letter-spacing: 0.08rem;
@@ -92,6 +92,10 @@
 	backdrop-filter: blur(8px);
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	font-size: 0.8rem;
+
+	span {
+		color: all.$white;
+	}
 
 	&.open .status-dot {
 		background: #4ade80;

@@ -98,4 +98,23 @@
 		</div>
 		}
 	</div>
+
+	<div class="stat-row">
+		<span>MwSt (7%):</span>
+		<span>{{ taxAmount() | number: "1.2-2" }} €</span>
+	</div>
+
+	<hr />
+	
+	@let lastOrder = lastOrderOfSelectedDay();
+	@if (lastOrder && lastOrder.tseData) {
+	<div class="tse-block-final">
+		<p>Serial#: {{ lastOrder.tseData.serial }}</p>
+		<p>Signatur:</p>
+		<p class="tse-signature-wrap">{{ formatSignature(lastOrder.tseData.signature) }}</p>
+		<p>Transaktionsnummer: {{ lastOrder.tseData.transactionId }}</p>
+	</div>
+	} @else {
+	<p class="center">TSE-SIGNATUR: SYSTEM-ID-{{ selectedDate() }}</p>
+	}
 </div>

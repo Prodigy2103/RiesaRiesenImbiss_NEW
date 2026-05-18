@@ -4,7 +4,7 @@
 	@include all.fl($alit: center, $flexdir: column);
 	@include all.size($w: 100%, $h: 100dvh);
 	@include all.absolute($pos: sticky, $top: 0);
-	background: linear-gradient(180deg, all.$imbiss-orange 0%, #161b22 100%);
+	background: black;
 	border-right: 1px solid all.$imbiss-border-dark;
 	box-sizing: border-box;
 	overflow: hidden;
@@ -111,7 +111,7 @@
 		gap: 0.8rem;
 		padding: 0.9rem 1.2rem;
 		text-decoration: none;
-		color: rgba(all.$white, 0.5);
+		color: rgb(255, 255, 255, 0.7);
 		font: 600 1rem 'Orbitron', sans-serif;
 		letter-spacing: 0.05rem;
 		text-transform: uppercase;
@@ -159,6 +159,7 @@
 
 		@include all.tablet {
 			display: flex;
+			color: all.$white;
 		}
 	}
 

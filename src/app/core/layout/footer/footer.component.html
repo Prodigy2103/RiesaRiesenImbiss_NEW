@@ -1,44 +1,46 @@
-<app-neon-button variant="primary" class="modal-close-neon" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-	<span class="burger-line"></span>
-</app-neon-button>
+<div class="footer-btn">
+	<app-neon-button class="modal-close-neon" (click)="toggleMenu()">
+		<div class="burger-menu" [class.active]="isMenuOpen()">
+			<span class="burger-line"></span>
+			<span class="burger-line"></span>
+			<span class="burger-line"></span>
+		</div>
+	</app-neon-button>
+</div>
 
 <footer class="sidebar-footer" [class.is-open]="isMenuOpen()">
+	<app-footer-section title="NEUIGKEITEN" [items]="news" (select)="handleNewsClick($event)">
+	</app-footer-section>
 
-	<app-neon-button variant="ghost" class="modal-close-neon" (click)="closeMenu()">
-		X
-	</app-neon-button>
+	<div class="footer-divider"></div>
 
-	<div class="footer-section">
-		<div class="section-label">
-			<span class="label-dot"></span>
-			NEUIGKEITEN
-		</div>
-		<div class="news-list">
-			@for (n of news; track n.title) {
-			<div class="footer-row" (click)="ui.openNews(n)">
-				<span class="row-dot" [class.urgent]="n.urgent"></span>
-				<span class="row-text" [class.urgent-text]="n.urgent">{{ n.title }}</span>
-				<span class="row-arrow">›</span>
-			</div>
-			}
-		</div>
-	</div>
+	<app-footer-section title="JOBS" [items]="jobs" (select)="handleJobClick($event)">
+	</app-footer-section>
+
+	<div class="footer-divider"></div>
+
+	<app-footer-section title="INFO & REZEPTUREN" [items]="infoCategories()" displayKey="label"
+		(select)="openCategoryInfo($event)">
+	</app-footer-section>
 
 	<div class="footer-divider"></div>
 
 	<div class="footer-section">
 		<div class="section-label">
 			<span class="label-dot accent"></span>
-			JOBS
+			SOCIAL MEDIA
 		</div>
-		@for (job of jobs; track job.title) {
-		<div class="footer-row" (click)="ui.openJob(job)">
-			<span class="row-dot" [class.urgent]="job.urgent"></span>
-			<span class="row-text">{{ job.title }}</span>
-			<span class="row-arrow">›</span>
+		<div class="social-links-row">
+			<a href="https://www.instagram.com/..." target="_blank" class="social-icon-link">
+				<img src="assets/img/instagrram_logo.png" alt="Instagram" />
+			</a>
+			<a href="https://www.tiktok.com/..." target="_blank" class="social-icon-link">
+				<img src="assets/img/vecteezy_tiktok-png-icon_16716450.png" alt="TikTok" />
+			</a>
 		</div>
-		}
 	</div>
 
-	<div class="footer-copy">© 2025 Riesenimbiss</div>
+	<div class="footer-copy">© 2025 Riesen Imbiss</div>
 </footer>
+
+<app-footer-modals></app-footer-modals>

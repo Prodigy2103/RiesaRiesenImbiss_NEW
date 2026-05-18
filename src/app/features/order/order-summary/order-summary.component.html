@@ -43,7 +43,7 @@
                             placeholder="Dein Name" />
                     </div>
 
-                    @if (order.deliveryType() === 'delivery') {
+                    <!-- @if (order.deliveryType() === 'delivery') {
                     <div class="input-group">
                         <label>Adresse</label>
                         <input type="text" [ngModel]="customer().address"
@@ -51,7 +51,7 @@
                             [style.color]="customer().address ? 'white' : 'rgba(255,255,255,0.4)'"
                             placeholder="Straße, Hausnummer, PLZ" />
                     </div>
-                    }
+                    } -->
 
                     <div class="input-group">
                         <label>Telefon</label>
@@ -109,9 +109,9 @@
                 <app-neon-button [class.active]="order.deliveryType() === 'pickup'" (click)="setMode('pickup')">
                     Abholung
                 </app-neon-button>
-                <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
+                <!-- <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
                     Lieferung
-                </app-neon-button>
+                </app-neon-button> -->
             </div>
         </div>
 

@@ -6,6 +6,62 @@
     min-height: 100vh;
     color: #333;
     font-family: 'Courier New', Courier, monospace;
+
+    .archive-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+
+        h2 {
+            width: 100%;
+            font-family: 'Orbitron', sans-serif;
+            color: all.$text-main;
+        }
+
+        /* Modernisiertes Datum-Input */
+        input[type="date"] {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(all.$imbiss-orange, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+                border-color: all.$imbiss-orange;
+                box-shadow: 0 0 0 3px rgba(all.$imbiss-orange, 0.1);
+            }
+        }
+
+        /* Styling für den Druck-Button */
+        button {
+            padding: 10px 20px;
+            background: all.$imbiss-orange;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover {
+                background: all.$imbiss-amber;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(all.$imbiss-orange, 0.2);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+    }
 }
 
 .dashboard-container {
@@ -145,61 +201,90 @@
     }
 }
     
+.only-print {
+    display: none;
+}
 
-    .only-print {
+@media print {
+    @page {
+        margin: 0;
+        size: auto;
+    }
+
+    .no-print {
         display: none;
     }
 
-    @media print {
-        @page {
-            margin: 0;
-            size: auto;
+    .only-print {
+        display: block;
+        padding: 4mm 2mm;
+        @include all.ticket-page-setup(70mm);
+
+        h1 {
+            font-size: 14pt;
+            margin-bottom: 4mm;
+            text-align: center;
+            border-bottom: 2px solid black;
         }
 
-        .no-print {
-            display: none ;
-        }
-
-        .only-print {
-            display: block ;
-            padding: 4mm 2mm;
-            @include all.ticket-page-setup(70mm);
-
-            h1 {
-                font-size: 14pt;
-                margin-bottom: 4mm;
-                text-align: center;
-                border-bottom: 2px solid black;
-            }
-        }
-
-        .stat-row {
-            @include all.print-ticket-row(1mm);
-            font-size: 10pt;
-            margin-bottom: 1mm;
-        }
-
-        .report-table {
-            width: 100%;
+        .center {
+            text-align: center;
+            font-size: 8pt;
             margin-top: 5mm;
-            border-top: 1px dashed black;
+            text-transform: uppercase;
+        }
+    }
 
-            .item-row {
-                @include all.print-ticket-row(2mm);
-                display: flex ;
-                font-size: 10pt;
-                padding: 1mm 0;
-                border-bottom: 0.5px solid #eee;
+    .stat-row {
+        @include all.print-ticket-row(1mm);
+        font-size: 10pt;
+        margin-bottom: 1mm;
+    }
 
-                span:first-child {
-                    flex: 0 0 10mm;
-                    font-weight: bold;
-                }
+    .report-table {
+        width: 100%;
+        margin-top: 5mm;
+        border-top: 1px dashed black;
 
-                span:nth-child(2) {
-                    flex: 1;
-                    text-align: left;
-                }
+        .item-row {
+            @include all.print-ticket-row(2mm);
+            display: flex;
+            font-size: 10pt;
+            padding: 1mm 0;
+            border-bottom: 0.5px solid #eee;
+
+            span:first-child {
+                flex: 0 0 10mm;
+                font-weight: bold;
+            }
+
+            span:nth-child(2) {
+                flex: 1;
+                text-align: left;
             }
         }
     }
+
+    .tse-block-final {
+        margin-top: 6mm;
+        padding-top: 2mm;
+        border-top: 1px solid black;
+        font-family: monospace;
+        font-size: 7pt;
+        line-height: 1.2;
+
+        p {
+            margin: 0.5mm 0;
+            word-wrap: break-word;
+        }
+
+        .tse-signature-wrap {
+            display: block;
+            background: #f9f9f9;
+            padding: 1mm;
+            border: 0.2mm solid #ccc;
+            white-space: pre-wrap;
+            font-size: 6pt;
+        }
+    }
+}
