@@ -1,11 +1,23 @@
 RewriteEngine On
 RewriteBase /
 
-# Wenn die Datei existiert, liefere sie direkt aus
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
+# 1. HTTPS auf Hostinger erzwingen
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Nur wenn sie NICHT existiert, gehe zur index.html
+# 2. Angular SPA Fallback
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
+
+# 3. Sicherheits-Header (Optimiert für Hostinger-Laufzeiten)
+<IfModule mod_headers.c>
+  Header set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+  Header set X-Frame-Options "DENY"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), camera=(), microphone=()"
+
+  # TEST-MODUS: Report-Only verhindert das Ausblenden deiner Angular-Komponenten!
+  Header set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com wss://*.googleapis.com; img-src 'self' data: https://*.cdninstagram.com; font-src 'self' data:;"
+</IfModule>

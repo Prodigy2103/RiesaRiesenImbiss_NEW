@@ -9,7 +9,7 @@
         <span class="row-dot" [class.urgent]="item.urgent"></span>
         
         <span class="row-text" [class.urgent-text]="item.urgent">
-            {{ item[displayKey()] }}
+            {{ getItemLabel(item) }}
         </span>
         
         <span class="row-arrow">›</span>

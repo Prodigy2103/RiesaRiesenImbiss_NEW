@@ -2,13 +2,26 @@
     <div class="content-wrapper">
         @if (!isMonitorActive()) {
             <div class="overlay">
-                <button (click)="startMonitor()">👨‍🍳 Monitor & Sound aktivieren</button>
+                <button (click)="startMonitor()" class="btn-start-monitor">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <span>Monitor & Sound aktivieren</span>
+                </button>
             </div>
         }
 
         <div class="kanban-board">
             <div class="kanban-column new">
-                <h2 class="column-header">🆕 Neu</h2>
+                <h2 class="column-header">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Neu</span>
+                </h2>
                 <div class="column-content">
                     @for (order of newOrders(); track order.id) {
                         <ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
@@ -17,7 +30,13 @@
             </div>
 
             <div class="kanban-column preparing">
-                <h2 class="column-header">👨‍🍳 In Arbeit</h2>
+                <h2 class="column-header">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>In Arbeit</span>
+                </h2>
                 <div class="column-content">
                     @for (order of preparingOrders(); track order.id) {
                         <ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
@@ -26,7 +45,13 @@
             </div>
 
             <div class="kanban-column ready">
-                <h2 class="column-header">✅ Bereit / 🚚 Weg</h2>
+                <h2 class="column-header">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>Bereit / Unterwegs</span>
+                </h2>
                 <div class="column-content">
                     @for (order of readyOrders(); track order.id) {
                         <ng-container *ngTemplateOutlet="orderCard; context: { $implicit: order }"></ng-container>
@@ -42,7 +67,22 @@
         <div class="card-header">
             <span class="order-id">#{{ order.id.slice(-4) }}</span>
             <span class="badge" [class]="order.deliveryType">
-                {{ order.deliveryType === 'delivery' ? '🚀 Lieferung' : '🥡 Abholung' }}
+                @if (order.deliveryType === 'delivery') {
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="1" y="3" width="15" height="13"></rect>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                    <span>Lieferung</span>
+                } @else {
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span>Abholung</span>
+                }
             </span>
         </div>
 
@@ -50,7 +90,13 @@
         <p class="customer-phone">{{ order.customer.phone || 'Kein Telefon' }}</p>
 
         <div class="scheduled-time-badge">
-            📅 Termin: <strong>{{ order.customer.scheduledTime || 'ASAP' }} Uhr</strong>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Termin: <strong>{{ order.customer.scheduledTime || 'ASAP' }} Uhr</strong></span>
         </div>
 
         <ul class="items-list">
@@ -67,7 +113,13 @@
         <div class="card-footer">
             <div class="price">{{ order.finalTotal | number:'1.2-2' }} €</div>
             <div class="actions">
-                <button class="print-icon-btn" (click)="printOrder(order)">🖨️</button>
+                <button class="print-icon-btn" (click)="printOrder(order)" aria-label="Drucken">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                </button>
                 <button class="status-btn" 
                         [class]="order.status" 
                         (click)="handleStatusClick(order)">

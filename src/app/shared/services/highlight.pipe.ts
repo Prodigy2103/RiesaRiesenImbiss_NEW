@@ -3,21 +3,32 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Pipe({ name: 'highlight', standalone: true })
 export class HighlightPipe implements PipeTransform {
-	private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
 
-	transform(text: string | undefined | null, targets: string | string[]): SafeHtml | string {
-		if (!text || !targets) return text ?? '';
+  transform(inputText: string | undefined | null, targetTerms: string | string[]): SafeHtml | string {
+    if (!inputText || !targetTerms) return inputText ?? '';
+    const sanitizedInput = this.escapeHtml(inputText);
+    const searchTerms = Array.isArray(targetTerms) ? targetTerms : [targetTerms];
+    const highlightedContent = searchTerms.reduce(
+      (currentText, singleTerm) => this.highlightSingleTerm(currentText, singleTerm),
+      sanitizedInput
+    );
+    const cleanedResult = highlightedContent.replace(/^(<br>|<br\s*\/?>)*/i, '').trim();
+    return this.sanitizer.bypassSecurityTrustHtml(cleanedResult);
+  }
 
-		const suchBegriffe = Array.isArray(targets) ? targets : [targets];
-		let transformierterText = text;
+  private escapeHtml(rawText: string): string {
+    return rawText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
-		suchBegriffe.forEach(begriff => {
-			const safeSearch = begriff.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const regex = new RegExp(`(${safeSearch})`, 'gi');
-			transformierterText = transformierterText.replace(regex, '<br><br><b>$1</b><br>');
-		});
-		
-		const finalesErgebnis = transformierterText.replace(/^(<br>|<br\s*\/?>)*/i, '').trim();
-		return this.sanitizer.bypassSecurityTrustHtml(finalesErgebnis);
-	}
+  private highlightSingleTerm(sourceContent: string, searchTerm: string): string {
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const matchingPattern = new RegExp(`(${escapedTerm})`, 'gi');
+    return sourceContent.replace(matchingPattern, '<br><br><b>$1</b><br>');
+  }
 }

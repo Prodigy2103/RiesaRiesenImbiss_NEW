@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/riesa-riesen-imbiss/browser",
+    "public": "dist/riesa-riesen-imbiss-new/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -12,5 +12,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

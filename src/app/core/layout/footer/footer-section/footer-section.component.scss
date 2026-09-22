@@ -33,6 +33,7 @@
 
 .footer-row {
     @include all.fl($alit: center, $gap: 0.5rem);
+    min-height: 44px;
     padding: 0.35rem 0.4rem;
     border-radius: 0.4rem;
     cursor: pointer;

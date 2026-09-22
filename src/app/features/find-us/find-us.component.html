@@ -25,8 +25,10 @@
             <h2 class="cyber-title">User Feedback</h2>
 
             <div class="star-rating">
-                <span *ngFor="let s of [0,1,2,3,4]" class="star" (click)="setRating($event, s)"
-                    [style.--percent]="getStarFill(s, currentRating)">★</span>
+                @for (starIndex of [0, 1, 2, 3, 4]; track starIndex) {
+                <span class="star" (click)="setRating($event, starIndex)"
+                    [style.--percent]="getStarFill(starIndex, currentRating)">★</span>
+                }
                 <span class="rating-display">{{ currentRating }}</span>
             </div>
 
@@ -46,22 +48,40 @@
             <h3 class="cyber-subtitle" (dblclick)="toggleAdmin()">Recent Logs</h3>
 
             <div class="scroll-area">
-                <div class="comment-entry" *ngFor="let c of comments()">
+                @for (commentItem of comments(); track commentItem.id) {
+                <div class="comment-entry">
                     <div class="entry-header">
-                        <span class="user-id">{{c.author}}</span>
+                        <span class="user-id">{{ commentItem.author }}</span>
 
-                        <button *ngIf="adminMode()" class="delete-btn" (click)="deleteComment(c.id)">
+                        @if (adminMode()) {
+                        <button class="delete-btn" (click)="deleteComment(commentItem.id)">
                             DELETE_LOG
                         </button>
+                        }
 
                         <div class="stars-display">
-                            <span *ngFor="let s of [0,1,2,3,4]" class="mini-star"
-                                [style.--percent]="getStarFill(s, c.rating)">★</span>
+                            @for (miniStarIndex of [0, 1, 2, 3, 4]; track miniStarIndex) {
+                            <span class="mini-star"
+                                [style.--percent]="getStarFill(miniStarIndex, commentItem.rating)">★</span>
+                            }
                         </div>
                     </div>
-                    <p class="comment-text">"{{c.text}}"</p>
+                    <p class="comment-text">"{{ commentItem.text }}"</p>
                 </div>
+                }
             </div>
         </div>
     </div>
+
+    @if (toastMessage(); as messageText) {
+    <aside class="cyber-toast" [class.error]="toastSeverity() === 'error'"
+        [class.success]="toastSeverity() === 'success'" (click)="dismissToast()" role="alert">
+        <span class="toast-indicator"></span>
+        <div class="toast-content">
+            <span class="toast-badge">{{ toastSeverity() === 'error' ? 'ALERT' : 'SUCCESS' }}</span>
+            <span class="toast-message">{{ messageText }}</span>
+        </div>
+        <button class="toast-close" type="button" aria-label="Benachrichtigung schliessen">✕</button>
+    </aside>
+    }
 </section>

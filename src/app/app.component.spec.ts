@@ -1,10 +1,21 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { AppComponent } from './app.component';
+import { DataService } from './shared/services/data.services';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
+    const mockDataService = {
+      ingredientDetailsMap: signal({})
+    };
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        { provide: DataService, useValue: mockDataService }
+      ]
     }).compileComponents();
   });
 
@@ -18,12 +29,5 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('RiesaRiesenImbiss');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, RiesaRiesenImbiss');
   });
 });

@@ -14,7 +14,6 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-// Statische Dateien mit hoher Performance ausliefern
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
@@ -23,17 +22,15 @@ app.use(
   }),
 );
 
-// Alle Routen an die Angular Engine delegieren
-app.use('/**', (req, res, next) => {
+app.use('/**', (incomingRequest, serverResponse, nextMiddleware) => {
   angularApp
-    .handle(req)
-    .then((response) => 
-      response ? writeResponseToNodeResponse(response, res) : next()
+    .handle(incomingRequest)
+    .then((engineResponse) => 
+      engineResponse ? writeResponseToNodeResponse(engineResponse, serverResponse) : nextMiddleware()
     )
-    .catch(next);
+    .catch(nextMiddleware);
 });
 
-// Server-Start bei direktem Aufruf
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
   app.listen(port, () => {
@@ -41,5 +38,5 @@ if (isMainModule(import.meta.url)) {
   });
 }
 
-// Export für Firebase oder andere Cloud-Umgebungen
-export const reqHandler = createNodeRequestHandler(app);
+export const requestHandler = createNodeRequestHandler(app);
+export const reqHandler = requestHandler;

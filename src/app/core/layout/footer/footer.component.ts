@@ -4,15 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { UiService } from '../../../shared/services/ui.service';
 import { DataService } from '../../../shared/services/data.services';
 import { SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
-import { Job, News } from '../../../shared/interfaces/footer.interface';
+import { Job, News, InfoCategory, FooterItem } from '../../../shared/interfaces/footer.interface';
 import { FooterSectionComponent } from './footer-section/footer-section.component';
-import { FooterModalsComponent } from "../footer-modals/footer-modals.component";
+import { FooterModalsComponent } from '../footer-modals/footer-modals.component';
 import { NeonButtonComponent } from '../../../shared/ui/neon-button/neon-button.component';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, FooterSectionComponent, FooterModalsComponent, NeonButtonComponent,],
+  imports: [CommonModule, FormsModule, FooterSectionComponent, FooterModalsComponent, NeonButtonComponent],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })
@@ -22,7 +22,7 @@ export class FooterComponent {
 
   readonly isMenuOpen = signal(false);
 
-  readonly infoCategories = computed(() => [
+  readonly infoCategories = computed<InfoCategory[]>(() => [
     {
       id: 'ingredients',
       label: 'Inhaltsstoffe',
@@ -56,26 +56,24 @@ export class FooterComponent {
   ];
 
   toggleMenu(): void {
-    this.isMenuOpen.update(open => !open);
+    this.isMenuOpen.update(isOpen => !isOpen);
   }
 
   closeMenu(): void {
     this.isMenuOpen.set(false);
   }
 
-  // In der footer.component.ts
-openCategoryInfo(category: { id: string, data: any[] }): void {
-    const type = category.id === 'sauces' ? 'sauce' : 'ingredient';
-    this.ui.openIngredients(category.data, type);
-}
-
-  handleNewsClick(n: News): void {
-    this.ui.openNews(n);
-    // this.closeMenu();
+  openCategoryInfo(item: FooterItem): void {
+    const category = item as unknown as InfoCategory;
+    const targetType = category.id === 'sauces' ? 'sauce' : 'ingredient';
+    this.ui.openIngredients(category.data ?? [], targetType);
   }
 
-  handleJobClick(j: Job): void {
-    this.ui.openJob(j);
-    // this.closeMenu();
+  handleNewsClick(newsItem: FooterItem): void {
+    this.ui.openNews(newsItem as News);
+  }
+
+  handleJobClick(jobItem: FooterItem): void {
+    this.ui.openJob(jobItem as Job);
   }
 }

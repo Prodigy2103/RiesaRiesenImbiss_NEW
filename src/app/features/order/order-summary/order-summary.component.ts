@@ -5,6 +5,8 @@ import { NeonButtonComponent } from '../../../shared/ui/neon-button/neon-button.
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { DataService } from '../../../shared/services/data.services';
+import { CustomerData } from '../../../shared/modals/order.model';
+import { safeJsonParse } from '../../../shared/utils/storage.util';
 
 @Component({
   selector: 'app-order-summary',
@@ -22,74 +24,72 @@ export class OrderSummaryComponent implements OnInit {
 
   public isLoading = signal(false);
   public minTime = signal('');
-  public customer = signal({ name: '', address: '', phone: '', scheduledTime: '' });
+  public customer = signal<CustomerData>({ name: '', address: '', phone: '', scheduledTime: '' });
 
   public isOrderInvalid = computed(() => {
-  const c = this.customer();
-  const items = this.order.items();
-  
-  if (items.length === 0) return true;
+    const currentCustomer = this.customer();
+    const currentItems = this.order.items();
+    if (currentItems.length === 0) return true;
 
-  const hasValidName = c.name.trim().length >= 6;
-  const hasValidPhone = c.phone.trim().length >= 11;
-  const hasTime = !!c.scheduledTime;
+    const hasValidName = currentCustomer.name.trim().length >= 6;
+    const hasValidPhone = currentCustomer.phone.trim().length >= 11;
+    const hasScheduledTime = !!currentCustomer.scheduledTime;
+    const hasBasicInfo = hasValidName && hasValidPhone && hasScheduledTime;
 
-  const basic = hasValidName && hasValidPhone && hasTime;
+    if (this.order.deliveryType() === 'pickup') {
+      return !hasBasicInfo;
+    }
 
-  if (this.order.deliveryType() === 'pickup') {
-    return !basic;
+    const hasValidAddress = currentCustomer.address.trim().length > 10;
+    return !(hasBasicInfo && hasValidAddress && this.order.isMovReached());
+  });
+
+  ngOnInit(): void {
+    this.order.deliveryType.set('pickup');
+    this.loadPersistedCustomer();
+    this.calculateMinTime();
   }
 
-  const hasValidAddress = c.address.trim().length > 10;
-  return !(basic && hasValidAddress && this.order.isMovReached());
-});
-
-  ngOnInit() {
-  this.order.deliveryType.set('pickup'); // Zeile wenn lieferung läuft entfernen
-  this.loadSavedData();
-  this.calculateMinTime();
-}
-
-  private loadSavedData(): void {
-    const saved = localStorage.getItem('imbiss_customer');
-    if (saved) this.customer.set(JSON.parse(saved));
+  private loadPersistedCustomer(): void {
+    const rawCustomerJson = localStorage.getItem('imbiss_customer');
+    const fallbackCustomer: CustomerData = { name: '', address: '', phone: '', scheduledTime: '' };
+    this.customer.set(safeJsonParse<CustomerData>(rawCustomerJson, fallbackCustomer));
   }
 
   private calculateMinTime(): void {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 60);
-    const time = now.toTimeString().slice(0, 5);
-    this.minTime.set(time);
+    const calculatedDate = new Date();
+    calculatedDate.setMinutes(calculatedDate.getMinutes() + 60);
+    const formattedTimeString = calculatedDate.toTimeString().slice(0, 5);
+    this.minTime.set(formattedTimeString);
     if (!this.customer().scheduledTime) {
-      this.customer.update(prev => ({ ...prev, scheduledTime: time }));
+      this.customer.update(existingCustomer => ({ ...existingCustomer, scheduledTime: formattedTimeString }));
     }
   }
 
-  public setMode(mode: 'pickup' | 'delivery'): void {
-    if (mode !== 'pickup') return; // Zeile wenn lieferung läuft entfernen
-    this.order.deliveryType.set(mode);
+  public setMode(deliveryMode: 'pickup' | 'delivery'): void {
+    if (deliveryMode !== 'pickup') return;
+    this.order.deliveryType.set(deliveryMode);
   }
 
   async submitOrder(): Promise<void> {
-  // 1. GUARD: Verhindert Klicks bei Invalidität, laufendem Prozess oder leerem Warenkorb
-  if (this.isOrderInvalid() || this.isLoading() || this.order.items().length === 0) {
-    return;
+    if (this.isOrderInvalid() || this.isLoading() || this.order.items().length === 0) {
+      return;
+    }
+    this.isLoading.set(true);
+    await this.executeOrderSubmission();
   }
 
-  this.isLoading.set(true);
-  const orderSnapshot = this.createOrderSnapshot();
-
-  try {
-    const orderId = await this.dataService.sendOrder(orderSnapshot);
-
-    this.processSuccess(orderId, orderSnapshot.customer);
-    localStorage.removeItem('imbiss_customer');
-  } catch (error) {
-
-    this.ngZone.run(() => this.isLoading.set(false));
-    console.error('Bestellfehler:', error);
+  private async executeOrderSubmission(): Promise<void> {
+    const orderSnapshot = this.createOrderSnapshot();
+    try {
+      const orderId = await this.dataService.sendOrder(orderSnapshot);
+      this.processSuccess(orderId, orderSnapshot.customer);
+      localStorage.removeItem('imbiss_customer');
+    } catch (orderError) {
+      this.ngZone.run(() => this.isLoading.set(false));
+      console.error('Bestellfehler:', orderError);
+    }
   }
-}
 
   private createOrderSnapshot() {
     return {
@@ -101,25 +101,26 @@ export class OrderSummaryComponent implements OnInit {
     };
   }
 
-  private processSuccess(orderId: string, customer: any): void {
-    this.order.complete(customer);
+  private processSuccess(orderId: string, customerPayload: CustomerData): void {
+    this.order.complete(customerPayload);
     this.order.updateId(orderId);
+    this.isLoading.set(false);
     this.ngZone.run(() => this.router.navigate(['/checkout']));
   }
 
-  public onZipInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/\D/g, '').slice(0, 5);
-    this.order.zipCode.set(value);
-    input.value = value;
+  public onZipInput(inputEvent: Event): void {
+    const inputElement = inputEvent.target as HTMLInputElement;
+    const sanitizedZipCode = inputElement.value.replace(/\D/g, '').slice(0, 5);
+    this.order.zipCode.set(sanitizedZipCode);
+    inputElement.value = sanitizedZipCode;
   }
 
-  public saveData(): void {
+  public persistCustomerData(): void {
     localStorage.setItem('imbiss_customer', JSON.stringify(this.customer()));
   }
 
-  public updateCustomerField(field: string, value: string): void {
-    this.customer.update(prev => ({ ...prev, [field]: value }));
-    this.saveData();
+  public updateCustomerField(fieldName: keyof CustomerData, fieldValue: string): void {
+    this.customer.update(existingCustomer => ({ ...existingCustomer, [fieldName]: fieldValue }));
+    this.persistCustomerData();
   }
 }

@@ -1,4 +1,5 @@
 @use '../../../../../public/styles/all_styles.scss' as all;
+@use './order-summary-list' as list;
 
 :host {
 	display: block;
@@ -45,86 +46,7 @@
 		gap: 1rem;
 		flex-shrink: 0;
 
-		.summary-list {
-			height: 16dvh;
-			overflow-y: auto;
-			padding-right: 5px;
-
-			&::-webkit-scrollbar {
-				width: 4px;
-			}
-
-			&::-webkit-scrollbar-thumb {
-				background: all.$imbiss-orange;
-				border-radius: 10px;
-			}
-
-			.summary-row {
-				@include all.fl($jc: space-between, $alit: center, $gap: 3rem);
-				background: rgba(all.$white, 0.05);
-				padding: 1rem;
-				border-radius: 12px;
-				border: 1px solid rgba(all.$white, 0.1);
-				margin-bottom: 0.5rem;
-
-				.item-info {
-					background: rgba(0, 0, 0, 0.59);
-					width: 50%;
-					padding: 0.3rem;
-					border-radius: 0.8rem;
-					@include all.fl($alit: center, $gap: 1rem);
-
-					.main-item-line {
-						display: flex;
-						flex-direction: row;
-						align-items: center;
-						gap: 0.2rem;
-
-						.name {
-							font: 1.1rem 'Terminus', sans-serif;
-						}
-
-						.extra {
-							color: rgba(all.$white, 0.7);
-							font-size: 0.8rem;
-						}
-
-						.extra-badge {
-							background: rgba(all.$imbiss-orange, 0.15);
-							color: all.$imbiss-orange;
-							padding: 1px 6px;
-							border-radius: 4px;
-							font-size: 0.7rem;
-							border: 1px solid rgba(all.$imbiss-orange, 0.3);
-						}
-					}
-
-					.qty {
-						background: rgba(all.$imbiss-orange, 0.2);
-						color: all.$imbiss-orange;
-						padding: 2px 8px;
-						border-radius: 6px;
-						font-weight: 800;
-					}
-				}
-
-				.item-price {
-					font-weight: bold;
-					color: all.$white;
-					min-width: 4rem;
-					text-align: right;
-				}
-
-				.item-controls {
-					display: flex;
-					justify-content: space-around;
-					align-items: center;
-					width: 30%;
-					background: rgba(all.$imbiss-dark, 0.1);
-					padding: 0.5rem;
-				}
-			}
-		}
+		@include list.order-summary-list-styles;
 	}
 
 	.extras-local {

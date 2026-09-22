@@ -31,16 +31,13 @@ export class OrderFlowComponent {
   availableExtras = computed(() => {
     const item = this.selectedItem();
     const category = item?.category?.toLowerCase();
-    const standardCategories = [
-      'salad', 'doener', 'dueruem', 'doener-box',
-      'lahmacun'
-    ];
+    const standardCategories = ['salad', 'doener', 'dueruem', 'doener-box', 'lahmacun'];
 
     if (!item || !category) return [];
 
     const exclusions: Record<string, string[]> = {
       'taco': ['100', '101', '102', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134'],
-      ...standardCategories.reduce((acc, cat) => ({ ...acc, [cat]: ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'] }), {}),
+      ...standardCategories.reduce((accumulator, catName) => ({ ...accumulator, [catName]: ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'] }), {}),
       'kumpir': ['109', '110', '130', '131', '132', '133', '134'],
       'doener-teller': ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'],
       'noodle': ['108', '109', '110', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '130', '131', '132', '133', '134'],
@@ -53,25 +50,24 @@ export class OrderFlowComponent {
     };
 
     const sauceIdsToExclude = exclusions[category] || [];
-
     return this.EXTRAS().filter(extra => !sauceIdsToExclude.includes(extra.id));
   });
 
   selectedCategoryLabel = computed(() => {
     const currentKey = this.order.category();
-    const allCats = this.categories() as Category[];
-    return allCats.find(c => c.key === currentKey)?.label || 'Menü';
+    const allCategories = this.categories() as Category[];
+    return allCategories.find(cat => cat.key === currentKey)?.label || 'Menü';
   });
 
   filteredItems = computed(() => {
-    const key = this.order.category()?.toLowerCase();
-    const all = this.menuItems() as OrderItem[];
-    return key ? all.filter(i => i.category?.toLowerCase() === key) : [];
+    const categoryKey = this.order.category()?.toLowerCase();
+    const allProducts = this.menuItems() as OrderItem[];
+    return categoryKey ? allProducts.filter(item => item.category?.toLowerCase() === categoryKey) : [];
   });
 
   isSauceMode = computed(() => {
-    const info = this.selectedIngredientInfo();
-    return !!info?.length && SAUCE_INFO_LIST.some(s => s.id === info[0].id);
+    const infoList = this.selectedIngredientInfo();
+    return !!infoList?.length && SAUCE_INFO_LIST.some(sauce => sauce.id === infoList[0].id);
   });
 
   toggleExtra(extra: OrderItem, event: Event): void {
@@ -109,40 +105,40 @@ export class OrderFlowComponent {
     this.order.resetExtras();
   }
 
-  getIngredientName(idOrObj: any): string {
-    if (!idOrObj) return '';
-    if (typeof idOrObj === 'object') return idOrObj.name || 'Unbekannt';
-    const found = this.dataService.getIngredient(idOrObj.toString());
-    return found ? (found.detail || found.name) : idOrObj.toString();
+  getIngredientName(idOrObject: string | number | { name?: string } | null | undefined): string {
+    if (!idOrObject) return '';
+    if (typeof idOrObject === 'object') return idOrObject.name || 'Unbekannt';
+    const foundIngredient = this.dataService.getIngredient(idOrObject.toString());
+    return foundIngredient ? (foundIngredient.detail || foundIngredient.name) : idOrObject.toString();
   }
 
-  getIngredients(data: string | string[] | undefined): string[] {
-    if (!data) return [];
-    const text = Array.isArray(data) ? data.join(', ') : data;
-    return text.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  getIngredients(rawIngredients: string | string[] | undefined): string[] {
+    if (!rawIngredients) return [];
+    const text = Array.isArray(rawIngredients) ? rawIngredients.join(', ') : rawIngredients;
+    return text.split(',').map(token => token.trim()).filter(token => token.length > 0);
   }
 
   showAllIngredients(identifiers: string[] | undefined, event: Event): void {
     event.stopPropagation();
-    const ids = identifiers ?? [];
-    if (ids.length > 0) {
-      this.selectedIngredientInfo.set(ids.map(id => this.mapIdToDetail(id)));
+    const resolvedIds = identifiers ?? [];
+    if (resolvedIds.length > 0) {
+      this.selectedIngredientInfo.set(resolvedIds.map(id => this.mapIdToDetail(id)));
     }
   }
 
   private mapIdToDetail(id: string): IngredientDetail {
-    const found = this.dataService.getIngredient(id);
+    const foundIngredient = this.dataService.getIngredient(id);
     return {
       id,
-      name: found?.name ?? id,
-      detail: found?.detail ?? (this.isSauceMode() ? 'Sauce' : 'Basis-Zutat'),
-      composition: found?.composition ?? ''
+      name: foundIngredient?.name ?? id,
+      detail: foundIngredient?.detail ?? (this.isSauceMode() ? 'Sauce' : 'Basis-Zutat'),
+      composition: foundIngredient?.composition ?? ''
     };
   }
 
-  passCategory(catKey: string, event: Event): void {
+  passCategory(categoryKey: string, event: Event): void {
     event.stopPropagation();
-    this.order.category.set(catKey);
+    this.order.category.set(categoryKey);
     this.order.next();
   }
 
@@ -152,12 +148,12 @@ export class OrderFlowComponent {
     if (category.id === this.TACO_ID) this.selectedIngredientInfo.set([...SAUCE_INFO_LIST]);
   }
 
-  public getSafeIdArray(data: (string | number)[] | undefined): string[] {
-    return data ? data.map(id => id.toString()) : [];
+  public getSafeIdArray(identifiers: (string | number)[] | undefined): string[] {
+    return identifiers ? identifiers.map(id => id.toString()) : [];
   }
 
-  public getAsStringArray(data: (string | OrderItem)[] | undefined): string[] {
-    if (!data) return [];
-    return data.filter((item): item is string => typeof item === 'string');
+  public getAsStringArray(rawItems: (string | OrderItem)[] | undefined): string[] {
+    if (!rawItems) return [];
+    return rawItems.filter((item): item is string => typeof item === 'string');
   }
 }

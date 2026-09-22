@@ -1,8 +1,12 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Timestamp } from '@angular/fire/firestore';
 import { OrderService } from '../services/order.service';
 import { Order } from '../modals/order.model';
+import { formatLocalDateIso } from '../utils/date.util';
+
+type RawDateInput = Timestamp | Date | string | number | null | undefined;
 
 @Component({
   selector: 'app-order-archive',
@@ -15,7 +19,7 @@ export class OrderArchiveComponent implements OnInit {
   private readonly orderService = inject(OrderService);
 
   orders = signal<Order[]>([]);
-  selectedDate = signal<string>(new Date().toISOString().split('T')[0]);
+  selectedDate = signal<string>(formatLocalDateIso(new Date()));
   isLoading = signal<boolean>(false);
 
   ngOnInit(): void {
@@ -25,44 +29,43 @@ export class OrderArchiveComponent implements OnInit {
   async loadOrders(): Promise<void> {
     this.isLoading.set(true);
     try {
-      const data = await this.orderService.getArchiveRange(this.selectedDate());
-      this.orders.set(data);
+      const fetchedOrders = await this.orderService.getArchiveRange(this.selectedDate());
+      this.orders.set(fetchedOrders);
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  // Hilfsmethode zur Datumskonvertierung (Clean Code: < 14 Zeilen)
-  getAsDate(ts: any): Date | null {
-    if (!ts) return null;
-    return typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+  getAsDate(rawTimestamp: RawDateInput): Date | null {
+    if (!rawTimestamp) return null;
+    const hasToDate = typeof (rawTimestamp as { toDate?: () => Date }).toDate === 'function';
+    return hasToDate ? (rawTimestamp as Timestamp).toDate() : new Date(rawTimestamp as string | number | Date);
   }
 
-  // Extrahiert das ISO-Datum (YYYY-MM-DD) aus einem Timestamp
-  private getIsoDate(ts: any): string {
-    return this.getAsDate(ts)?.toISOString().split('T')[0] ?? '';
+  private getIsoDate(rawTimestamp: RawDateInput): string {
+    return formatLocalDateIso(this.getAsDate(rawTimestamp));
   }
 
   ordersOfSelectedDay = computed(() => {
-    return this.orders().filter(o => this.getIsoDate(o.createdAt) === this.selectedDate());
+    return this.orders().filter(order => this.getIsoDate(order.createdAt) === this.selectedDate());
   });
 
-  totalRevenue = computed(() => 
-    this.ordersOfSelectedDay().reduce((sum, o) => sum + o.finalTotal, 0)
-  );
+  totalRevenue = computed(() => {
+    return this.ordersOfSelectedDay().reduce((sum, order) => sum + order.finalTotal, 0);
+  });
 
-  taxAmount = computed(() => 
-    this.totalRevenue() - (this.totalRevenue() / 1.07)
-  );
+  taxAmount = computed(() => {
+    return this.totalRevenue() - (this.totalRevenue() / 1.07);
+  });
 
   revenueTrend = computed(() => {
-    const cur = this.calculateTotal(this.currentWeekOrders());
-    const prev = this.calculateTotal(this.previousWeekOrders());
-    return prev > 0 ? ((cur - prev) / prev) * 100 : 0;
+    const currentRevenue = this.calculateTotal(this.currentWeekOrders());
+    const previousRevenue = this.calculateTotal(this.previousWeekOrders());
+    return previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
   });
 
-  private calculateTotal(orders: Order[]): number {
-    return orders.reduce((sum, o) => sum + o.finalTotal, 0);
+  private calculateTotal(orderList: Order[]): number {
+    return orderList.reduce((sum, order) => sum + order.finalTotal, 0);
   }
 
   absTrend = computed(() => Math.abs(this.revenueTrend()));
@@ -70,62 +73,64 @@ export class OrderArchiveComponent implements OnInit {
 
   orderStats = computed(() => {
     const itemMap = new Map<string, number>();
-    this.ordersOfSelectedDay().forEach(o => o.items.forEach(i => {
-      itemMap.set(i.name, (itemMap.get(i.name) ?? 0) + (i.quantity ?? 1));
-    }));
-    return Array.from(itemMap.entries()).sort((a, b) => b[1] - a[1]);
+    this.ordersOfSelectedDay().forEach(order => {
+      order.items.forEach(orderItem => {
+        itemMap.set(orderItem.name, (itemMap.get(orderItem.name) ?? 0) + (orderItem.quantity ?? 1));
+      });
+    });
+    return Array.from(itemMap.entries()).sort((entryA, entryB) => entryB[1] - entryA[1]);
   });
 
-  // Dummy helper für den TSE-Block (ehemals fehlerhaft)
   lastOrderOfSelectedDay = computed(() => {
     const dayOrders = this.ordersOfSelectedDay();
     return dayOrders.length > 0 ? dayOrders[dayOrders.length - 1] : null;
   });
 
-  printReport(): void { window.print(); }
-
-  formatSignature(sig: string | undefined): string {
-    if (!sig) return 'N/A';
-    return sig.match(/.{1,30}/g)?.join('\n') ?? sig;
+  printReport(): void {
+    window.print();
   }
 
-  // Hilfssignals für Dashboard-Logik
+  formatSignature(signature: string | undefined): string {
+    if (!signature) return 'N/A';
+    return signature.match(/.{1,30}/g)?.join('\n') ?? signature;
+  }
+
   private baseDate = computed(() => new Date(this.selectedDate()));
-  
+
   deadline = computed(() => {
-    const d = new Date(this.baseDate());
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - 1);
-    return d;
+    const deadlineDate = new Date(this.baseDate());
+    deadlineDate.setHours(0, 0, 0, 0);
+    deadlineDate.setDate(deadlineDate.getDate() - 1);
+    return deadlineDate;
   });
 
-  currentWeekOrders = computed(() => 
-    this.orders().filter(o => (this.getAsDate(o.createdAt) ?? 0) >= this.deadline())
-  );
+  currentWeekOrders = computed(() => {
+    return this.orders().filter(order => (this.getAsDate(order.createdAt) ?? 0) >= this.deadline());
+  });
 
-  previousWeekOrders = computed(() => 
-    this.orders().filter(o => (this.getAsDate(o.createdAt) ?? 9e15) < this.deadline())
-  );
+  previousWeekOrders = computed(() => {
+    return this.orders().filter(order => (this.getAsDate(order.createdAt) ?? 9e15) < this.deadline());
+  });
 
   dashboardData = computed(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(this.baseDate());
-      d.setDate(d.getDate() - i);
-      const dayStr = d.toISOString().split('T')[0];
+    return Array.from({ length: 7 }, (_, index) => {
+      const dayDate = new Date(this.baseDate());
+      dayDate.setDate(dayDate.getDate() - index);
+      const dayString = dayDate.toISOString().split('T')[0];
       const revenue = this.orders()
-        .filter(o => this.getIsoDate(o.createdAt) === dayStr)
-        .reduce((sum, o) => sum + o.finalTotal, 0);
-      return { day: dayStr.slice(5), revenue };
+        .filter(order => this.getIsoDate(order.createdAt) === dayString)
+        .reduce((sum, order) => sum + order.finalTotal, 0);
+      return { day: dayString.slice(5), revenue };
     }).reverse();
   });
 
   averageRevenue = computed(() => {
-    const count = this.ordersOfSelectedDay().length;
-    return count > 0 ? this.totalRevenue() / count : 0;
+    const orderCount = this.ordersOfSelectedDay().length;
+    return orderCount > 0 ? this.totalRevenue() / orderCount : 0;
   });
 
   maxRevenue = computed(() => {
-    const revenues = this.dashboardData().map(d => d.revenue);
+    const revenues = this.dashboardData().map(dataPoint => dataPoint.revenue);
     return Math.max(...revenues, 100);
   });
 }

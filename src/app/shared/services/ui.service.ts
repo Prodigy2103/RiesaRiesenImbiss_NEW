@@ -1,91 +1,84 @@
-import { Injectable, signal, computed } from "@angular/core";
-import { Job, News, Contact } from "../interfaces/footer.interface";
+import { Injectable, signal, computed } from '@angular/core';
+import { Job, News, Contact } from '../interfaces/footer.interface';
+import { IngredientDetail } from '../modals/order.model';
 
 @Injectable({ providedIn: 'root' })
 export class UiService {
-    // --- MODAL STATES ---
-    showJobModal = signal(false);
-    selectedJob = signal<Job | null>(null);
-    
-    showNewsModal = signal(false);
-    selectedNews = signal<News | null>(null);
-    
-    showContactModal = signal(false);
-    selectedContact = signal<Contact | null>(null);
-    
-    // --- INGREDIENTS & SAUCES ---
-    selectedIngredientInfo = signal<any[] | null>(null);
-    // Expliziter Typ-Marker: 'sauce' | 'ingredient' | null
-    activeIngredientType = signal<'sauce' | 'ingredient' | null>(null);
+  showJobModal = signal(false);
+  selectedJob = signal<Job | null>(null);
 
-    showSuccessToast = signal(false);
-    userName = signal('');
-    userMail = signal('');
-    userMessage = signal('');
+  showNewsModal = signal(false);
+  selectedNews = signal<News | null>(null);
 
-    // --- REAKTIVE LOGIK ---
-    
-    /** Bestimmt den Text für den Header im Layout */
-    isSauceMode = computed(() => this.activeIngredientType() === 'sauce');
+  showContactModal = signal(false);
+  selectedContact = signal<Contact | null>(null);
 
-    // --- METHODS ---
+  selectedIngredientInfo = signal<IngredientDetail[] | null>(null);
+  activeIngredientType = signal<'sauce' | 'ingredient' | null>(null);
 
-    openJob(j: Job) {
-        this.closeAllModals();
-        this.selectedJob.set(j);
-        this.showJobModal.set(true);
-    }
+  showSuccessToast = signal(false);
+  userName = signal('');
+  userMail = signal('');
+  userMessage = signal('');
 
-    openNews(n: News) {
-        this.closeAllModals();
-        this.selectedNews.set(n);
-        this.showNewsModal.set(true);
-    }
+  isSauceMode = computed(() => this.activeIngredientType() === 'sauce');
 
-    /** * Öffnet das neue Info-Modal 
-     * @param data Die Liste der Inhaltsstoffe/Saucen
-     * @param type Übergibt explizit, was angezeigt wird
-     */
-    openIngredients(data: any[], type: 'sauce' | 'ingredient') {
-        this.closeAllModals();
-        this.selectedIngredientInfo.set(data);
-        this.activeIngredientType.set(type);
-    }
+  openJob(job: Job): void {
+    this.closeAllModals();
+    this.selectedJob.set(job);
+    this.showJobModal.set(true);
+  }
 
-    closeIngredients() {
-        this.selectedIngredientInfo.set(null);
-        this.activeIngredientType.set(null);
-    }
+  openNews(news: News): void {
+    this.closeAllModals();
+    this.selectedNews.set(news);
+    this.showNewsModal.set(true);
+  }
 
-    private closeAllModals() {
-        this.showJobModal.set(false);
-        this.showNewsModal.set(false);
-        this.showContactModal.set(false);
-        this.selectedIngredientInfo.set(null);
-        this.activeIngredientType.set(null);
-    }
+  openIngredients(ingredientItems: IngredientDetail[], targetType: 'sauce' | 'ingredient'): void {
+    this.closeAllModals();
+    this.selectedIngredientInfo.set(ingredientItems);
+    this.activeIngredientType.set(targetType);
+  }
 
-    // --- RESTLICHE METHODEN ---
-    openContact(data: any) {
-        this.closeAllModals();
-        const contactData: Contact = {
-            title: data?.title || 'Allgemeine Anfrage'
-        };
-        this.selectedContact.set(contactData);
-        this.showContactModal.set(true);
-    }
+  closeIngredients(): void {
+    this.selectedIngredientInfo.set(null);
+    this.activeIngredientType.set(null);
+  }
 
-    sendMessage() {
-        console.log('UPLINK_SUCCESS:', { from: this.userName(), mail: this.userMail() });
-        this.showContactModal.set(false);
-        this.showSuccessToast.set(true);
-        setTimeout(() => this.showSuccessToast.set(false), 3000);
-    }
+  private closeAllModals(): void {
+    this.showJobModal.set(false);
+    this.showNewsModal.set(false);
+    this.showContactModal.set(false);
+    this.selectedIngredientInfo.set(null);
+    this.activeIngredientType.set(null);
+  }
 
-    closeJob() { this.showJobModal.set(false); }
-    closeNews() { this.showNewsModal.set(false); }
-    closeContact() {
-        this.showContactModal.set(false);
-        this.userName.set('');
-    }
+  openContact(contactPayload?: Contact | { title?: string } | null): void {
+    this.closeAllModals();
+    const contactData: Contact = {
+      title: contactPayload?.title || 'Allgemeine Anfrage'
+    };
+    this.selectedContact.set(contactData);
+    this.showContactModal.set(true);
+  }
+
+  sendMessage(): void {
+    this.showContactModal.set(false);
+    this.showSuccessToast.set(true);
+    setTimeout(() => this.showSuccessToast.set(false), 3000);
+  }
+
+  closeJob(): void {
+    this.showJobModal.set(false);
+  }
+
+  closeNews(): void {
+    this.showNewsModal.set(false);
+  }
+
+  closeContact(): void {
+    this.showContactModal.set(false);
+    this.userName.set('');
+  }
 }

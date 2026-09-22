@@ -1,6 +1,6 @@
-import { Injectable, signal, computed, inject, effect } from '@angular/core';
+import { Injectable, signal, computed, inject, effect, Signal, WritableSignal } from '@angular/core';
 import { OrderItem, CustomerData, Order } from '../modals/order.model';
-import { collection, doc, Firestore, getDocs, query, where, writeBatch } from '@angular/fire/firestore';
+import { OrderArchiveService } from './order-archive.service';
 
 export type OrderStep = 1 | 2 | 3;
 export type DeliveryType = 'delivery' | 'pickup';
@@ -20,186 +20,175 @@ export interface CartItem extends OrderItem {
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-    private readonly firestore = inject(Firestore);
+    private readonly orderArchiveService: OrderArchiveService = inject(OrderArchiveService);
 
-    private readonly CUSTOMER_KEY = 'imbiss_customer';
-    private readonly SUMMARY_KEY = 'last_order_summary';
-    private readonly CART_KEY = 'imbiss_active_cart'; // Neuer Key für den Warenkorb
+    private readonly CUSTOMER_STORAGE_KEY: string = 'imbiss_customer';
+    private readonly SUMMARY_STORAGE_KEY: string = 'last_order_summary';
+    private readonly CART_STORAGE_KEY: string = 'imbiss_active_cart';
+    private readonly MINIMUM_ORDER_VALUE_MAP: Readonly<Record<string, number>> = { '01589': 25, '01587': 30 };
 
-    step = signal<OrderStep>(1);
-    category = signal<string | null>(null);
-    deliveryType = signal<DeliveryType>('delivery');
-    zipCode = signal<string>('');
+    readonly step: WritableSignal<OrderStep> = signal<OrderStep>(1);
+    readonly category: WritableSignal<string | null> = signal<string | null>(null);
+    readonly deliveryType: WritableSignal<DeliveryType> = signal<DeliveryType>('delivery');
+    readonly zipCode: WritableSignal<string> = signal<string>('');
 
-    // Initialisierung direkt aus dem Storage
-    items = signal<CartItem[]>(this.loadCartFromStorage());
-    extras = signal<OrderItem[]>([]);
-    customer = signal<CustomerData>(this.getInitialCustomer());
-    summary = signal<OrderSummary | null>(this.getSavedSummary());
+    readonly items: WritableSignal<CartItem[]> = signal<CartItem[]>(this.loadCartFromStorage());
+    readonly extras: WritableSignal<OrderItem[]> = signal<OrderItem[]>([]);
+    readonly customer: WritableSignal<CustomerData> = signal<CustomerData>(this.getInitialCustomer());
+    readonly summary: WritableSignal<OrderSummary | null> = signal<OrderSummary | null>(this.getSavedSummary());
 
     constructor() {
-        // Automatisches Speichern bei jeder Änderung der Items
         effect(() => {
-            localStorage.setItem(this.CART_KEY, JSON.stringify(this.items()));
+            localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(this.items()));
         });
     }
 
-    totalItemsCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
-    total = computed(() => this.calculateFullTotal());
-    finalTotal = computed(() => this.total());
+    readonly totalItemsCount: Signal<number> = computed(() => 
+        this.items().reduce((runningTotal, cartItem) => runningTotal + cartItem.quantity, 0)
+    );
+    readonly total: Signal<number> = computed(() => this.calculateFullTotal());
+    readonly finalTotal: Signal<number> = computed(() => this.total());
+    readonly minOrderValue: Signal<number> = computed(() => this.MINIMUM_ORDER_VALUE_MAP[this.zipCode()] ?? 0);
+    readonly isAreaSupported: Signal<boolean> = computed(() => !!this.MINIMUM_ORDER_VALUE_MAP[this.zipCode()]);
+    readonly isMovReached: Signal<boolean> = computed(() => this.isAreaSupported() && this.total() >= this.minOrderValue());
+    readonly missingAmount: Signal<number> = computed(() => Math.max(0, this.minOrderValue() - this.total()));
 
-    private readonly movMap: Record<string, number> = { '01589': 25, '01587': 30 };
-    minOrderValue = computed(() => this.movMap[this.zipCode()] ?? 0);
-    isAreaSupported = computed(() => !!this.movMap[this.zipCode()]);
-    isMovReached = computed(() => this.isAreaSupported() && this.total() >= this.minOrderValue());
-    missingAmount = computed(() => Math.max(0, this.minOrderValue() - this.total()));
-
-    addItem(item: OrderItem): void {
+    addItem(itemToAdd: OrderItem): void {
         const currentExtras = [...this.extras()];
-        this.items.update(list => {
-            const match = list.find(i => i.id === item.id &&
-                JSON.stringify(i.selectedExtras) === JSON.stringify(currentExtras));
-
-            return match
-                ? list.map(it => it === match ? { ...it, quantity: it.quantity + 1 } : it)
-                : [...list, { ...item, quantity: 1, selectedExtras: currentExtras }];
-        });
+        this.items.update(currentItems => this.mergeItemIntoCart(currentItems, itemToAdd, currentExtras));
         this.resetExtras();
     }
 
-    incrementQuantity(index: number): void {
-        this.items.update(l => l.map((it, i) => i === index ? { ...it, quantity: it.quantity + 1 } : it));
+    private mergeItemIntoCart(cartItems: CartItem[], itemToAdd: OrderItem, currentExtras: OrderItem[]): CartItem[] {
+        const existingItem = cartItems.find(cartItem => 
+            cartItem.id === itemToAdd.id && JSON.stringify(cartItem.selectedExtras) === JSON.stringify(currentExtras)
+        );
+        if (!existingItem) {
+            return [...cartItems, { ...itemToAdd, quantity: 1, selectedExtras: currentExtras }];
+        }
+        return cartItems.map(cartItem => 
+            cartItem === existingItem ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+        );
     }
 
-    decrementQuantity(index: number): void {
-        this.items.update(l => l.map((it, i) => i === index ? { ...it, quantity: it.quantity - 1 } : it)
-            .filter(it => it.quantity > 0));
+    incrementQuantity(targetIndex: number): void {
+        this.items.update(cartItems => 
+            cartItems.map((cartItem, itemIndex) => 
+                itemIndex === targetIndex ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+            )
+        );
     }
 
-    addExtra(extra: OrderItem): void {
-        this.extras.update(l => l.some(e => e.id === extra.id) ? l : [...l, extra]);
+    decrementQuantity(targetIndex: number): void {
+        this.items.update(cartItems => 
+            cartItems.map((cartItem, itemIndex) => 
+                itemIndex === targetIndex ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem
+            ).filter(cartItem => cartItem.quantity > 0)
+        );
     }
 
-    removeExtraById(id: string | number): void {
-        this.extras.update(l => l.filter(e => e.id !== id));
+    addExtra(extraItem: OrderItem): void {
+        this.extras.update(extrasList => 
+            extrasList.some(existingExtra => existingExtra.id === extraItem.id) 
+                ? extrasList 
+                : [...extrasList, extraItem]
+        );
     }
 
-    resetExtras(): void { this.extras.set([]); }
+    removeExtraById(extraIdentifier: string | number): void {
+        this.extras.update(extrasList => 
+            extrasList.filter(existingExtra => existingExtra.id !== extraIdentifier)
+        );
+    }
 
-    complete(data: CustomerData): void {
-        const snapshot: OrderSummary = {
-            customer: { ...data },
+    resetExtras(): void {
+        this.extras.set([]);
+    }
+
+    complete(customerPayload: CustomerData): void {
+        const orderSnapshot: OrderSummary = this.buildSummarySnapshot(customerPayload);
+        this.customer.set({ ...customerPayload });
+        this.summary.set(orderSnapshot);
+        this.persistOrderSummary(orderSnapshot, customerPayload);
+    }
+
+    private buildSummarySnapshot(customerPayload: CustomerData): OrderSummary {
+        return {
+            customer: { ...customerPayload },
             items: [...this.items()],
             total: this.total(),
             finalTotal: this.finalTotal(),
             deliveryType: this.deliveryType()
         };
-
-        this.customer.set({ ...data });
-        this.summary.set(snapshot);
-        sessionStorage.setItem(this.SUMMARY_KEY, JSON.stringify(snapshot));
-        localStorage.setItem(this.CUSTOMER_KEY, JSON.stringify(data));
     }
 
-    updateId(orderId: string): void {
-        const current = this.summary();
-        if (!current) return;
-        const updated = { ...current, id: orderId };
-        this.summary.set(updated);
-        sessionStorage.setItem(this.SUMMARY_KEY, JSON.stringify(updated));
+    private persistOrderSummary(orderSnapshot: OrderSummary, customerPayload: CustomerData): void {
+        sessionStorage.setItem(this.SUMMARY_STORAGE_KEY, JSON.stringify(orderSnapshot));
+        localStorage.setItem(this.CUSTOMER_STORAGE_KEY, JSON.stringify(customerPayload));
     }
 
-    // Diese Methode wird gerufen, wenn die Küche "Abschließen" klickt
+    updateId(orderIdentifier: string): void {
+        const currentSummary = this.summary();
+        if (!currentSummary) return;
+        const updatedSummary: OrderSummary = { ...currentSummary, id: orderIdentifier };
+        this.summary.set(updatedSummary);
+        sessionStorage.setItem(this.SUMMARY_STORAGE_KEY, JSON.stringify(updatedSummary));
+    }
+
     reset(): void {
         this.step.set(1);
         this.items.set([]);
         this.zipCode.set('');
         this.resetExtras();
-        localStorage.removeItem(this.CART_KEY); // Explizites Löschen
+        localStorage.removeItem(this.CART_STORAGE_KEY);
     }
 
     next(): void {
-        const current = this.step();
-        if (current === 2 && this.totalItemsCount() === 0) return;
-        this.step.update(s => (s < 3 ? (s + 1) as OrderStep : s));
+        if (this.step() === 2 && this.totalItemsCount() === 0) return;
+        this.step.update(currentStep => (currentStep < 3 ? (currentStep + 1) as OrderStep : currentStep));
     }
 
-    back(): void { this.step.update(s => (s > 1 ? (s - 1) as OrderStep : s)); }
+    back(): void {
+        this.step.update(currentStep => (currentStep > 1 ? (currentStep - 1) as OrderStep : currentStep));
+    }
 
     private loadCartFromStorage(): CartItem[] {
-        const saved = localStorage.getItem(this.CART_KEY);
+        const savedCart = localStorage.getItem(this.CART_STORAGE_KEY);
         try {
-            return saved ? JSON.parse(saved) : [];
+            return savedCart ? JSON.parse(savedCart) : [];
         } catch {
             return [];
         }
     }
 
     private getInitialCustomer(): CustomerData {
-        const saved = localStorage.getItem(this.CUSTOMER_KEY);
-        return saved ? JSON.parse(saved) : { name: '', address: '', phone: '' };
+        const savedCustomer = localStorage.getItem(this.CUSTOMER_STORAGE_KEY);
+        return savedCustomer ? JSON.parse(savedCustomer) : { name: '', address: '', phone: '' };
     }
 
     private getSavedSummary(): OrderSummary | null {
-        const saved = sessionStorage.getItem(this.SUMMARY_KEY);
-        return saved ? JSON.parse(saved) as OrderSummary : null;
+        const savedSummary = sessionStorage.getItem(this.SUMMARY_STORAGE_KEY);
+        return savedSummary ? JSON.parse(savedSummary) as OrderSummary : null;
     }
 
     private calculateFullTotal(): number {
-        return this.items().reduce((sum, item) => {
-            const eSum = (item.selectedExtras || []).reduce((s, e) => s + e.price, 0);
-            return sum + (item.price + eSum) * item.quantity;
+        return this.items().reduce((runningTotal, cartItem) => {
+            const extrasPriceSum = (cartItem.selectedExtras || []).reduce(
+                (sumOfExtras, singleExtra) => sumOfExtras + singleExtra.price, 0
+            );
+            return runningTotal + (cartItem.price + extrasPriceSum) * cartItem.quantity;
         }, 0);
     }
 
-    async archiveOrder(order: Order): Promise<void> {
-        if (!order.id) throw new Error('Keine Order-ID zum Archivieren gefunden');
-
-        const batch = writeBatch(this.firestore);
-        const archiveRef = doc(this.firestore, `archivedOrders/${order.id}`);
-        const activeRef = doc(this.firestore, `orders/${order.id}`);
-
-        // Wir nutzen das aktuelle Datum, falls createdAt fehlt
-        const createdAt = order.createdAt || new Date();
-
-        batch.set(archiveRef, {
-            ...order,
-            archivedAt: new Date(),
-            status: 'archived' // Status explizit ändern
-        });
-
-        batch.delete(activeRef);
-
-        await batch.commit(); // Triggert automatisch den Snapshot-Listener im UI
-    }
-    async getArchivedOrders(dateStr: string): Promise<Order[]> {
-        const archiveRef = collection(this.firestore, 'archivedOrders');
-
-        const start = new Date(dateStr + 'T00:00:00');
-        const end = new Date(dateStr + 'T23:59:59');
-
-        const q = query(archiveRef,
-            where('createdAt', '>=', start),
-            where('createdAt', '<=', end)
-        );
-
-        const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+    archiveOrder(orderToArchive: Order): Promise<void> {
+        return this.orderArchiveService.archiveOrder(orderToArchive);
     }
 
-    async getArchiveRange(endDate: string): Promise<Order[]> {
-        const start = new Date(endDate + 'T00:00:00');
-        start.setDate(start.getDate() - 7);
+    getArchivedOrders(dateString: string): Promise<Order[]> {
+        return this.orderArchiveService.getArchivedOrders(dateString);
+    }
 
-        const end = new Date(endDate + 'T23:59:59');
-
-        const q = query(
-            collection(this.firestore, 'archivedOrders'),
-            where('createdAt', '>=', start),
-            where('createdAt', '<=', end)
-        );
-
-        const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+    getArchiveRange(endDateString: string): Promise<Order[]> {
+        return this.orderArchiveService.getArchiveRange(endDateString);
     }
 }

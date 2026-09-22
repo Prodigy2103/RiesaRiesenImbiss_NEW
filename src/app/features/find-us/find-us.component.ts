@@ -1,14 +1,9 @@
-import { Component, computed, HostListener, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NeonButtonComponent } from "../../shared/ui/neon-button/neon-button.component";
-
-interface Comment {
-  id: string;
-  author: string;
-  text: string;
-  rating: number;
-}
+import { NeonButtonComponent } from '../../shared/ui/neon-button/neon-button.component';
+import { ReviewService } from '../../shared/services/review.service';
+import { Comment } from '../../shared/modals/comment.model';
 
 @Component({
   selector: 'feature-find-us',
@@ -17,13 +12,9 @@ interface Comment {
   templateUrl: './find-us.component.html',
   styleUrl: './find-us.component.scss'
 })
-export class FindUsComponent implements OnInit {
-  private readonly STORAGE_KEY = 'cyber_imbiss_logs';
+export class FindUsComponent {
+  private readonly reviewService = inject(ReviewService);
 
-  /**
-   * Closes the admin mode when the Escape key is pressed.
-   * Using 'window:keydown.escape' filters the event before it reaches the method.
-   */
   @HostListener('window:keydown.escape')
   handleEscapeQuicksave(): void {
     if (this.adminMode()) {
@@ -32,92 +23,75 @@ export class FindUsComponent implements OnInit {
   }
 
   adminMode = signal<boolean>(false);
-  comments = signal<Comment[]>([]);
+  readonly comments = this.reviewService.comments;
+  readonly averageRating = this.reviewService.averageRating;
   currentRating = 0;
   userName = '';
   userComment = '';
-
-  ngOnInit(): void {
-    this.loadInitialData();
-  }
+  toastMessage = signal<string | null>(null);
+  toastSeverity = signal<'error' | 'success'>('error');
+  private toastTimerId: ReturnType<typeof setTimeout> | null = null;
 
   toggleAdmin(): void {
     this.adminMode.update(state => !state);
   }
 
-  private loadInitialData(): void {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
-    const data = saved ? JSON.parse(saved) : this.getMockEntries();
-    this.comments.set(data);
+  setRating(mouseEvent: MouseEvent, starIndex: number): void {
+    const starElement = mouseEvent.currentTarget as HTMLElement;
+    const elementWidth = starElement.offsetWidth;
+    const horizontalClickOffset = mouseEvent.offsetX;
+    const calculatedRatingValue = horizontalClickOffset < elementWidth / 2 ? 0.5 : 1;
+    this.currentRating = starIndex + calculatedRatingValue;
   }
 
-  private getMockEntries(): Comment[] {
-    return [
-      { id: '842', author: 'CyberSam', text: 'Bester Döner in Riesa!', rating: 5 },
-      { id: '109', author: 'NeonRider', text: 'Scharfe Sauce ist legendär.', rating: 3.5 }
-    ];
+  getStarFill(starIndex: number, ratingValue: number): string {
+    const ratingDifference = ratingValue - starIndex;
+    if (ratingDifference >= 1) return '100%';
+    if (ratingDifference <= 0) return '0%';
+    return '50%';
   }
-
-  setRating(event: MouseEvent, index: number): void {
-  const star = event.currentTarget as HTMLElement;
-  const width = star.offsetWidth;
-  const x = event.offsetX;
-  const value = x < width / 2 ? 0.5 : 1;
-  this.currentRating = index + value;
-}
-
-  getStarFill(index: number, rating: number): string {
-    const diff = rating - index;
-    if (diff >= 1) return '100%';
-    if (diff <= 0) return '0%';
-    return '50%'; 
-  }
-
-  averageRating = computed(() => {
-    const list = this.comments();
-    if (list.length === 0) return '5.0';
-    
-    const sum = list.reduce((acc, c) => acc + c.rating, 0);
-    const avg = sum / list.length;
-    
-    return avg.toFixed(1);
-  });
 
   submitFeedback(): void {
-    if (!this.isValid()) {
-      alert("System-Error: Name, Rating und Kommentar fehlen.");
+    if (!this.isFeedbackValid()) {
+      this.displayToast('SYSTEM ERROR // Name, Rating und Kommentar erforderlich.', 'error');
       return;
     }
     this.commitEntry();
     this.resetForm();
+    this.displayToast('LOG RECORDED // Feedback erfolgreich übermittelt.', 'success');
   }
 
-  private isValid(): boolean {
+  displayToast(messageText: string, severityLevel: 'error' | 'success'): void {
+    if (this.toastTimerId) clearTimeout(this.toastTimerId);
+    this.toastMessage.set(messageText);
+    this.toastSeverity.set(severityLevel);
+    this.toastTimerId = setTimeout(() => this.toastMessage.set(null), 4000);
+  }
+
+  dismissToast(): void {
+    if (this.toastTimerId) clearTimeout(this.toastTimerId);
+    this.toastMessage.set(null);
+  }
+
+  private isFeedbackValid(): boolean {
     return this.currentRating > 0 &&
       !!this.userName.trim() &&
       !!this.userComment.trim();
   }
 
   private commitEntry(): void {
-    const entry: Comment = {
+    const newCommentEntry: Comment = {
       id: Date.now().toString().slice(-4),
-      author: this.userName,
-      text: this.userComment,
+      author: this.userName.trim(),
+      text: this.userComment.trim(),
       rating: this.currentRating
     };
-    this.comments.update(all => [entry, ...all]);
-    this.saveToStorage();
+    this.reviewService.addComment(newCommentEntry);
   }
 
-  deleteComment(id: string): void {
+  deleteComment(targetCommentId: string): void {
     if (!this.adminMode()) return;
-    this.comments.update(all => all.filter(c => c.id !== id));
-    this.saveToStorage();
-  }
-
-  private saveToStorage(): void {
-    const data = JSON.stringify(this.comments());
-    localStorage.setItem(this.STORAGE_KEY, data);
+    this.reviewService.deleteComment(targetCommentId);
   }
 
   private resetForm(): void {

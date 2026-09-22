@@ -1,0 +1,118 @@
+@use '../../../../../public/styles/all_styles.scss' as all;
+
+@mixin order-summary-list-styles {
+	.summary-list {
+		height: 16dvh;
+		overflow-y: auto;
+		padding-right: 5px;
+
+		&::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: all.$imbiss-orange;
+			border-radius: 10px;
+		}
+
+		.summary-row {
+			@include all.fl($jc: space-between, $alit: center, $gap: 3rem);
+			background: rgba(all.$white, 0.05);
+			padding: 1rem;
+			border-radius: 12px;
+			border: 1px solid rgba(all.$white, 0.1);
+			margin-bottom: 0.5rem;
+
+			.item-info {
+				background: rgba(0, 0, 0, 0.59);
+				width: 50%;
+				padding: 0.3rem;
+				border-radius: 0.8rem;
+				@include all.fl($alit: center, $gap: 1rem);
+
+				.main-item-line {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 0.2rem;
+
+					.name {
+						font: 1.1rem 'Terminus', sans-serif;
+					}
+
+					.extra {
+						color: rgba(all.$white, 0.7);
+						font-size: 0.8rem;
+					}
+
+					.extra-badge {
+						background: rgba(all.$imbiss-orange, 0.15);
+						color: all.$imbiss-orange;
+						padding: 1px 6px;
+						border-radius: 4px;
+						font-size: 0.7rem;
+						border: 1px solid rgba(all.$imbiss-orange, 0.3);
+					}
+				}
+
+				.extras-block {
+					display: flex;
+					flex-direction: column;
+					gap: 0.2rem;
+					margin-top: 0.3rem;
+
+					.extra-tag {
+						font-size: 0.8rem;
+						color: rgba(all.$white, 0.6);
+						display: flex;
+						align-items: center;
+						gap: 0.4rem;
+
+						&::before {
+							content: '+';
+							color: all.$imbiss-orange;
+							font-weight: 700;
+						}
+					}
+				}
+			}
+
+			.item-controls {
+				@include all.fl($alit: center, $gap: 0.8rem);
+
+				.ctrl-btn {
+					background: rgba(all.$white, 0.1);
+					border: 1px solid rgba(all.$white, 0.2);
+					color: all.$white;
+					width: 28px;
+					height: 28px;
+					border-radius: 6px;
+					font-size: 1.1rem;
+					cursor: pointer;
+					@include all.fl($jc: center, $alit: center);
+					transition: all 0.2s;
+
+					&:hover {
+						background: all.$imbiss-orange;
+						border-color: all.$imbiss-orange;
+						color: all.$imbiss-dark;
+					}
+				}
+
+				.qty {
+					font: 700 1rem 'Orbitron', sans-serif;
+					min-width: 20px;
+					text-align: center;
+					color: all.$white;
+				}
+			}
+
+			.item-price {
+				font: 700 1rem 'Orbitron', sans-serif;
+				color: all.$white;
+				min-width: 60px;
+				text-align: right;
+			}
+		}
+	}
+}

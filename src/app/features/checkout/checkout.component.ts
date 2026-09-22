@@ -16,7 +16,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   public order = inject(OrderService);
   private adminService = inject(AdminService);
   private router = inject(Router);
-  private orderSub?: Subscription;
+  private orderSubscription?: Subscription;
 
   private readonly statusMap: Record<string, number> = {
     'new': 1,
@@ -30,8 +30,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   public currentStatus = signal<number>(1);
 
   public readonly estimatedTime = computed(() => {
-    const summary = this.order.summary();
-    return summary?.customer?.scheduledTime || this.calculateDefaultTime();
+    const currentSummary = this.order.summary();
+    return currentSummary?.customer?.scheduledTime || this.calculateDefaultTime();
   });
 
   public readonly statusSteps = computed(() => [
@@ -49,31 +49,30 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private listenToOrderStatus(): void {
-    const orderId = this.order.summary()?.id;
+    const orderIdentifier = this.order.summary()?.id;
+    if (!orderIdentifier) return;
 
-    if (!orderId) {
-      return;
-    }
-
-    this.orderSub = this.adminService.getLiveOrder(orderId).subscribe({
-      next: (updatedOrder) => {
-        if (updatedOrder.status) {
-          const nextStep = this.statusMap[updatedOrder.status] || 1;
-          this.currentStatus.set(nextStep);
-        }
-      },
-      error: (err) => console.error('Abofehler:', err)
+    this.orderSubscription = this.adminService.getLiveOrder(orderIdentifier).subscribe({
+      next: (updatedOrder) => this.handleOrderUpdate(updatedOrder),
+      error: (subscriptionError) => console.error('Abofehler:', subscriptionError)
     });
   }
 
+  private handleOrderUpdate(updatedOrder: { status?: string }): void {
+    if (updatedOrder.status) {
+      const nextStepIndex = this.statusMap[updatedOrder.status] || 1;
+      this.currentStatus.set(nextStepIndex);
+    }
+  }
+
   private calculateDefaultTime(): string {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 25);
-    return now.toTimeString().slice(0, 5);
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes() + 25);
+    return currentTime.toTimeString().slice(0, 5);
   }
 
   ngOnDestroy(): void {
-    this.orderSub?.unsubscribe();
+    this.orderSubscription?.unsubscribe();
   }
 
   public newOrder(): void {

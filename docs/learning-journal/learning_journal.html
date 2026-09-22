@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiesaRiesenImbiss - Learning Journal</title>
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --card-bg: rgba(22, 27, 34, 0.85);
+      --border: rgba(255, 140, 0, 0.3);
+      --accent: #ff8c00;
+      --cyan: #00f3ff;
+      --green: #22c55e;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .header h1 {
+      font-size: 2.4rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .journal-entry {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .entry-date {
+      display: inline-block;
+      background: rgba(255, 140, 0, 0.15);
+      color: var(--accent);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .entry-title {
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cyan);
+      margin: 1.5rem 0 0.8rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .task-list, .learning-list, .todo-list {
+      list-style: none;
+    }
+    .task-list li, .learning-list li, .todo-list li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+    }
+    .task-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: bold; }
+    .learning-list li::before { content: '💡'; position: absolute; left: 0; font-size: 0.9rem; }
+    .todo-list li::before { content: '⏳'; position: absolute; left: 0; }
+
+    .function-card {
+      background: rgba(0, 243, 255, 0.04);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-top: 1rem;
+    }
+    .function-name {
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    pre {
+      background: #0d1117;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: Consolas, monospace;
+      font-size: 0.85rem;
+      color: #79c0ff;
+      margin: 0.8rem 0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .analogy {
+      background: rgba(255, 140, 0, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      font-style: italic;
+    }
+    @media print {
+      body { background: white; color: black; padding: 1rem; }
+      .journal-entry { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; background: white; }
+      .entry-title, .header h1 { color: #d97706; }
+      pre { background: #f3f4f6; color: #1f2937; border: 1px solid #e5e7eb; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>RiesaRiesenImbiss</h1>
+    <p>Projekt-Lerntagebuch & Feierabend-Synchronisation</p>
+  </div>
+
+  
+    <div class="journal-entry">
+      <span class="entry-date">2026-09-22</span>
+      <h2 class="entry-title">DevSecOps Audit, Army-of-Juniors Refactoring, E2E/UX Audit & Cyberpunk UI Polish</h2>
+
+      <h3 class="section-title">Umgesetzte Aufgaben & Refactorings</h3>
+      <ul class="task-list">
+        <li>Synchronisation & Bereinigung der globalen und projektbezogenen AGENTS.md Standards</li><li>DevSecOps Security Audit: XSS-Absicherung der HighlightPipe (escapeHtml) & Erstellung produktionsreifer firestore.rules</li><li>Army-of-Juniors 10-Dimensionen-Audit: Vollständige Behebung von Shadow-Types, Code-Duplikation, Storage-Parsing-Risiken und Zeitzonenfehlern</li><li>Einführung des kanonischen Domain-Models Comment (comment.model.ts) und des ReviewService als Single Source of Truth</li><li>Entwicklung robuster Utilities: safeJsonParse (storage.util.ts) und formatLocalDateIso (date.util.ts) mit 100% Testabdeckung</li><li>E2E & UX Audit mit Playwright auf Desktop (1920x1080) und Mobile (390x844) erfolgreich durchgeführt (Score A+)</li><li>Behebung mobiler Touch-Targets gemäß WCAG 2.5.5 (44x44px) im Header (.nav-link) und Footer (.social-icon-link, .footer-row)</li><li>Ersetzung des nativen window.alert() durch eine signal-gesteuerte Cyberpunk-Toast-Benachrichtigung in FindUsComponent</li><li>Erweiterung der Test-Suite auf 50 erfolgreiche Unit-Tests (50/50 grün) und erfolgreicher Produktions-Build in 7.3s</li>
+      </ul>
+
+      <h3 class="section-title">Zentrale Learnings & Architektur-Erkenntnisse</h3>
+      <ul class="learning-list">
+        <li>Signals & Feinkörnige Reaktivität: Lokale Signal-Zustände (toastMessage, toastSeverity) ermöglichen reaktive UI-Feedbacks ohne ChangeDetectorRef oder DOM-Manipulation.</li><li>Timer-Rennbedingungen (Race Conditions): Schnelles mehrfaches Triggern erfordert clearTimeout(timerId), um vorzeitiges Ausblenden bei neuen Benutzeraktionen zu verhindern.</li><li>WCAG 2.5.5 Touch Targets: Mobile Touch-Targets müssen mindestens 44x44px groß sein; durch CSS-Eigenschaften wie min-height/min-width in Kombination mit inline-flex wird dies ohne optischen Bruch elegant gelöst.</li><li>DST & Zeitzonensicherheit: toISOString().split('T')[0] schneidet in UTC ab. Lokale Kalendertage erfordern getFullYear(), getMonth() und getDate(), um Datumsversätze um Mitternacht zu verhindern.</li><li>Clean Code & Single Source of Truth: UI-Komponenten dürfen weder direkt auf localStorage zugreifen noch Geschäftslogik duplizieren; Kapselung in dedizierten Services wahrt Separation of Concerns.</li>
+      </ul>
+
+      
+        <h3 class="section-title">Offene Punkte für die nächste Session</h3>
+        <ul class="todo-list">
+          <li>Optionale Umstellung von Inline-Bilddimensionen für Social-Media-Icons zur Unterdrückung von NG0913/NG02952-Warnungen</li><li>Erweiterung des Kitchen-Internal Monitors um akustische Signal-Hinweise bei Bestelleingang</li>
+        </ul>
+      
+    </div>
+  
+
+  
+    <div class="journal-entry">
+      <h2 class="entry-title">Funktionen-Deep-Dives</h2>
+      
+        <div class="function-card">
+          <div class="function-name">displayToast (src/app/features/find-us/find-us.component.ts)</div>
+          <div class="analogy">Ein digitaler Funkspruch-Lautsprecher an der Theke: Anstatt den Kunden anzuschreien und den ganzen Laden anzuhalten (wie der blockierende window.alert()), leuchtet kurz eine elegante Neon-Statusanzeige auf, informiert unaufdringlich und schaltet sich nach 4 Sekunden von selbst wieder ab.</div>
+          <pre><code>displayToast(messageText: string, severityLevel: 'error' | 'success'): void {
+  if (this.toastTimerId) clearTimeout(this.toastTimerId);
+  this.toastMessage.set(messageText);
+  this.toastSeverity.set(severityLevel);
+  this.toastTimerId = setTimeout(() => this.toastMessage.set(null), 4000);
+}</code></pre>
+          <ul class="task-list">
+            <li>1. Bestehende Timer-Rennbedingungen abbrechen: Falls noch ein vorheriger Countdown aktiv ist (z. B. schneller Doppelklick), wird er mit clearTimeout(this.toastTimerId) sofort gestoppt, damit die Nachricht nicht vorzeitig verschwindet.</li><li>2. Nachrichtensignal setzen: this.toastMessage.set(messageText) löst durch Angular 19 Signals sofort ein feinkörniges DOM-Update im Template aus (@if (toastMessage(); as messageText)).</li><li>3. Schweregrad/Farbthema festlegen: this.toastSeverity.set(severityLevel) schaltet dynamisch die CSS-Klassen .error (#ef4444) oder .success (#22c55e) um.</li><li>4. Automatisches Aufräumen: Ein neuer 4000ms Timer wird gestartet, der das Signal mit .set(null) zurücksetzt und das Element aus dem DOM entfernt.</li>
+          </ul>
+          <div style="margin-top: 0.8rem; font-size: 0.9rem; color: var(--accent);">
+            <strong>Aha-Moment:</strong> Timer-Kollision & Signal-Reaktivität: Ohne clearTimeout führt mehrfaches schnelles Klicken dazu, dass ein alter Timer die neue Nachricht nach wenigen Millisekunden schlagartig schließt. Durch Speichern von this.toastTimerId und das saubere Resetten bleibt das Signal exakt für die vollen 4 Sekunden sichtbar.
+          </div>
+        </div>
+      
+    </div>
+  
+</body>
+</html>

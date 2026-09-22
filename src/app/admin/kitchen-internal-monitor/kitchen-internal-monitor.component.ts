@@ -1,8 +1,11 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Timestamp } from '@angular/fire/firestore';
 import { AdminService } from '../../shared/services/admin.service';
 import { Order, OrderStatus } from '../../shared/modals/order.model';
 import { OrderService } from '../../shared/services/order.service';
+
+type RawDateInput = Timestamp | Date | string | number | null | undefined;
 
 @Component({
   selector: 'app-kitchen-internal-monitor',
@@ -18,10 +21,17 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
   isMonitorActive = signal(false);
   selectedOrder = signal<Order | null>(null);
 
-  // Computed Signals für saubere Performance im Template
-  newOrders = computed(() => this.adminService.orders().filter(o => o.status === 'new'));
-  preparingOrders = computed(() => this.adminService.orders().filter(o => o.status === 'preparing'));
-  readyOrders = computed(() => this.adminService.orders().filter(o => o.status === 'ready' || o.status === 'delivery'));
+  newOrders = computed(() => {
+    return this.adminService.orders().filter(order => order.status === 'new');
+  });
+
+  preparingOrders = computed(() => {
+    return this.adminService.orders().filter(order => order.status === 'preparing');
+  });
+
+  readyOrders = computed(() => {
+    return this.adminService.orders().filter(order => order.status === 'ready' || order.status === 'delivery');
+  });
 
   ngOnInit(): void {
     this.adminService.startListening();
@@ -33,12 +43,13 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
 
   async handleStatusClick(order: Order): Promise<void> {
     const isFinalStep = this.checkIfFinalStep(order);
-
     if (isFinalStep) {
       await this.orderService.archiveOrder(order);
-    } else {
-      const next = this.getNextStatus(order.status);
-      if (next) await this.adminService.updateStatus(order.id, next);
+      return;
+    }
+    const nextStatus = this.getNextStatus(order.status);
+    if (nextStatus) {
+      await this.adminService.updateStatus(order.id, nextStatus);
     }
   }
 
@@ -48,13 +59,13 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
     return isPickupReady || isDeliveryDone;
   }
 
-  private getNextStatus(current: OrderStatus): OrderStatus | null {
+  private getNextStatus(currentStatus: OrderStatus): OrderStatus | null {
     const transitions: Partial<Record<OrderStatus, OrderStatus>> = {
       'new': 'preparing',
       'preparing': 'ready',
       'ready': 'delivery'
     };
-    return transitions[current] ?? null;
+    return transitions[currentStatus] ?? null;
   }
 
   printOrder(order: Order): void {
@@ -69,17 +80,20 @@ export class KitchenInternalMonitorComponent implements OnInit, OnDestroy {
     this.isMonitorActive.set(true);
   }
 
-  getStatusLabel(status: OrderStatus, type?: string): string {
-    if (status === 'ready' && type === 'pickup') return 'ABSCHLIESSEN';
+  getStatusLabel(status: OrderStatus, deliveryType?: string): string {
+    if (status === 'ready' && deliveryType === 'pickup') return 'ABSCHLIESSEN';
     const labels: Record<string, string> = {
-      'new': 'STARTEN', 'preparing': 'FERTIG', 
-      'ready': 'LIEFERN', 'delivery': 'ABSCHLIESSEN'
+      'new': 'STARTEN',
+      'preparing': 'FERTIG',
+      'ready': 'LIEFERN',
+      'delivery': 'ABSCHLIESSEN'
     };
     return labels[status] || 'OK';
   }
 
-  getAsDate(ts: any): Date | null {
-    if (!ts) return null;
-    return typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+  getAsDate(rawTimestamp: RawDateInput): Date | null {
+    if (!rawTimestamp) return null;
+    const hasToDate = typeof (rawTimestamp as { toDate?: () => Date }).toDate === 'function';
+    return hasToDate ? (rawTimestamp as Timestamp).toDate() : new Date(rawTimestamp as string | number | Date);
   }
 }

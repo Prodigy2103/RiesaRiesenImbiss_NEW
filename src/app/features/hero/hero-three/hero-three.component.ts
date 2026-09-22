@@ -19,10 +19,6 @@ export class HeroThreeComponent {
 
   readonly averageRating = this.reviewService.averageRating;
 
-  /**
-   * Navigiert zur Bestellseite und setzt den ersten Schritt.
-   * Maximale Zeilenanzahl: 4 (Limit: 14)
-   */
   goToOrder(): void {
     this.order.step.set(1);
     this.router.navigate(['/order']);
