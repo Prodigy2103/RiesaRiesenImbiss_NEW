@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../shared/services/order.service';
 import { OrderItem, Category, IngredientDetail } from '../../../shared/modals/order.model';
-import { EXTRAS_LIST, SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
+import { CATEGORY_EXTRA_EXCLUSIONS, EXTRAS_LIST, SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
 import { NeonButtonComponent } from '../../../shared/ui/neon-button/neon-button.component';
 import { DataService } from '../../../shared/services/data.services';
 import { OrderSummaryComponent } from '../order-summary/order-summary.component';
@@ -29,28 +29,12 @@ export class OrderFlowComponent {
   selectedIngredientInfo = signal<IngredientDetail[] | null>(null);
 
   availableExtras = computed(() => {
-    const item = this.selectedItem();
-    const category = item?.category?.toLowerCase();
-    const standardCategories = ['salad', 'doener', 'dueruem', 'doener-box', 'lahmacun'];
+    const currentItem = this.selectedItem();
+    const categoryKey = currentItem?.category?.toLowerCase();
+    if (!currentItem || !categoryKey) return [];
 
-    if (!item || !category) return [];
-
-    const exclusions: Record<string, string[]> = {
-      'taco': ['100', '101', '102', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134'],
-      ...standardCategories.reduce((accumulator, catName) => ({ ...accumulator, [catName]: ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'] }), {}),
-      'kumpir': ['109', '110', '130', '131', '132', '133', '134'],
-      'doener-teller': ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'],
-      'noodle': ['108', '109', '110', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '130', '131', '132', '133', '134'],
-      'dueruem-veg': ['108', '109', '110', '111', '112', '113', '130', '131', '132', '133', '134'],
-      'pide': ['108', '109', '110', '115', '116', '117', '119', '120', '121', '122', '123', '124', '125', '130', '131', '132', '133', '134'],
-      'veg-teller': ['108', '109', '110', '111', '112', '113', '124', '125', '130', '131', '132', '133', '134'],
-      'doener-veg': ['108', '109', '110', '111', '112', '113', '124', '125', '130', '131', '132', '133', '134'],
-      'casserole': ['100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132'],
-      'pommes': ['100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '133', '134'],
-    };
-
-    const sauceIdsToExclude = exclusions[category] || [];
-    return this.EXTRAS().filter(extra => !sauceIdsToExclude.includes(extra.id));
+    const excludedExtraIds = CATEGORY_EXTRA_EXCLUSIONS[categoryKey] ?? [];
+    return this.EXTRAS().filter(extra => !excludedExtraIds.includes(extra.id));
   });
 
   selectedCategoryLabel = computed(() => {

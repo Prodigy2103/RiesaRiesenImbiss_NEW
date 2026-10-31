@@ -22,6 +22,30 @@ export function calculateDayTimestampRange(targetDate: Date): DayTimestampRange 
     };
 }
 
+export const DEFAULT_PIZZA_CATEGORY: Category = {
+    id: 'pizza',
+    key: 'pizza',
+    label: 'Hausgemachte Pizza',
+    img: '/assets/CatImg/pide.webp',
+    description: 'Hausgemachter Teig, fruchtige Tomatensauce, Käse',
+    order: 19
+};
+
+export function normalizeCategory(documentIdentifier: string, sourceCategory: Category): Category {
+    return {
+        ...sourceCategory,
+        id: documentIdentifier,
+        key: sourceCategory.key || documentIdentifier,
+        order: Number(sourceCategory.order || 0)
+    };
+}
+
+export function ensurePizzaCategory(loadedCategories: Category[]): Category[] {
+    const hasPizzaCategory = loadedCategories.some(category => category.key === 'pizza');
+    const mergedCategories = hasPizzaCategory ? loadedCategories : [...loadedCategories, DEFAULT_PIZZA_CATEGORY];
+    return [...mergedCategories].sort((first, second) => (first.order ?? 0) - (second.order ?? 0));
+}
+
 export function normalizeMenuItem(documentIdentifier: string, sourceItem: OrderItem): OrderItem {
     const rawPath = sourceItem.imgPath || '';
     const normalizedImagePath = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
@@ -56,17 +80,13 @@ export class DataService {
 
     public readonly categories: Signal<Category[]> = toSignal(
         from(getDocs(query(collection(this.firestore, 'categories'), orderBy('order', 'asc')))).pipe(
-            map(querySnapshot => querySnapshot.docs.map(documentSnapshot => {
-                const categoryPayload = documentSnapshot.data() as Category;
-                return {
-                    ...categoryPayload,
-                    id: documentSnapshot.id,
-                    key: categoryPayload.key || documentSnapshot.id,
-                    order: Number(categoryPayload.order || 0)
-                };
-            }))
+            map(querySnapshot => ensurePizzaCategory(
+                querySnapshot.docs.map(documentSnapshot =>
+                    normalizeCategory(documentSnapshot.id, documentSnapshot.data() as Category)
+                )
+            ))
         ),
-        { initialValue: [] }
+        { initialValue: [DEFAULT_PIZZA_CATEGORY] }
     );
 
     public readonly menuItems: Signal<OrderItem[]> = toSignal(

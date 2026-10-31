@@ -43,7 +43,7 @@
                             placeholder="Dein Name" />
                     </div>
 
-                    <!-- @if (order.deliveryType() === 'delivery') {
+                    @if (order.deliveryType() === 'delivery') {
                     <div class="input-group">
                         <label>Adresse</label>
                         <input type="text" [ngModel]="customer().address"
@@ -51,7 +51,7 @@
                             [style.color]="customer().address ? 'white' : 'rgba(255,255,255,0.4)'"
                             placeholder="Straße, Hausnummer, PLZ" />
                     </div>
-                    } -->
+                    }
 
                     <div class="input-group">
                         <label>Telefon</label>
@@ -84,7 +84,8 @@
                 </div>
                 } @else {
                 <div class="alert alert-success">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-alert-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" class="inline-alert-icon" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <span>Mindestbestellwert erreicht!</span>
@@ -114,15 +115,14 @@
                 <app-neon-button [class.active]="order.deliveryType() === 'pickup'" (click)="setMode('pickup')">
                     Abholung
                 </app-neon-button>
-                <!-- <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
+                <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
                     Lieferung
-                </app-neon-button> -->
+                </app-neon-button>
             </div>
         </div>
 
         <div class="actions">
-            <app-neon-button variant="primary" [disabled]="isOrderInvalid()"
-                (click)="submitOrder()">
+            <app-neon-button variant="primary" [disabled]="isOrderInvalid()" (click)="submitOrder()">
                 Jetzt zahlungspflichtig bestellen
             </app-neon-button>
         </div>

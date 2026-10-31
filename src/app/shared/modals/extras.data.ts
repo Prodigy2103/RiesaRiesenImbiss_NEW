@@ -49,3 +49,25 @@ export const SAUCE_INFO_LIST: IngredientDetail[] = [
     { id: 'barbecue', name: 'Barbecue', detail: 'hat einen rauchig und intensiv würzigen Geschmack.' },
     { id: 'tartare', name: 'Tartare', detail: 'basierend auf Mayonnaise, die typischerweise mit gehackten Gewürzgurken und frischen Kräutern sowie Petersilie verfeinert wird.' },
 ];
+
+const STANDARD_EXCLUSIONS = ['108', '109', '110', '124', '125', '130', '131', '132', '133', '134'];
+const BAKED_DOUGH_EXCLUSIONS = ['108', '109', '110', '115', '116', '117', '119', '120', '121', '122', '123', '124', '125', '130', '131', '132', '133', '134'];
+
+export const CATEGORY_EXTRA_EXCLUSIONS: Record<string, string[]> = {
+    'salad': STANDARD_EXCLUSIONS,
+    'doener': STANDARD_EXCLUSIONS,
+    'dueruem': STANDARD_EXCLUSIONS,
+    'doener-box': STANDARD_EXCLUSIONS,
+    'lahmacun': STANDARD_EXCLUSIONS,
+    'doener-teller': STANDARD_EXCLUSIONS,
+    'taco': ['100', '101', '102', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132', '133', '134'],
+    'kumpir': ['109', '110', '130', '131', '132', '133', '134'],
+    'noodle': ['108', '109', '110', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '130', '131', '132', '133', '134'],
+    'dueruem-veg': ['108', '109', '110', '111', '112', '113', '130', '131', '132', '133', '134'],
+    'pide': BAKED_DOUGH_EXCLUSIONS,
+    'pizza': BAKED_DOUGH_EXCLUSIONS,
+    'veg-teller': ['108', '109', '110', '111', '112', '113', '124', '125', '130', '131', '132', '133', '134'],
+    'doener-veg': ['108', '109', '110', '111', '112', '113', '124', '125', '130', '131', '132', '133', '134'],
+    'casserole': ['100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '130', '131', '132'],
+    'pommes': ['100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124', '125', '126', '127', '128', '129', '133', '134'],
+};

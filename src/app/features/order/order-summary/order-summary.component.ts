@@ -67,7 +67,6 @@ export class OrderSummaryComponent implements OnInit {
   }
 
   public setMode(deliveryMode: 'pickup' | 'delivery'): void {
-    if (deliveryMode !== 'pickup') return;
     this.order.deliveryType.set(deliveryMode);
   }
 

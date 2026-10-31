@@ -8,7 +8,9 @@ import { OrderItem } from '../../../shared/modals/order.model';
 
 interface MockOrderService {
   deliveryType: WritableSignal<'pickup' | 'delivery'>;
+  isAreaSupported: () => boolean;
   isMovReached: () => boolean;
+  missingAmount: () => number;
   summary: () => { total: number };
   updateId: jasmine.Spy;
   complete: jasmine.Spy;
@@ -36,7 +38,9 @@ describe('OrderSummaryComponent', () => {
   beforeEach(async () => {
     orderServiceMock = {
       deliveryType: signal<'pickup' | 'delivery'>('pickup'),
+      isAreaSupported: () => true,
       isMovReached: () => true,
+      missingAmount: () => 0,
       summary: () => ({ total: 25.50 }),
       updateId: jasmine.createSpy('updateId'),
       complete: jasmine.createSpy('complete'),
@@ -66,6 +70,21 @@ describe('OrderSummaryComponent', () => {
     component.updateCustomerField('name', 'Max Mustermann');
     component.updateCustomerField('phone', '012345678901');
     component.updateCustomerField('scheduledTime', '18:00');
+    fixture.detectChanges();
+    expect(component.isOrderInvalid()).toBeFalse();
+  });
+
+  it('sollte den Wechsel auf Lieferung erlauben und Adresspflicht prüfen', () => {
+    component.updateCustomerField('name', 'Max Mustermann');
+    component.updateCustomerField('phone', '012345678901');
+    component.updateCustomerField('scheduledTime', '18:00');
+    component.setMode('delivery');
+    fixture.detectChanges();
+
+    expect(orderServiceMock.deliveryType()).toBe('delivery');
+    expect(component.isOrderInvalid()).toBeTrue();
+
+    component.updateCustomerField('address', 'Hauptstraße 12, 01587 Riesa');
     fixture.detectChanges();
     expect(component.isOrderInvalid()).toBeFalse();
   });
