@@ -101,7 +101,7 @@
                                 @if (extra.price > 0) {
                                 <span class="cost">+{{ extra.price | number:'1.2-2' }} €</span>
                                 } @else {
-                                <span class="included">Inklusive</span>
+                                <span class="included">{{ getFreeExtraLabel(extra) }}</span>
                                 }
                             </div>
                         </label>

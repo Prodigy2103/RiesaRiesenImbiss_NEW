@@ -77,6 +77,16 @@
 			grid-template-columns: 8.2rem 1fr;
 			gap: 0.5rem;
 		}
+
+		.delivery-subtitle {
+			margin: 1rem 0;
+			font-size: 1rem;
+			color: all.$imbiss-dark;
+		}
+
+		.delivery-hours-grid .time {
+			font-weight: 700;
+		}
 	}
 
 	.map-wrapper {
@@ -115,7 +125,7 @@
 					width: var(--percent);
 					overflow: hidden;
 					color: all.$imbiss-orange;
-					transition: width 0.3s ease; 
+					transition: width 0.3s ease;
 				}
 			}
 
@@ -359,6 +369,7 @@
 		opacity: 0;
 		transform: translateY(20px) scale(0.96);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0) scale(1);

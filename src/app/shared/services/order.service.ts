@@ -25,7 +25,7 @@ export class OrderService {
     private readonly CUSTOMER_STORAGE_KEY: string = 'imbiss_customer';
     private readonly SUMMARY_STORAGE_KEY: string = 'last_order_summary';
     private readonly CART_STORAGE_KEY: string = 'imbiss_active_cart';
-    private readonly MINIMUM_ORDER_VALUE_MAP: Readonly<Record<string, number>> = { '01589': 25, '01587': 30 };
+    private readonly MINIMUM_ORDER_VALUE_MAP: Readonly<Record<string, number>> = { '01589': 20, '01587': 30 };
 
     readonly step: WritableSignal<OrderStep> = signal<OrderStep>(1);
     readonly category: WritableSignal<string | null> = signal<string | null>(null);

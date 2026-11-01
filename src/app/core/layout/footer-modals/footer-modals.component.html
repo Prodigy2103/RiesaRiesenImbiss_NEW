@@ -22,9 +22,8 @@
 			<app-neon-button variant="link" class="modal-close-neon" (click)="ui.closeNews()">X</app-neon-button>
 		</div>
 		<div class="modal-body">
-			<h3 [style.color]="ui.selectedNews()?.urgent ? '#ff4444' : '#d98324'">{{ ui.selectedNews()?.title }}</h3>
+			<h3 class="news-title">{{ ui.selectedNews()?.title }}</h3>
 			<p class="desc">{{ ui.selectedNews()?.description }}</p>
-			<button class="apply-btn" (click)="ui.closeNews()">Close</button>
 		</div>
 	</div>
 </div>

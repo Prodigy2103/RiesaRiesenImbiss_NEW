@@ -62,9 +62,9 @@ describe('OrderService', () => {
 
     it('should calculate minimum order value and reach status', () => {
         service.zipCode.set('01589');
-        expect(service.minOrderValue()).toBe(25);
+        expect(service.minOrderValue()).toBe(20);
         expect(service.isMovReached()).toBeFalse();
-        service.addItem({ ...testItem, price: 30 });
+        service.addItem({ ...testItem, price: 20 });
         expect(service.isMovReached()).toBeTrue();
     });
 

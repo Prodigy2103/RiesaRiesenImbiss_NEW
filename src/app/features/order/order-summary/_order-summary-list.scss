@@ -26,7 +26,7 @@
 			.item-info {
 				background: rgba(0, 0, 0, 0.59);
 				width: 50%;
-				padding: 0.3rem;
+				padding: 0.3rem 0 0.3rem 1rem;
 				border-radius: 0.8rem;
 				@include all.fl($alit: center, $gap: 1rem);
 
@@ -109,7 +109,7 @@
 
 			.item-price {
 				font: 700 1rem 'Orbitron', sans-serif;
-				color: all.$white;
+				color: all.$imbiss-dark;
 				min-width: 60px;
 				text-align: right;
 			}

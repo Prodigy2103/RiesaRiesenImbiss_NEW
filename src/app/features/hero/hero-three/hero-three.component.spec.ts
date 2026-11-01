@@ -29,4 +29,14 @@ describe('HeroThreeComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should render the delivery announcement HUD banner with start date and zip codes', () => {
+    const bannerElement = fixture.nativeElement.querySelector('.delivery-hud-banner') as HTMLElement | null;
+    const bannerText = bannerElement?.textContent ?? '';
+
+    expect(bannerElement).not.toBeNull();
+    expect(bannerText).toContain('02.11.2026');
+    expect(bannerText).toContain('01587');
+    expect(bannerText).toContain('01589');
+  });
 });

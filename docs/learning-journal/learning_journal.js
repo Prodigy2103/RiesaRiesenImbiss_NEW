@@ -1,5 +1,28 @@
 const learningJournalData = [
   {
+    date: "2026-11-01",
+    title: "Lieferservice-Launch, Adressvalidierung, Hausgemachte Pizza & Tagesabschluss-Steuersplitting",
+    tasks: [
+      "Freischaltung des Lieferservice-Modus in OrderSummaryComponent inklusive Mindestbestellwert-Anpassung für PLZ 01589 auf 20 €",
+      "Robuste Straßen- und Hausnummern-Validierung (isValidDeliveryAddress) in DataService und OrderSummaryComponent mit Live-UI-Feedback",
+      "Reaktive Standard-Liefer-/Abholzeit (+45 Min.) mit 15s-Live-Sync (DestroyRef-Cleanup) und Unterstützung manueller Wunschzeiten (isCustomTimeSelected)",
+      "Zeitfenstergesteuerte Aktivierung des Liefer-Buttons (isWithinDeliveryHours: Mo–Sa 11–20 Uhr, So 13–19 Uhr)",
+      "Integration der neuen Kategorie 'Hausgemachte Pizza' inklusive Pfad-Normalisierung (normalizeCategory) und 'Extrawunsch'-Kennzeichnung für Saucen (100, 101, 102)",
+      "Erweiterung des Tagesabschluss-Bons (OrderArchiveComponent) um die Trennung nach Abholung/Lieferung sowie 7% MwSt (Speisen) und 19% MwSt (Getränke)",
+      "Einbau des Lieferservice-HUD-Banners und der Lieferzeiten in HeroThreeComponent, OrderSummaryComponent und FindUsComponent"
+    ],
+    learnings: [
+      "Defense in Depth bei Adressvalidierung: Eine reine Längenprüfung (> 10 Zeichen) lässt Eingaben ohne Hausnummer oder reine PLZ-Angaben durch; ein strukturierter Regex für Straße + 1-4-stellige Hausnummer sichert UI und Service-Layer gleichermaßen ab.",
+      "Reaktive Zeitberechnung & DestroyRef: Live mitlaufende Uhrzeiten über setInterval müssen zwingend mit DestroyRef.onDestroy bereinigt werden, während ein separates Signal (isCustomTimeSelected) manuelle Nutzereingaben vor dem Überschreiben schützt.",
+      "Umsatzsteuer-Splitting im Kassenabschluss: Außer-Haus-Speisen (Abholung & Lieferung) unterliegen 7% MwSt, Getränke ('bottle', 'alkfree') jedoch 19% MwSt (Brutto / 1.19).",
+      "Single Source of Truth für Extra-Filter: Statische Ausschlusslisten gehören in zentrale Datenmodule (CATEGORY_EXTRA_EXCLUSIONS in extras.data.ts) statt in mehrfach neu aufgebaute lokale Objekte innerhalb von computed()-Signals."
+    ],
+    openTodos: [
+      "Hinterlegen der finalen Pizza-Gerichte in der Firestore-Collection menuItems",
+      "Optionaler Austausch der Telefonnummern- und Social-Media-Platzhalter im Footer"
+    ]
+  },
+  {
     date: "2026-09-22",
     title: "DevSecOps Audit, Army-of-Juniors Refactoring, E2E/UX Audit & Cyberpunk UI Polish",
     tasks: [

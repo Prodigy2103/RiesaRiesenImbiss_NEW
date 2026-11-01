@@ -59,6 +59,11 @@ export class OrderFlowComponent {
     isChecked ? this.order.addExtra(extra) : this.order.removeExtraById(extra.id);
   }
 
+  getFreeExtraLabel(extra: OrderItem): string {
+    const isPizza = this.selectedItem()?.category?.toLowerCase() === 'pizza';
+    return isPizza && ['100', '101', '102'].includes(extra.id) ? 'Extrawunsch' : 'Inklusive';
+  }
+
   handleNext(): void {
     if (this.canProceed()) this.order.next();
   }

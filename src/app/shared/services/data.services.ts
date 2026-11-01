@@ -22,28 +22,23 @@ export function calculateDayTimestampRange(targetDate: Date): DayTimestampRange 
     };
 }
 
-export const DEFAULT_PIZZA_CATEGORY: Category = {
-    id: 'pizza',
-    key: 'pizza',
-    label: 'Hausgemachte Pizza',
-    img: '/assets/CatImg/pide.webp',
-    description: 'Hausgemachter Teig, fruchtige Tomatensauce, Käse',
-    order: 19
-};
-
 export function normalizeCategory(documentIdentifier: string, sourceCategory: Category): Category {
+    const rawImage = (sourceCategory.img || '').trim();
+    const normalizedImage = rawImage.startsWith('/') ? rawImage : `/${rawImage}`;
     return {
         ...sourceCategory,
         id: documentIdentifier,
-        key: sourceCategory.key || documentIdentifier,
+        key: (sourceCategory.key || documentIdentifier).trim(),
+        img: normalizedImage,
         order: Number(sourceCategory.order || 0)
     };
 }
 
-export function ensurePizzaCategory(loadedCategories: Category[]): Category[] {
-    const hasPizzaCategory = loadedCategories.some(category => category.key === 'pizza');
-    const mergedCategories = hasPizzaCategory ? loadedCategories : [...loadedCategories, DEFAULT_PIZZA_CATEGORY];
-    return [...mergedCategories].sort((first, second) => (first.order ?? 0) - (second.order ?? 0));
+const STREET_WITH_HOUSE_NUMBER_PATTERN = /[A-Za-zÄÖÜäöüß]{2,}[A-Za-zÄÖÜäöüß.\s-]*\s+\d{1,4}[a-zA-Z]?(?:[-/]\d{1,4}[a-zA-Z]?)?\b/;
+
+export function isValidDeliveryAddress(rawAddress: string): boolean {
+    const normalizedAddress = rawAddress.trim();
+    return normalizedAddress.length >= 5 && STREET_WITH_HOUSE_NUMBER_PATTERN.test(normalizedAddress);
 }
 
 export function normalizeMenuItem(documentIdentifier: string, sourceItem: OrderItem): OrderItem {
@@ -80,18 +75,16 @@ export class DataService {
 
     public readonly categories: Signal<Category[]> = toSignal(
         from(getDocs(query(collection(this.firestore, 'categories'), orderBy('order', 'asc')))).pipe(
-            map(querySnapshot => ensurePizzaCategory(
-                querySnapshot.docs.map(documentSnapshot =>
-                    normalizeCategory(documentSnapshot.id, documentSnapshot.data() as Category)
-                )
+            map(querySnapshot => querySnapshot.docs.map(documentSnapshot =>
+                normalizeCategory(documentSnapshot.id, documentSnapshot.data() as Category)
             ))
         ),
-        { initialValue: [DEFAULT_PIZZA_CATEGORY] }
+        { initialValue: [] }
     );
 
     public readonly menuItems: Signal<OrderItem[]> = toSignal(
         from(getDocs(query(collection(this.firestore, 'menuItems'), orderBy('order', 'asc')))).pipe(
-            map(querySnapshot => querySnapshot.docs.map(documentSnapshot => 
+            map(querySnapshot => querySnapshot.docs.map(documentSnapshot =>
                 normalizeMenuItem(documentSnapshot.id, documentSnapshot.data() as OrderItem)
             ))
         ),
@@ -110,9 +103,11 @@ export class DataService {
     }
 
     private validateCustomerPayload(orderPayload: NewOrderPayload): void {
-        const { name, phone } = orderPayload.customer;
-        if (!name || name.length < 5 || !phone || phone.trim().length < 5) {
-            throw new Error('SYSTEM_FAILURE: Invalid Customer Data (Name or Phone missing)');
+        const { name, phone, address } = orderPayload.customer;
+        const isBasicDataInvalid = !name || name.trim().length < 5 || !phone || phone.trim().length < 5;
+        const isDeliveryAddressInvalid = orderPayload.deliveryType === 'delivery' && !isValidDeliveryAddress(address);
+        if (isBasicDataInvalid || isDeliveryAddressInvalid) {
+            throw new Error('SYSTEM_FAILURE: Invalid Customer Data (Name, Phone or Delivery Address invalid)');
         }
     }
 
@@ -139,7 +134,7 @@ export class DataService {
         return this.ingredientDetailsMap()[ingredientIdentifier.toString()];
     }
 
-    public readonly ingredientsList: Signal<IngredientDetail[]> = computed(() => 
+    public readonly ingredientsList: Signal<IngredientDetail[]> = computed(() =>
         Object.values(this.ingredientDetailsMap())
     );
 

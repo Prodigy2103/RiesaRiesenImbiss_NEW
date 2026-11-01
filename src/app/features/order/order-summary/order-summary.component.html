@@ -45,11 +45,12 @@
 
                     @if (order.deliveryType() === 'delivery') {
                     <div class="input-group">
-                        <label>Adresse</label>
+                        <label>Adresse (Straße & Hausnr.)</label>
                         <input type="text" [ngModel]="customer().address"
                             (ngModelChange)="updateCustomerField('address', $event)"
                             [style.color]="customer().address ? 'white' : 'rgba(255,255,255,0.4)'"
-                            placeholder="Straße, Hausnummer, PLZ" />
+                            [style.border-color]="isAddressInvalid() ? '#ef4444' : ''"
+                            placeholder="z. B. Hauptstraße 12" />
                     </div>
                     }
 
@@ -92,7 +93,7 @@
                 </div>
                 }
                 } @else {
-                <div class="alert alert-info">Bitte geben Sie eine gültige PLZ ein.</div>
+                <div class="alert alert-info">Bitte geben Sie eine gültige PLZ ( 01587 oder 01589) ein.</div>
                 }
             </div>
             }
@@ -107,15 +108,23 @@
                     <input type="time" [ngModel]="customer().scheduledTime"
                         (ngModelChange)="updateCustomerField('scheduledTime', $event)" class="neon-input"
                         [min]="minTime()" />
-                    <span class="time-hint">Standard: Schnellstmöglich</span>
+                    <span class="time-hint">Schnellstmöglich oder wählen Sie selber eine Zeit</span>
                 </div>
+
+                @if (order.deliveryType() === 'delivery') {
+                <div class="delivery-hours-box">
+                    <span class="hours-badge">UNSERE LIEFERZEITEN</span>
+                    <span class="hours-range">Mo – Sa: 11:00 – 20:00 Uhr • So: 13:00 – 19:00 Uhr</span>
+                </div>
+                }
             </div>
 
             <div class="buttons-container">
                 <app-neon-button [class.active]="order.deliveryType() === 'pickup'" (click)="setMode('pickup')">
                     Abholung
                 </app-neon-button>
-                <app-neon-button [class.active]="order.deliveryType() === 'delivery'" (click)="setMode('delivery')">
+                <app-neon-button [class.active]="order.deliveryType() === 'delivery'"
+                    [disabled]="!isDeliveryAvailable()" (click)="setMode('delivery')">
                     Lieferung
                 </app-neon-button>
             </div>

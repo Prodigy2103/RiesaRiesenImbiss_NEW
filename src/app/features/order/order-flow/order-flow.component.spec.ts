@@ -4,7 +4,7 @@ import { SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
 import { OrderFlowComponent } from './order-flow.component';
 import { Category } from '../../../shared/modals/order.model';
 import { OrderService } from '../../../shared/services/order.service';
-import { DataService, DEFAULT_PIZZA_CATEGORY, ensurePizzaCategory } from '../../../shared/services/data.services';
+import { DataService, normalizeCategory } from '../../../shared/services/data.services';
 
 describe('OrderFlowComponent', () => {
   let component: OrderFlowComponent;
@@ -24,7 +24,16 @@ describe('OrderFlowComponent', () => {
 
     const mockDataService = {
       menuItems: signal([]),
-      categories: signal(ensurePizzaCategory([])),
+      categories: signal([
+        normalizeCategory('pizza', {
+          id: 'pizza',
+          key: 'pizza ',
+          label: 'Hausgemachte Pizza',
+          img: 'assets/CatImg/pizza_margherita.webp ',
+          description: 'Hausgemachter Teig, fruchtige Tomatensauce, Käse',
+          order: 14
+        })
+      ]),
       getIngredient: jasmine.createSpy('getIngredient')
     };
 
@@ -53,17 +62,16 @@ describe('OrderFlowComponent', () => {
     expect(component.selectedIngredientInfo()).toEqual(SAUCE_INFO_LIST);
   });
 
-  it('should include the "Hausgemachte Pizza" category via DataService without duplicating', () => {
+  it('should normalize the "Hausgemachte Pizza" category from DataService properly', () => {
     const allCategories = component.categories();
     const pizzaCategories = allCategories.filter(category => category.key === 'pizza');
-    const deduplicatedCategories = ensurePizzaCategory([DEFAULT_PIZZA_CATEGORY]);
 
     expect(pizzaCategories.length).toBe(1);
     expect(pizzaCategories[0].label).toBe('Hausgemachte Pizza');
-    expect(deduplicatedCategories.length).toBe(1);
+    expect(pizzaCategories[0].img).toBe('/assets/CatImg/pizza_margherita.webp');
   });
 
-  it('should filter extras for the pizza category properly', () => {
+  it('should filter extras for the pizza category and show Extrawunsch for 100, 101, 102', () => {
     component.selectedItem.set({
       id: 'pizza-1',
       name: 'Pizza Margherita',
@@ -73,8 +81,19 @@ describe('OrderFlowComponent', () => {
     });
 
     const filteredExtras = component.availableExtras();
+    const herbSauce = filteredExtras.find(extra => extra.id === '100')!;
+
     expect(filteredExtras.length).toBeGreaterThan(0);
-    expect(filteredExtras.some(extra => extra.id === '129')).toBeTrue();
-    expect(filteredExtras.some(extra => extra.id === '119')).toBeFalse();
+    expect(herbSauce).toBeDefined();
+    expect(component.getFreeExtraLabel(herbSauce)).toBe('Extrawunsch');
+
+    component.selectedItem.set({
+      id: 'doener-1',
+      name: 'Döner Kebab',
+      category: 'doener',
+      price: 7.5,
+      amount: 1
+    });
+    expect(component.getFreeExtraLabel(herbSauce)).toBe('Inklusive');
   });
 });

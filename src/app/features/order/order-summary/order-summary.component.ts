@@ -1,12 +1,20 @@
-import { Component, inject, signal, OnInit, computed, NgZone } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, NgZone, DestroyRef } from '@angular/core';
 import { OrderService } from '../../../shared/services/order.service';
 import { Router } from '@angular/router';
 import { NeonButtonComponent } from '../../../shared/ui/neon-button/neon-button.component';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { DataService } from '../../../shared/services/data.services';
+import { DataService, isValidDeliveryAddress } from '../../../shared/services/data.services';
 import { CustomerData } from '../../../shared/modals/order.model';
 import { safeJsonParse } from '../../../shared/utils/storage.util';
+
+export function isWithinDeliveryHours(targetDate: Date): boolean {
+  const isSunday = targetDate.getDay() === 0;
+  const currentMinutes = targetDate.getHours() * 60 + targetDate.getMinutes();
+  const startMinutes = isSunday ? 13 * 60 : 11 * 60;
+  const endMinutes = isSunday ? 19 * 60 : 20 * 60;
+  return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+}
 
 @Component({
   selector: 'app-order-summary',
@@ -21,52 +29,77 @@ export class OrderSummaryComponent implements OnInit {
   private router = inject(Router);
   public dataService = inject(DataService);
   private ngZone = inject(NgZone);
+  private destroyRef = inject(DestroyRef);
 
   public isLoading = signal(false);
   public minTime = signal('');
+  public isCustomTimeSelected = signal(false);
+  public isDeliveryAvailable = signal(isWithinDeliveryHours(new Date()));
   public customer = signal<CustomerData>({ name: '', address: '', phone: '', scheduledTime: '' });
+
+  public isAddressInvalid = computed(() => {
+    const rawAddress = this.customer().address.trim();
+    return this.order.deliveryType() === 'delivery' && rawAddress.length > 0 && !isValidDeliveryAddress(rawAddress);
+  });
 
   public isOrderInvalid = computed(() => {
     const currentCustomer = this.customer();
-    const currentItems = this.order.items();
-    if (currentItems.length === 0) return true;
-
-    const hasValidName = currentCustomer.name.trim().length >= 6;
-    const hasValidPhone = currentCustomer.phone.trim().length >= 11;
-    const hasScheduledTime = !!currentCustomer.scheduledTime;
-    const hasBasicInfo = hasValidName && hasValidPhone && hasScheduledTime;
-
-    if (this.order.deliveryType() === 'pickup') {
-      return !hasBasicInfo;
+    if (this.order.items().length === 0 || !this.hasValidBasicInfo(currentCustomer)) {
+      return true;
     }
-
-    const hasValidAddress = currentCustomer.address.trim().length > 10;
-    return !(hasBasicInfo && hasValidAddress && this.order.isMovReached());
+    if (this.order.deliveryType() === 'pickup') {
+      return false;
+    }
+    return !(isValidDeliveryAddress(currentCustomer.address) && this.order.isMovReached());
   });
+
+  private hasValidBasicInfo(customerData: CustomerData): boolean {
+    const hasValidName = customerData.name.trim().length >= 6;
+    const hasValidPhone = customerData.phone.trim().length >= 11;
+    const hasScheduledTime = !!customerData.scheduledTime;
+    return hasValidName && hasValidPhone && hasScheduledTime;
+  }
 
   ngOnInit(): void {
     this.order.deliveryType.set('pickup');
     this.loadPersistedCustomer();
     this.calculateMinTime();
+    this.startLiveTimeSync();
   }
 
   private loadPersistedCustomer(): void {
     const rawCustomerJson = localStorage.getItem('imbiss_customer');
     const fallbackCustomer: CustomerData = { name: '', address: '', phone: '', scheduledTime: '' };
-    this.customer.set(safeJsonParse<CustomerData>(rawCustomerJson, fallbackCustomer));
+    const persistedCustomer = safeJsonParse<CustomerData>(rawCustomerJson, fallbackCustomer);
+    this.customer.set({ ...persistedCustomer, scheduledTime: '' });
   }
 
-  private calculateMinTime(): void {
-    const calculatedDate = new Date();
-    calculatedDate.setMinutes(calculatedDate.getMinutes() + 60);
+  private startLiveTimeSync(): void {
+    const intervalHandle = setInterval(() => this.calculateMinTime(), 15_000);
+    this.destroyRef.onDestroy(() => clearInterval(intervalHandle));
+  }
+
+  public calculateMinTime(referenceDate: Date = new Date()): void {
+    this.syncDeliveryWindow(referenceDate);
+    const calculatedDate = new Date(referenceDate.getTime() + 45 * 60_000);
     const formattedTimeString = calculatedDate.toTimeString().slice(0, 5);
     this.minTime.set(formattedTimeString);
-    if (!this.customer().scheduledTime) {
+    const currentScheduled = this.customer().scheduledTime || '';
+    if (!this.isCustomTimeSelected() || currentScheduled < formattedTimeString) {
       this.customer.update(existingCustomer => ({ ...existingCustomer, scheduledTime: formattedTimeString }));
     }
   }
 
+  private syncDeliveryWindow(referenceDate: Date): void {
+    const canDeliverNow = isWithinDeliveryHours(referenceDate);
+    this.isDeliveryAvailable.set(canDeliverNow);
+    if (!canDeliverNow && this.order.deliveryType() === 'delivery') {
+      this.order.deliveryType.set('pickup');
+    }
+  }
+
   public setMode(deliveryMode: 'pickup' | 'delivery'): void {
+    if (deliveryMode === 'delivery' && !this.isDeliveryAvailable()) return;
     this.order.deliveryType.set(deliveryMode);
   }
 
@@ -119,7 +152,11 @@ export class OrderSummaryComponent implements OnInit {
   }
 
   public updateCustomerField(fieldName: keyof CustomerData, fieldValue: string): void {
-    this.customer.update(existingCustomer => ({ ...existingCustomer, [fieldName]: fieldValue }));
+    if (fieldName === 'scheduledTime') {
+      this.isCustomTimeSelected.set(true);
+    }
+    const resolvedValue = fieldName === 'scheduledTime' && fieldValue < this.minTime() ? this.minTime() : fieldValue;
+    this.customer.update(existingCustomer => ({ ...existingCustomer, [fieldName]: resolvedValue }));
     this.persistCustomerData();
   }
 }

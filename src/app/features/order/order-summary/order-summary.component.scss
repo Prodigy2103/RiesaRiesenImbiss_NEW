@@ -136,6 +136,27 @@
 					margin-top: 0.3rem;
 				}
 			}
+
+			.delivery-hours-box {
+				@include all.fl($flexdir: column, $alit: center, $gap: 0.2rem);
+				margin: 0.6rem auto 0;
+				padding: 0.55rem 1rem;
+				max-width: 26rem;
+				background: all.$imbiss-card-dark;
+				border: 1px solid all.$imbiss-teal;
+				border-radius: 0.5rem;
+
+				.hours-badge {
+					font: 700 0.7rem 'Orbitron', monospace;
+					color: all.$imbiss-teal;
+					letter-spacing: 0.06rem;
+				}
+
+				.hours-range {
+					font: 600 0.8rem 'Orbitron', sans-serif;
+					color: all.$white;
+				}
+			}
 		}
 
 		.buttons-container {
@@ -167,26 +188,6 @@
 
 	label {
 		color: black;
-	}
-
-	.time-picker-wrapper {
-		position: relative;
-
-		input[type="time"] {
-			width: 100%;
-			background: rgba(255, 255, 255, 0.05);
-			border: 1px solid #444;
-			color: black;
-			padding: 10px;
-			border-radius: 8px;
-			font-family: inherit;
-			outline: none;
-
-			&:focus {
-				border-color: #ffa500;
-				box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
-			}
-		}
 	}
 
 	.total-bar {

@@ -37,8 +37,8 @@ export class FooterComponent {
 
   news: News[] = [
     {
-      title: 'Ausfall Lieferservice',
-      description: 'Derzeit steht der Lieferservice nicht zur Verfügung.',
+      title: 'Lieferservice ab 02.11.2026',
+      description: 'Wartezeit vorbei: Ab dem 02.11.2026 ist unser Lieferservice wieder für dich da! Freu dich auf gewohnte Qualität, blitzschnelle Lieferung und puren Genuss direkt an deiner Haustür.',
       urgent: true
     }
   ];

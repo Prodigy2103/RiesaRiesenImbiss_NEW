@@ -3,7 +3,7 @@ import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import { OrderService } from '../services/order.service';
-import { Order } from '../modals/order.model';
+import { Order, OrderItem } from '../modals/order.model';
 import { formatLocalDateIso } from '../utils/date.util';
 
 type RawDateInput = Timestamp | Date | string | number | null | undefined;
@@ -50,13 +50,34 @@ export class OrderArchiveComponent implements OnInit {
     return this.orders().filter(order => this.getIsoDate(order.createdAt) === this.selectedDate());
   });
 
-  totalRevenue = computed(() => {
-    return this.ordersOfSelectedDay().reduce((sum, order) => sum + order.finalTotal, 0);
+  pickupOrdersOfSelectedDay = computed(() => {
+    return this.ordersOfSelectedDay().filter(order => order.deliveryType === 'pickup');
   });
 
-  taxAmount = computed(() => {
-    return this.totalRevenue() - (this.totalRevenue() / 1.07);
+  deliveryOrdersOfSelectedDay = computed(() => {
+    return this.ordersOfSelectedDay().filter(order => order.deliveryType === 'delivery');
   });
+
+  pickupRevenue = computed(() => this.calculateTotal(this.pickupOrdersOfSelectedDay()));
+
+  deliveryRevenue = computed(() => this.calculateTotal(this.deliveryOrdersOfSelectedDay()));
+
+  totalRevenue = computed(() => this.calculateTotal(this.ordersOfSelectedDay()));
+
+  drinksGrossRevenue = computed(() => {
+    return this.ordersOfSelectedDay().reduce(
+      (drinksSum, order) => drinksSum + this.calculateOrderDrinksTotal(order),
+      0
+    );
+  });
+
+  foodGrossRevenue = computed(() => Math.max(0, this.totalRevenue() - this.drinksGrossRevenue()));
+
+  foodTaxAmount = computed(() => this.foodGrossRevenue() - (this.foodGrossRevenue() / 1.07));
+
+  drinksTaxAmount = computed(() => this.drinksGrossRevenue() - (this.drinksGrossRevenue() / 1.19));
+
+  taxAmount = computed(() => this.foodTaxAmount() + this.drinksTaxAmount());
 
   revenueTrend = computed(() => {
     const currentRevenue = this.calculateTotal(this.currentWeekOrders());
@@ -66,6 +87,22 @@ export class OrderArchiveComponent implements OnInit {
 
   private calculateTotal(orderList: Order[]): number {
     return orderList.reduce((sum, order) => sum + order.finalTotal, 0);
+  }
+
+  private calculateOrderDrinksTotal(order: Order): number {
+    return (order.items ?? [])
+      .filter(orderItem => this.isDrinkCategory(orderItem.category))
+      .reduce((sum, drinkItem) => sum + this.calculateItemLineTotal(drinkItem), 0);
+  }
+
+  private isDrinkCategory(category: string | undefined): boolean {
+    const normalizedCategory = category?.toLowerCase();
+    return normalizedCategory === 'bottle' || normalizedCategory === 'alkfree';
+  }
+
+  private calculateItemLineTotal(orderItem: OrderItem): number {
+    const extrasSum = (orderItem.selectedExtras ?? []).reduce((sum, extra) => sum + extra.price, 0);
+    return (orderItem.price + extrasSum) * (orderItem.quantity ?? 1);
   }
 
   absTrend = computed(() => Math.abs(this.revenueTrend()));

@@ -12,7 +12,9 @@
 		</button>
 
 		<div class="summary-preview">
-			<p>Bestellungen: {{ orders().length }}</p>
+			<p>Bestellungen (Tag): {{ ordersOfSelectedDay().length }}</p>
+			<p>Abholung ({{ pickupOrdersOfSelectedDay().length }}x): {{ pickupRevenue() | number: "1.2-2" }} €</p>
+			<p>Lieferung ({{ deliveryOrdersOfSelectedDay().length }}x): {{ deliveryRevenue() | number: "1.2-2" }} €</p>
 			<p>Gesamtumsatz: {{ totalRevenue() | number: "1.2-2" }} €</p>
 		</div>
 	</div>
@@ -82,16 +84,42 @@
 		<span>{{ selectedDate() | date: "dd.MM.yyyy" }}</span>
 	</div>
 	<div class="stat-row">
-		<span>Anzahl Bons:</span>
-		<span>{{ orders().length }}</span>
+		<span>Anzahl Bons (Gesamt):</span>
+		<span>{{ ordersOfSelectedDay().length }}</span>
 	</div>
 	<div class="stat-row">
-		<span>Umsatz Brutto:</span>
+		<span>Abholung ({{ pickupOrdersOfSelectedDay().length }}x):</span>
+		<span>{{ pickupRevenue() | number: "1.2-2" }} €</span>
+	</div>
+	<div class="stat-row">
+		<span>Lieferung ({{ deliveryOrdersOfSelectedDay().length }}x):</span>
+		<span>{{ deliveryRevenue() | number: "1.2-2" }} €</span>
+	</div>
+	<hr />
+	<div class="stat-row">
+		<span>Umsatz Speisen (7%):</span>
+		<span>{{ foodGrossRevenue() | number: "1.2-2" }} €</span>
+	</div>
+	<div class="stat-row">
+		<span>MwSt 7% (Speisen):</span>
+		<span>{{ foodTaxAmount() | number: "1.2-2" }} €</span>
+	</div>
+	<div class="stat-row">
+		<span>Umsatz Getränke (19%):</span>
+		<span>{{ drinksGrossRevenue() | number: "1.2-2" }} €</span>
+	</div>
+	<div class="stat-row">
+		<span>MwSt 19% (Getränke):</span>
+		<span>{{ drinksTaxAmount() | number: "1.2-2" }} €</span>
+	</div>
+	<hr />
+	<div class="stat-row">
+		<span>Umsatz Brutto Gesamt:</span>
 		<span>{{ totalRevenue() | number: "1.2-2" }} €</span>
 	</div>
 	<div class="stat-row">
-		<span>MwSt (7%):</span>
-		<span>{{ totalRevenue() - totalRevenue() / 1.07 | number: "1.2-2" }} €</span>
+		<span>MwSt Gesamt:</span>
+		<span>{{ taxAmount() | number: "1.2-2" }} €</span>
 	</div>
 
 	<hr />
@@ -104,11 +132,6 @@
 			<span>{{ item[0] }}</span>
 		</div>
 		}
-	</div>
-
-	<div class="stat-row">
-		<span>MwSt (7%):</span>
-		<span>{{ taxAmount() | number: "1.2-2" }} €</span>
 	</div>
 
 	<hr />

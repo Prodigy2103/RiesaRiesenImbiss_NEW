@@ -62,8 +62,8 @@
     flex-shrink: 0;
 
     &.urgent {
-        background: all.$imbiss-red;
-        box-shadow: 0 0 8px all.$imbiss-red;
+        background: all.$imbiss-teal;
+        box-shadow: 0 0 8px all.$imbiss-teal;
         animation: urgentPulse 1.5s infinite ease-in-out; // Animation hinzugefügt
     }
 }
@@ -80,7 +80,7 @@
     }
 
     &.urgent-text {
-        color: all.$imbiss-red;
+        color: all.$imbiss-teal;
         font-weight: 700;
     }
 }
