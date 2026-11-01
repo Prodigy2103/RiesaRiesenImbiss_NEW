@@ -51,4 +51,39 @@ describe('KitchenInternalMonitorComponent', () => {
     expect(window.print).toHaveBeenCalled();
     expect(component.selectedOrder()).toBeNull();
   }));
+
+  it('sollte im Druckbereich zwischen Abholung (pickup) und Lieferung (delivery) unterscheiden', () => {
+    const pickupOrder: Order = {
+      id: 'order-pickup-99',
+      status: 'new',
+      customer: { name: 'Anna Abholer', address: 'Alte Adresse 1', phone: '01761111111', scheduledTime: '17:30' },
+      items: [],
+      total: 12,
+      finalTotal: 12,
+      deliveryType: 'pickup',
+      createdAt: Timestamp.now()
+    };
+
+    component.selectedOrder.set(pickupOrder);
+    fixture.detectChanges();
+
+    const printSection = fixture.nativeElement.querySelector('#print-section') as HTMLElement;
+    expect(printSection.textContent).toContain('*** ABHOLUNG ***');
+    expect(printSection.textContent).toContain('ABHOLZEIT: 17:30 UHR');
+    expect(printSection.querySelector('.customer-address-print')).toBeNull();
+
+    const deliveryOrder: Order = {
+      ...pickupOrder,
+      id: 'order-delivery-99',
+      customer: { name: 'Max Lieferkunde', address: 'Hauptstraße 12', phone: '01762222222', scheduledTime: '18:15' },
+      deliveryType: 'delivery'
+    };
+
+    component.selectedOrder.set(deliveryOrder);
+    fixture.detectChanges();
+
+    expect(printSection.textContent).toContain('*** LIEFERUNG ***');
+    expect(printSection.textContent).toContain('LIEFERZEIT: 18:15 UHR');
+    expect(printSection.querySelector('.customer-address-print')?.textContent).toContain('Hauptstraße 12');
+  });
 });

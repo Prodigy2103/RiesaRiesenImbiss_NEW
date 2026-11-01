@@ -9,7 +9,15 @@ import { HeroThreeComponent } from './hero-three/hero-three.component';
 	],
 	template: `
     <feature-hero-three></feature-hero-three>
-`
+`,
+	styles: [`
+		:host {
+			display: block;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+	`]
 })
 /**
  * Serves as a container for the Hero section features.

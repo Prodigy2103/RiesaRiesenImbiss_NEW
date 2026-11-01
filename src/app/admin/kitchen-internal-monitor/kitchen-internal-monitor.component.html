@@ -141,16 +141,23 @@
 
         <div class="separator-stars">****************************</div>
 
+        <div class="ticket-type-banner">
+            {{ order.deliveryType === 'delivery' ? '*** LIEFERUNG ***' : '*** ABHOLUNG ***' }}
+        </div>
+
         <div class="order-meta">
             <strong>BESTELL-BON #{{ order.id.slice(-5).toUpperCase() }}</strong>
+            <p>Art: <strong>{{ order.deliveryType === 'delivery' ? 'Lieferung' : 'Abholung im Laden' }}</strong></p>
             <p>Eingang: {{ getAsDate(order.createdAt) | date:'dd.MM.yy HH:mm' }} Uhr</p>
             <p>Kunde: {{ order.customer.name }}</p>
             <p class="customer-phone-print">Telefon: {{ order.customer.phone || '---' }}</p>
-            <p class="customer-address-print">Adresse: {{ order.customer.address || '---' }}</p>
+            @if (order.deliveryType === 'delivery') {
+            <p class="customer-address-print"><strong>Lieferadresse: {{ order.customer.address }}</strong></p>
+            }
         </div>
 
         <div class="ticket-highlight">
-            WUNSCHZEIT: {{ order.customer.scheduledTime || 'SOFORT' }} UHR
+            {{ order.deliveryType === 'delivery' ? 'LIEFERZEIT' : 'ABHOLZEIT' }}: {{ order.customer.scheduledTime || 'SOFORT' }} UHR
         </div>
 
         <div class="items-list-print">

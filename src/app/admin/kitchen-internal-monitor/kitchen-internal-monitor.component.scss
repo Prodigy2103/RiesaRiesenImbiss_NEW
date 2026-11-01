@@ -287,6 +287,16 @@
                 color: black;
             }
 
+            .ticket-type-banner {
+                font-size: 13pt;
+                font-weight: 900;
+                text-align: center;
+                border: 2px solid black;
+                padding: 1.5mm 0;
+                margin: 2mm 0;
+                letter-spacing: 0.5mm;
+            }
+
             .item-main, .tax-row, .ticket-total {
                 @include all.print-ticket-row(2mm);
                 display: flex;

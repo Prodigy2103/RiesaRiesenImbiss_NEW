@@ -34,6 +34,7 @@ body {
     overflow: hidden;
     font-family: "Terminus", monospace;
     color: white;
+    font-size: 1rem;
 }
 
 body:has(app-kitchen-internal-monitor) {
@@ -44,11 +45,11 @@ body:has(app-kitchen-internal-monitor) {
     app-header,
     app-sidebar,
     app-footer {
-        display: none ;
+        display: none;
     }
 
     .layout {
-        display: block ;
+        display: block;
         grid-template-areas: "canvas";
         grid-template-columns: 1fr;
         grid-template-rows: 100vh;
@@ -120,37 +121,38 @@ main {
 // Innerhalb deines Mixins bei .extras-table
 .table-body {
     flex: 1;
-    overflow-y: auto ; // Sicherstellen, dass hier das Scrollen stattfindet
+    overflow-y: auto; // Sicherstellen, dass hier das Scrollen stattfindet
     padding-right: 6px;
     -webkit-overflow-scrolling: touch; // Für flüssiges Scrollen auf iOS
 
     /* Die radikale Lösung: Direktes Ansprechen über den Host-Kontext */
     &::-webkit-scrollbar {
-        width: 5px ;
-        height: 5px ;
-        display: block ;
+        width: 5px;
+        height: 5px;
+        display: block;
     }
 
     &::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05) ;
-        border-radius: 10px ;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
     }
 
     &::-webkit-scrollbar-thumb {
         background-color: all.$imbiss-orange ;
-        border-radius: 10px ;
-        border: 1px solid rgba(255, 255, 255, 0.1) ;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     /* Firefox Fix */
-    scrollbar-width: thin ;
-    scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05) ;
+    scrollbar-width: thin;
+    scrollbar-color: all.$imbiss-orange rgba(0, 0, 0, 0.05);
 }
 
 @media print {
+
     // Blendet die gesamte Navigation und App-Struktur aus
-    app-header, 
-    app-sidebar, 
+    app-header,
+    app-sidebar,
     app-footer,
     .sidebar,
     .header-container,
@@ -161,13 +163,16 @@ main {
     }
 
     // Sorgt dafür, dass der Inhalt (der Bon) ganz oben links startet
-    body, html {
+    body,
+    html {
         background-color: white;
         margin: 0;
         padding: 0;
     }
 
-    main, .layout, .content-wrapper {
+    main,
+    .layout,
+    .content-wrapper {
         display: block;
         margin: 0;
         padding: 0;
@@ -176,6 +181,7 @@ main {
     }
 }
 
-a, span:hover {
+a,
+span:hover {
     cursor: pointer;
 }
