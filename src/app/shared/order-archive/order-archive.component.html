@@ -3,20 +3,14 @@
 		<h2>Bestell-Archiv</h2>
 		<input type="date" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event); loadOrders()" />
 		<button (click)="printReport()" class="btn-print">
-			<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+				stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<polyline points="6 9 6 2 18 2 18 9"></polyline>
 				<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
 				<rect x="6" y="14" width="12" height="8"></rect>
 			</svg>
 			<span>Tagesabschluss Drucken</span>
 		</button>
-
-		<div class="summary-preview">
-			<p>Bestellungen (Tag): {{ ordersOfSelectedDay().length }}</p>
-			<p>Abholung ({{ pickupOrdersOfSelectedDay().length }}x): {{ pickupRevenue() | number: "1.2-2" }} €</p>
-			<p>Lieferung ({{ deliveryOrdersOfSelectedDay().length }}x): {{ deliveryRevenue() | number: "1.2-2" }} €</p>
-			<p>Gesamtumsatz: {{ totalRevenue() | number: "1.2-2" }} €</p>
-		</div>
 	</div>
 
 	<div class="dashboard-container no-print">
@@ -77,65 +71,76 @@
 </div>
 
 <div class="print-report only-print">
-	<h1>Tagesabschluss</h1>
+	<h1>TAGESABSCHLUSS</h1>
 
-	<div class="stat-row">
-		<span>Datum:</span>
-		<span>{{ selectedDate() | date: "dd.MM.yyyy" }}</span>
-	</div>
-	<div class="stat-row">
-		<span>Anzahl Bons (Gesamt):</span>
-		<span>{{ ordersOfSelectedDay().length }}</span>
-	</div>
-	<div class="stat-row">
-		<span>Abholung ({{ pickupOrdersOfSelectedDay().length }}x):</span>
-		<span>{{ pickupRevenue() | number: "1.2-2" }} €</span>
-	</div>
-	<div class="stat-row">
-		<span>Lieferung ({{ deliveryOrdersOfSelectedDay().length }}x):</span>
-		<span>{{ deliveryRevenue() | number: "1.2-2" }} €</span>
-	</div>
-	<hr />
-	<div class="stat-row">
-		<span>Umsatz Speisen (7%):</span>
-		<span>{{ foodGrossRevenue() | number: "1.2-2" }} €</span>
-	</div>
-	<div class="stat-row">
-		<span>MwSt 7% (Speisen):</span>
-		<span>{{ foodTaxAmount() | number: "1.2-2" }} €</span>
-	</div>
-	<div class="stat-row">
-		<span>Umsatz Getränke (19%):</span>
-		<span>{{ drinksGrossRevenue() | number: "1.2-2" }} €</span>
-	</div>
-	<div class="stat-row">
-		<span>MwSt 19% (Getränke):</span>
-		<span>{{ drinksTaxAmount() | number: "1.2-2" }} €</span>
-	</div>
-	<hr />
-	<div class="stat-row">
-		<span>Umsatz Brutto Gesamt:</span>
-		<span>{{ totalRevenue() | number: "1.2-2" }} €</span>
-	</div>
-	<div class="stat-row">
-		<span>MwSt Gesamt:</span>
-		<span>{{ taxAmount() | number: "1.2-2" }} €</span>
+	<div class="meta-section">
+		<div class="stat-row">
+			<span>Datum:</span>
+			<span>{{ selectedDate() | date: "dd.MM.yyyy" }}</span>
+		</div>
+		<div class="stat-row">
+			<span>Anzahl Bons (Gesamt):</span>
+			<span>{{ ordersOfSelectedDay().length }}</span>
+		</div>
 	</div>
 
-	<hr />
-	<strong>VERKAUFTE ARTIKEL:</strong>
+	<!-- ABHOLUNG BLOCK -->
+	<div class="block-badge">
+		*** ABHOLUNG ({{ pickupOrdersOfSelectedDay().length }} BONS) ***
+	</div>
 
 	<div class="report-table">
-		@for (item of orderStats(); track item[0]) {
+		@for (item of pickupProductSales(); track item.name) {
 		<div class="item-row">
-			<span>{{ item[1] }}x</span>
-			<span>{{ item[0] }}</span>
+			<span class="item-left">{{ item.quantity }}x {{ item.name }}</span>
+			<span class="item-right">{{ item.revenue | number: "1.2-2" }} €</span>
 		</div>
+		} @empty {
+		<div class="empty-sales-row">Keine Verkäufe</div>
 		}
 	</div>
+	<div class="subtotal-row">
+		<span>Summe Abholung</span>
+		<span>{{ pickupRevenue() | number: "1.2-2" }} €</span>
+	</div>
 
-	<hr />
-	
+	<!-- LIEFERUNG BLOCK -->
+	<div class="block-badge">
+		*** LIEFERUNG ({{ deliveryOrdersOfSelectedDay().length }} BONS) ***
+	</div>
+
+	<div class="report-table">
+		@for (item of deliveryProductSales(); track item.name) {
+		<div class="item-row">
+			<span class="item-left">{{ item.quantity }}x {{ item.name }}</span>
+			<span class="item-right">{{ item.revenue | number: "1.2-2" }} €</span>
+		</div>
+		} @empty {
+		<div class="empty-sales-row">Keine Verkäufe</div>
+		}
+	</div>
+	<div class="subtotal-row">
+		<span>Summe Lieferung</span>
+		<span>{{ deliveryRevenue() | number: "1.2-2" }} €</span>
+	</div>
+
+	<!-- SUMMARY & TAXES -->
+	<div class="summary-section">
+		<div class="stat-row">
+			<span>MwSt 7% (Speisen):</span>
+			<span>{{ foodTaxAmount() | number: "1.2-2" }} €</span>
+		</div>
+		<div class="stat-row">
+			<span>MwSt 19% (Getränke):</span>
+			<span>{{ drinksTaxAmount() | number: "1.2-2" }} €</span>
+		</div>
+		<div class="stat-row gross-total-row">
+			<span>UMSATZ BRUTTO:</span>
+			<span>{{ totalRevenue() | number: "1.2-2" }} €</span>
+		</div>
+	</div>
+
+	<!-- TSE SECTION -->
 	@let lastOrder = lastOrderOfSelectedDay();
 	@if (lastOrder && lastOrder.tseData) {
 	<div class="tse-block-final">
@@ -145,6 +150,6 @@
 		<p>Transaktionsnummer: {{ lastOrder.tseData.transactionId }}</p>
 	</div>
 	} @else {
-	<p class="center">TSE-SIGNATUR: SYSTEM-ID-{{ selectedDate() }}</p>
+	<p class="tse-fallback">TSE-SIGNATUR: SYSTEM-ID-{{ selectedDate() }}</p>
 	}
 </div>

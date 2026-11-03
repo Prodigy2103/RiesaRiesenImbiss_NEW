@@ -1,5 +1,28 @@
 const learningJournalData = [
   {
+    date: "2026-11-03",
+    title: "Tagesabschluss-Bon Aufteilung (Option 2), Lieferzeiten-Verlängerung & Card-Line-Clamping",
+    tasks: [
+      "Implementierung von Option 2 im Tagesabschluss-Bon (OrderArchiveComponent): Getrennte Blöcke für Abholung und Lieferung mit Artikel-Stückzahlen und Einzelumsätzen",
+      "Erstellung des kanonischen Interfaces ProductSalesRow (order.model.ts) und reaktiver computed()-Signals für Verkaufsstatistiken (Zero-any, max. 14 Zeilen)",
+      "Thermodrucker-Layout (70mm) mit Monospace-Typografie, markanten Block-Badges und korrekter Platzierung von 7%/19% MwSt und Gesamtumsatz",
+      "Verlängerung der Lieferservice-Zeiten in isWithinDeliveryHours: Mo–Sa bis 21:00 Uhr und So bis 19:30 Uhr mit automatischer Button-Sperre außerhalb der Zeiten",
+      "Synchronisation der Lieferzeiten-Badges über OrderSummaryComponent, HeroThreeComponent und FindUsComponent",
+      "Behebung des line-clamp-Konflikts in OrderFlowComponent (-webkit-line-clamp: 3 vs line-clamp: 2) und Optimierung der Kartenhöhen für 3-zeilige Titel + Preis",
+      "Vollständige Absicherung aller Änderungen über Unit Tests in OrderArchiveComponent (3/3 grün) und OrderSummaryComponent (5/5 grün)"
+    ],
+    learnings: [
+      "CSS Line-Clamp Präzedenz: Wenn -webkit-line-clamp: 3 und standardisiertes line-clamp: 2 deklariert sind, greift in modernen Browsern der Standardwert und schneidet fälschlicherweise nach 2 Zeilen ab. Beide Deklarationen müssen konsistent sein.",
+      "Karten-Höhenverteilung bei flex-direction: column: Wenn ein oberer Container (wie .image-container) eine feste Höhe von 80% beansprucht, führt zusätzlicher Text im unteren Container (.card-info) unweigerlich zu Überlauf und Abschneiden bei overflow: hidden.",
+      "Reaktive Signal-Aggregation: Komplexe Statistiken wie Artikel-Verkaufszahlen lassen sich durch schlanke computed()-Pipelines mit Maps und Single-Responsibility-Helfern wartbar und unter 14 Zeilen pro Methode umsetzen.",
+      "Thermodrucker-UX: Für 70mm Bondrucker sind Monospace-Schriftarten ('Courier New', monospace) essenziell, um Zahlen und Preise spaltengetreu ohne Layout-Verschiebungen auszurichten."
+    ],
+    openTodos: [
+      "Finaler Check der gedruckten Thermo-Bons im realen Schichtbetrieb",
+      "Eventuelle weitere Detail-Anpassungen an Produktkarten im Orderflow bei noch längeren Titeln"
+    ]
+  },
+  {
     date: "2026-11-01",
     title: "Lieferservice-Launch, Adressvalidierung, Hausgemachte Pizza & Tagesabschluss-Steuersplitting",
     tasks: [

@@ -217,74 +217,128 @@
 
     .only-print {
         display: block;
-        padding: 4mm 2mm;
+        padding: 4mm 3mm;
+        font-family: 'Courier New', Courier, monospace;
+        color: #000;
+        background: #fff;
         @include all.ticket-page-setup(70mm);
 
         h1 {
-            font-size: 14pt;
-            margin-bottom: 4mm;
+            font-size: 13pt;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin: 0 0 2mm 0;
+            padding-bottom: 1.5mm;
             text-align: center;
-            border-bottom: 2px solid black;
+            border-bottom: 2px solid #000;
         }
 
-        .center {
-            text-align: center;
-            font-size: 8pt;
-            margin-top: 5mm;
-            text-transform: uppercase;
+        .meta-section {
+            margin-bottom: 2mm;
         }
-    }
 
-    .stat-row {
-        @include all.print-ticket-row(1mm);
-        font-size: 10pt;
-        margin-bottom: 1mm;
-    }
-
-    .report-table {
-        width: 100%;
-        margin-top: 5mm;
-        border-top: 1px dashed black;
-
-        .item-row {
-            @include all.print-ticket-row(2mm);
+        .stat-row {
             display: flex;
-            font-size: 10pt;
-            padding: 1mm 0;
-            border-bottom: 0.5px solid #eee;
+            justify-content: space-between;
+            font-size: 8.5pt;
+            line-height: 1.4;
+            margin-bottom: 0.5mm;
+        }
 
-            span:first-child {
-                flex: 0 0 10mm;
+        .block-badge {
+            border: 2px solid #000;
+            text-align: center;
+            font-size: 8.5pt;
+            font-weight: bold;
+            padding: 1.2mm 0;
+            margin: 3mm 0 2mm 0;
+            letter-spacing: 0.5px;
+        }
+
+        .report-table {
+            width: 100%;
+
+            .item-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                font-size: 8.5pt;
+                line-height: 1.35;
+                padding: 0.6mm 0;
+
+                .item-left {
+                    flex: 1;
+                    padding-right: 2mm;
+                    word-break: break-word;
+                }
+
+                .item-right {
+                    flex: 0 0 auto;
+                    font-weight: normal;
+                    white-space: nowrap;
+                }
+            }
+
+            .empty-sales-row {
+                font-size: 8pt;
+                font-style: italic;
+                color: #555;
+                padding: 1.5mm 0;
+                text-align: center;
+            }
+        }
+
+        .subtotal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-top: 1px dashed #000;
+            margin-top: 1.5mm;
+            padding-top: 1.2mm;
+            margin-bottom: 2mm;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+
+        .summary-section {
+            border-top: 2px solid #000;
+            margin-top: 3mm;
+            padding-top: 2mm;
+
+            .gross-total-row {
+                margin-top: 2mm;
+                font-size: 10pt;
                 font-weight: bold;
             }
+        }
 
-            span:nth-child(2) {
-                flex: 1;
-                text-align: left;
+        .tse-fallback {
+            text-align: center;
+            font-size: 7.5pt;
+            margin-top: 6mm;
+            color: #444;
+        }
+
+        .tse-block-final {
+            margin-top: 5mm;
+            padding-top: 2mm;
+            border-top: 1px solid #000;
+            font-size: 7pt;
+            line-height: 1.2;
+
+            p {
+                margin: 0.5mm 0;
+                word-wrap: break-word;
             }
-        }
-    }
 
-    .tse-block-final {
-        margin-top: 6mm;
-        padding-top: 2mm;
-        border-top: 1px solid black;
-        font-family: monospace;
-        font-size: 7pt;
-        line-height: 1.2;
-
-        p {
-            margin: 0.5mm 0;
-            word-wrap: break-word;
-        }
-
-        .tse-signature-wrap {
-            display: block;
-            background: #f9f9f9;
-            padding: 1mm;
-            border: 0.2mm solid #ccc;
-            white-space: pre-wrap;
-            font-size: 6pt;
+            .tse-signature-wrap {
+                display: block;
+                background: #f9f9f9;
+                padding: 1mm;
+                border: 0.2mm solid #ccc;
+                white-space: pre-wrap;
+                font-size: 6pt;
+            }
         }
     }
 }

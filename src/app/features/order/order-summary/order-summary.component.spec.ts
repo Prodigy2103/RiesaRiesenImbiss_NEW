@@ -103,8 +103,8 @@ describe('OrderSummaryComponent', () => {
     expect(component.isOrderInvalid()).toBeFalse();
   });
 
-  it('sollte den Liefer-Button außerhalb der Lieferzeiten (Mo-Sa 11-20, So 13-19) sperren', () => {
-    component.calculateMinTime(new Date('2026-11-01T19:30:00'));
+  it('sollte den Liefer-Button außerhalb der Lieferzeiten (Mo-Sa 11-21, So 13-19:30) sperren', () => {
+    component.calculateMinTime(new Date('2026-11-01T19:31:00'));
     expect(component.isDeliveryAvailable()).toBeFalse();
 
     component.setMode('delivery');

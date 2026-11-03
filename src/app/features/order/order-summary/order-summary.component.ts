@@ -12,7 +12,7 @@ export function isWithinDeliveryHours(targetDate: Date): boolean {
   const isSunday = targetDate.getDay() === 0;
   const currentMinutes = targetDate.getHours() * 60 + targetDate.getMinutes();
   const startMinutes = isSunday ? 13 * 60 : 11 * 60;
-  const endMinutes = isSunday ? 19 * 60 : 20 * 60;
+  const endMinutes = isSunday ? 19 * 60 + 30 : 21 * 60;
   return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 }
 

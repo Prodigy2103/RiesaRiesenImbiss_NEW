@@ -3,7 +3,7 @@ import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import { OrderService } from '../services/order.service';
-import { Order, OrderItem } from '../modals/order.model';
+import { Order, OrderItem, ProductSalesRow } from '../modals/order.model';
 import { formatLocalDateIso } from '../utils/date.util';
 
 type RawDateInput = Timestamp | Date | string | number | null | undefined;
@@ -108,15 +108,26 @@ export class OrderArchiveComponent implements OnInit {
   absTrend = computed(() => Math.abs(this.revenueTrend()));
   isPositiveTrend = computed(() => this.revenueTrend() >= 0);
 
-  orderStats = computed(() => {
-    const itemMap = new Map<string, number>();
-    this.ordersOfSelectedDay().forEach(order => {
-      order.items.forEach(orderItem => {
-        itemMap.set(orderItem.name, (itemMap.get(orderItem.name) ?? 0) + (orderItem.quantity ?? 1));
-      });
+  pickupProductSales = computed(() => this.buildProductSales(this.pickupOrdersOfSelectedDay()));
+
+  deliveryProductSales = computed(() => this.buildProductSales(this.deliveryOrdersOfSelectedDay()));
+
+  private buildProductSales(orderList: Order[]): ProductSalesRow[] {
+    const salesByName = new Map<string, ProductSalesRow>();
+    orderList
+      .flatMap(order => order.items ?? [])
+      .forEach(orderItem => this.addItemToSales(salesByName, orderItem));
+    return [...salesByName.values()].sort((first, second) => second.quantity - first.quantity);
+  }
+
+  private addItemToSales(salesByName: Map<string, ProductSalesRow>, orderItem: OrderItem): void {
+    const existingRow = salesByName.get(orderItem.name) ?? { name: orderItem.name, quantity: 0, revenue: 0 };
+    salesByName.set(orderItem.name, {
+      ...existingRow,
+      quantity: existingRow.quantity + (orderItem.quantity ?? 1),
+      revenue: existingRow.revenue + this.calculateItemLineTotal(orderItem)
     });
-    return Array.from(itemMap.entries()).sort((entryA, entryB) => entryB[1] - entryA[1]);
-  });
+  }
 
   lastOrderOfSelectedDay = computed(() => {
     const dayOrders = this.ordersOfSelectedDay();

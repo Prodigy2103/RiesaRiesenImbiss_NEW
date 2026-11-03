@@ -49,6 +49,12 @@ export interface IngredientDetail {
     composition?: string;
 }
 
+export interface ProductSalesRow {
+    name: string;
+    quantity: number;
+    revenue: number;
+}
+
 export interface Order {
     id: string; 
     status: OrderStatus;
