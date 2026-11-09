@@ -83,7 +83,7 @@ export class DataService {
     );
 
     public readonly menuItems: Signal<OrderItem[]> = toSignal(
-        from(getDocs(query(collection(this.firestore, 'menuItems'), orderBy('order', 'asc')))).pipe(
+        from(getDocs(query(collection(this.firestore, 'menuItems_New'), orderBy('order', 'asc')))).pipe(
             map(querySnapshot => querySnapshot.docs.map(documentSnapshot =>
                 normalizeMenuItem(documentSnapshot.id, documentSnapshot.data() as OrderItem)
             ))
