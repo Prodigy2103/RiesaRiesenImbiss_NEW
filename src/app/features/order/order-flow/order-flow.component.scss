@@ -1,5 +1,6 @@
 @use '../../../../../public/styles/all_styles.scss' as all;
 @use './order-modal' as modal;
+@use './menu-bistro-split' as bistro;
 
 :host {
     @include all.size($w: 100%, $h: 90dvh);
@@ -34,6 +35,36 @@
         @include all.tablet {
             @include all.size($w: 100%, $h: 100%);
             border-radius: 0;
+        }
+
+        .drink-toast {
+            position: absolute;
+            top: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.6rem;
+            background: rgba(18, 18, 24, 0.94);
+            border: 1px solid all.$imbiss-orange;
+            border-radius: 9999px;
+            box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.6), 0 0 1.2rem rgba(232, 137, 42, 0.4);
+            backdrop-filter: blur(0.8rem);
+            color: all.$white;
+            font: 500 0.95rem 'Orbitron Medium', sans-serif;
+            animation: toastSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+            pointer-events: none;
+
+            .toast-icon {
+                color: all.$imbiss-orange;
+                flex-shrink: 0;
+            }
+
+            .toast-text {
+                white-space: nowrap;
+            }
         }
 
         .step {
@@ -109,8 +140,9 @@
             }
         }
 
-        .menu-grid,
-        .menu-grid-item {
+        @include bistro.bistro-split-styles;
+
+        .menu-grid {
             flex: 1;
             overflow-y: auto;
             scrollbar-width: none;
@@ -137,8 +169,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .food-card,
-            .food-card-item {
+            .food-card {
                 @include all.borRad($c: rgba(all.$white, 0.08), $radius: 1rem, $thick: 0.1rem, $design: solid);
                 background: all.$imbiss-light-dark;
                 position: relative;
@@ -254,4 +285,15 @@
     color: #ffffff;
     font-weight: 800;
     display: inline-block;
+}
+
+@keyframes toastSlideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -1.2rem);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
 }

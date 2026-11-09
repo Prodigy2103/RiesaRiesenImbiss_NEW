@@ -11,6 +11,7 @@ export class NeonButtonComponent {
   variant = input<'primary' | 'secondary' | 'ghost' | 'link'>('primary');
   disabled = input<boolean>(false);
   loading = input<boolean>(false);
+  ariaLabel = input<string>('');
 
   @HostListener('click', ['$event'])
   onClick(event: Event): void {

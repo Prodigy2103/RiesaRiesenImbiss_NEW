@@ -1,4 +1,13 @@
 <section class="order-flow">
+    @if (toastMessage(); as message) {
+    <aside class="drink-toast" role="status" aria-live="polite">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" class="toast-icon" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="toast-text">{{ message }}</span>
+    </aside>
+    }
 
     <div class="step" [class.active]="order.step() === 1">
         @if (order.step() === 1) {
@@ -48,33 +57,57 @@
             </app-neon-button>
         </div>
 
-        <div class="menu-grid-item">
-            @for (item of filteredItems(); track item.id) {
-            <div class="food-card-item">
-                <div class="image-container">
-                    <img [src]="item.imgPath" [alt]="item.name" />
-
-                    <div class="hover-details">
-                        <div class="ingredients-container">
-                            @for (idOrNum of item.ingredients; track $index; let last = $last) {
-                            <span class="text-part">
-                                {{ getIngredientName(idOrNum) }}{{ last ? '' : ',' }}
-                            </span>
-                            }
+        <div class="bistro-split-layout">
+            <div class="flyer-menu-list">
+                <div class="flyer-list-header">
+                    <h3>{{ selectedCategoryLabel() }}</h3>
+                    @if (currentCategory()?.description; as catDesc) {
+                    <p class="category-description">{{ catDesc }}</p>
+                    } @else if (isDrinkCategory()) {
+                    <p class="category-description">Gekühlte Erfrischungsgetränke direkt auswählen.</p>
+                    }
+                </div>
+                <div class="flyer-rows-scroll">
+                    @for (item of filteredItems(); track item.id; let itemIndex = $index) {
+                    <div class="flyer-row" [class.selected]="activeHeroItem()?.id === item.id"
+                        (click)="setPreviewItem(item)">
+                        <span class="item-number">{{ getItemNumber(item, itemIndex) }}</span>
+                        <div class="item-text-group">
+                            <span class="item-title">{{ getCleanItemName(item) }}</span>
                         </div>
-
-                        <app-neon-button variant="link" class="modal-close-neon" (click)="openExtras(item, $event)">
-                            Auswählen
+                        <span class="dot-leader" aria-hidden="true"></span>
+                        <span class="item-price">{{ item.price | number:'1.2-2' }} €</span>
+                        <app-neon-button variant="primary" class="choose-btn" (click)="openExtras(item, $event)">
+                            Wählen +
                         </app-neon-button>
                     </div>
-                </div>
-
-                <div class="card-info">
-                    <h3>{{ item.name }}</h3>
-                    <p class="price">{{ item.price | number:'1.2-2' }} €</p>
+                    }
                 </div>
             </div>
-            }
+
+            <div class="bistro-hero-card">
+                @if (activeHeroItem(); as heroItem) {
+                <div class="hero-image-wrapper">
+                    <img [src]="heroItem.imgPath || currentCategory()?.img" [alt]="heroItem.name" />
+                    <span class="hero-badge">{{ getItemNumber(heroItem, 0) }}</span>
+                </div>
+                <div class="hero-content">
+                    <h4>{{ getCleanItemName(heroItem) }}</h4>
+                    <p class="hero-price">{{ heroItem.price | number:'1.2-2' }} €</p>
+                    @if (heroItem.ingredients && heroItem.ingredients.length > 0) {
+                    <div class="hero-ingredients">
+                        <span class="ing-label">Zutaten:</span>
+                        @for (ing of heroItem.ingredients; track $index; let last = $last) {
+                        <span class="ing-pill">{{ getIngredientName(ing) }}{{ last ? '' : ',' }}</span>
+                        }
+                    </div>
+                    }
+                    <app-neon-button (click)="openExtras(heroItem, $event)">
+                        {{ isDrinkCategory() ? 'In den Warenkorb' : 'Auswählen & Anpassen' }}
+                    </app-neon-button>
+                </div>
+                }
+            </div>
         </div>
 
         @if (selectedItem()) {

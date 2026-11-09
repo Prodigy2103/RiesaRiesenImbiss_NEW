@@ -25,6 +25,7 @@ export interface OrderItem {
     category: string;
     price: number;
     amount: number;
+    order?: number;
     imgPath?: string;
     quantity?: number;
     ingredients?: (string | number)[]; 

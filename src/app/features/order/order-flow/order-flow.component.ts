@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../shared/services/order.service';
@@ -18,6 +18,7 @@ import { OrderSummaryComponent } from '../order-summary/order-summary.component'
 export class OrderFlowComponent {
   public readonly order = inject(OrderService);
   public dataService = inject(DataService);
+  private readonly destroyRef = inject(DestroyRef);
 
   menuItems = this.dataService.menuItems;
   categories = this.dataService.categories;
@@ -27,6 +28,55 @@ export class OrderFlowComponent {
 
   selectedItem = signal<OrderItem | null>(null);
   selectedIngredientInfo = signal<IngredientDetail[] | null>(null);
+  readonly toastMessage = signal<string | null>(null);
+  private toastTimerHandle?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.toastTimerHandle) clearTimeout(this.toastTimerHandle);
+    });
+  }
+
+  readonly previewItem = signal<OrderItem | null>(null);
+
+  readonly isDrinkCategory = computed(() => {
+    const categoryKey = this.order.category()?.toLowerCase();
+    return categoryKey === 'bottle' || categoryKey === 'alkfree';
+  });
+
+  readonly currentCategory = computed<Category | null>(() => {
+    const currentKey = this.order.category();
+    const allCategories = this.categories() as Category[];
+    return allCategories.find(cat => cat.key === currentKey) || null;
+  });
+
+  readonly activeHeroItem = computed<OrderItem | null>(() => {
+    return this.previewItem() ?? this.filteredItems()[0] ?? null;
+  });
+
+  setPreviewItem(item: OrderItem | null): void {
+    this.previewItem.set(item);
+  }
+
+  getItemNumber(item: OrderItem, fallbackIndex: number): string {
+    const volume = this.getDrinkVolume(item);
+    if (volume) return volume;
+    const match = item.name.match(/^(\d{1,2})/);
+    return match ? match[1].padStart(2, '0') : (fallbackIndex + 1).toString().padStart(2, '0');
+  }
+
+  getCleanItemName(item: OrderItem): string {
+    return item.name.replace(/(0[.,]\d+\s*l)/i, '').replace(/^\d{1,2}\s*/, '').trim();
+  }
+
+  getDrinkVolume(item: OrderItem): string {
+    const match = item.name.match(/(0[.,]\d+)\s*l/i);
+    return match ? `${match[1].replace('.', ',')} l` : '';
+  }
+
+  getDrinkTitle(item: OrderItem): string {
+    return this.getCleanItemName(item);
+  }
 
   availableExtras = computed(() => {
     const currentItem = this.selectedItem();
@@ -74,9 +124,16 @@ export class OrderFlowComponent {
     event.stopPropagation();
     if (this.isDrink(item)) {
       this.order.addItem(item);
+      this.showToast(item.name);
       return;
     }
     this.selectedItem.set(item);
+  }
+
+  showToast(productName: string): void {
+    if (this.toastTimerHandle) clearTimeout(this.toastTimerHandle);
+    this.toastMessage.set(`${productName} zum Warenkorb hinzugefügt`);
+    this.toastTimerHandle = setTimeout(() => this.toastMessage.set(null), 2500);
   }
 
   private isDrink(item: OrderItem): boolean {
@@ -127,6 +184,7 @@ export class OrderFlowComponent {
 
   passCategory(categoryKey: string, event: Event): void {
     event.stopPropagation();
+    this.previewItem.set(null);
     this.order.category.set(categoryKey);
     this.order.next();
   }

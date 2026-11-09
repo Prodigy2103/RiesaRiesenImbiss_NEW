@@ -1,17 +1,27 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { SAUCE_INFO_LIST } from '../../../shared/modals/extras.data';
 import { OrderFlowComponent } from './order-flow.component';
-import { Category } from '../../../shared/modals/order.model';
+import { Category, OrderItem } from '../../../shared/modals/order.model';
 import { OrderService } from '../../../shared/services/order.service';
 import { DataService, normalizeCategory } from '../../../shared/services/data.services';
 
 describe('OrderFlowComponent', () => {
   let component: OrderFlowComponent;
   let fixture: ComponentFixture<OrderFlowComponent>;
+  let mockOrderService: {
+    category: ReturnType<typeof signal<string>>;
+    step: ReturnType<typeof signal<number>>;
+    totalItemsCount: ReturnType<typeof signal<number>>;
+    addItem: jasmine.Spy;
+    addExtra: jasmine.Spy;
+    removeExtraById: jasmine.Spy;
+    resetExtras: jasmine.Spy;
+    next: jasmine.Spy;
+  };
 
   beforeEach(async () => {
-    const mockOrderService = {
+    mockOrderService = {
       category: signal(''),
       step: signal(1),
       totalItemsCount: signal(0),
@@ -95,5 +105,60 @@ describe('OrderFlowComponent', () => {
       amount: 1
     });
     expect(component.getFreeExtraLabel(herbSauce)).toBe('Inklusive');
+  });
+
+  it('should add drink directly and display toast message when category is alkfree', () => {
+    const drinkItem: OrderItem = { id: 'cola-1', name: 'Coca Cola 0.33l', category: 'alkfree', price: 2.5, amount: 1 };
+    component.openExtras(drinkItem, new MouseEvent('click'));
+    expect(mockOrderService.addItem).toHaveBeenCalledWith(drinkItem);
+    expect(component.toastMessage()).toContain('Coca Cola 0.33l');
+  });
+
+  it('should add drink directly and display toast message when category is bottle', () => {
+    const beerItem: OrderItem = { id: 'beer-1', name: 'Radeberger 0.5l', category: 'bottle', price: 3.0, amount: 1 };
+    component.openExtras(beerItem, new MouseEvent('click'));
+    expect(mockOrderService.addItem).toHaveBeenCalledWith(beerItem);
+    expect(component.toastMessage()).toContain('Radeberger 0.5l');
+  });
+
+  it('should open extras modal and NOT show drink toast when category is food', () => {
+    const foodItem: OrderItem = { id: 'doener-1', name: 'Döner Kebab', category: 'doener', price: 7.5, amount: 1 };
+    component.openExtras(foodItem, new MouseEvent('click'));
+    expect(component.selectedItem()).toBe(foodItem);
+    expect(component.toastMessage()).toBeNull();
+  });
+
+  it('should clear toast message after timeout', fakeAsync(() => {
+    component.showToast('Test Drink');
+    expect(component.toastMessage()).toBe('Test Drink zum Warenkorb hinzugefügt');
+    tick(2500);
+    expect(component.toastMessage()).toBeNull();
+  }));
+
+  it('should evaluate isDrinkCategory correctly for different categories', () => {
+    mockOrderService.category.set('alkfree');
+    expect(component.isDrinkCategory()).toBeTrue();
+    mockOrderService.category.set('bottle');
+    expect(component.isDrinkCategory()).toBeTrue();
+    mockOrderService.category.set('doener');
+    expect(component.isDrinkCategory()).toBeFalse();
+  });
+
+  it('should format numbers, clean names, and parse drink volumes accurately', () => {
+    const testDish: OrderItem = { id: 'd-7', name: '07 Riesen-Döner', category: 'doener', price: 10, amount: 1 };
+    const testDrink: OrderItem = { id: 'c-1', name: 'Coca Cola 0.33l', category: 'alkfree', price: 2, amount: 1 };
+    expect(component.getItemNumber(testDish, 0)).toBe('07');
+    expect(component.getItemNumber(testDrink, 0)).toBe('0,33 l');
+    expect(component.getCleanItemName(testDish)).toBe('Riesen-Döner');
+    expect(component.getDrinkVolume(testDrink)).toBe('0,33 l');
+    expect(component.getDrinkTitle(testDrink)).toBe('Coca Cola');
+  });
+
+  it('should update active hero item on preview item selection', () => {
+    const firstDish: OrderItem = { id: 'd-1', name: '01 Döner', category: 'doener', price: 6.5, amount: 1 };
+    const secondDish: OrderItem = { id: 'd-2', name: '02 Döner Käse', category: 'doener', price: 7.5, amount: 1 };
+    component.setPreviewItem(secondDish);
+    expect(component.previewItem()).toBe(secondDish);
+    expect(component.activeHeroItem()).toBe(secondDish);
   });
 });

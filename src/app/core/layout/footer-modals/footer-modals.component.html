@@ -3,7 +3,8 @@
 	<div class="mini-modal-content" (click)="$event.stopPropagation()">
 		<div class="modal-header">
 			<span class="code-text">JOB: {{ ui.selectedJob()?.title }}</span>
-			<app-neon-button variant="link" class="modal-close-neon" (click)="ui.closeJob()">X</app-neon-button>
+			<app-neon-button variant="link" class="modal-close-neon" ariaLabel="Schließen"
+				(click)="ui.closeJob()">X</app-neon-button>
 		</div>
 		<div class="modal-body">
 			<h3>{{ ui.selectedJob()?.title }}</h3>
@@ -19,7 +20,8 @@
 	<div class="mini-modal-content" (click)="$event.stopPropagation()">
 		<div class="modal-header">
 			<span class="code-text">SYSTEM: {{ ui.selectedNews()?.urgent ? "CRITICAL" : "INFO" }}</span>
-			<app-neon-button variant="link" class="modal-close-neon" (click)="ui.closeNews()">X</app-neon-button>
+			<app-neon-button variant="link" class="modal-close-neon" ariaLabel="Schließen"
+				(click)="ui.closeNews()">X</app-neon-button>
 		</div>
 		<div class="modal-body">
 			<h3 class="news-title">{{ ui.selectedNews()?.title }}</h3>
@@ -34,7 +36,8 @@
 	<div class="mini-modal-content" (click)="$event.stopPropagation()">
 		<div class="modal-header">
 			<span class="code-text">CONTACT</span>
-			<app-neon-button variant="link" class="modal-close-neon" (click)="ui.closeContact()">X</app-neon-button>
+			<app-neon-button variant="link" class="modal-close-neon" ariaLabel="Schließen"
+				(click)="ui.closeContact()">X</app-neon-button>
 		</div>
 		<div class="modal-body">
 			<h3>MODAL_TARGET: {{ ui.selectedContact()?.title }}</h3>
@@ -59,7 +62,8 @@
 
 		<div class="modal-header">
 			<span class="code-text">DATA: {{ ui.isSauceMode() ? 'SAUCEN' : 'INHALTSSTOFFE' }}</span>
-			<app-neon-button variant="link" class="modal-close-neon" (click)="ui.closeIngredients()">
+			<app-neon-button variant="link" class="modal-close-neon" ariaLabel="Schließen"
+				(click)="ui.closeIngredients()">
 				X
 			</app-neon-button>
 		</div>

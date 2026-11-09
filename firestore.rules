@@ -13,6 +13,17 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /menuItems/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Neuer Menü-Bestand: Öffentlich lesbar, Schreibschutz
+    match /menuItems_New/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /ingredient-details/{detailId} {
       allow read: if true;
       allow write: if false;

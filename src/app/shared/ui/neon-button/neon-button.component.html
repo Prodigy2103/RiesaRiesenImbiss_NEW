@@ -1,4 +1,4 @@
-<button [disabled]="disabled() || loading()" [class]="variant()" class="neon-btn">
+<button [disabled]="disabled() || loading()" [class]="variant()" [attr.aria-label]="ariaLabel() || null" class="neon-btn">
 	@if (loading()) {
 	<span class="loader"></span>
 	} @else {

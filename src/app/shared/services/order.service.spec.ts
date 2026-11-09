@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { OrderService, CartItem } from './order.service';
+import { OrderService, CartItem, areExtrasEqual } from './order.service';
 import { OrderArchiveService } from './order-archive.service';
 import { OrderItem, CustomerData } from '../modals/order.model';
 
@@ -92,5 +92,45 @@ describe('OrderService', () => {
         expect(service.step()).toBe(2);
         service.next();
         expect(service.step()).toBe(2);
+    });
+
+    it('should merge same item when added twice and increment quantity', () => {
+        service.addItem(testItem);
+        service.addItem(testItem);
+        expect(service.items().length).toBe(1);
+        expect(service.items()[0].quantity).toBe(2);
+        expect(service.total()).toBe(15);
+    });
+
+    it('should merge same item with same extras regardless of selection order', () => {
+        const extraOne: OrderItem = { id: '100', name: 'Sauce A', category: 'extras', price: 0, amount: 1 };
+        const extraTwo: OrderItem = { id: '101', name: 'Sauce B', category: 'extras', price: 1, amount: 1 };
+        service.addExtra(extraOne);
+        service.addExtra(extraTwo);
+        service.addItem(testItem);
+        service.addExtra(extraTwo);
+        service.addExtra(extraOne);
+        service.addItem(testItem);
+        expect(service.items().length).toBe(1);
+        expect(service.items()[0].quantity).toBe(2);
+    });
+
+    it('should keep items separate when extras differ', () => {
+        const extraSauce: OrderItem = { id: '100', name: 'Sauce A', category: 'extras', price: 0, amount: 1 };
+        service.addExtra(extraSauce);
+        service.addItem(testItem);
+        service.addItem(testItem);
+        expect(service.items().length).toBe(2);
+        expect(service.items()[0].selectedExtras?.length).toBe(1);
+        expect(service.items()[1].selectedExtras?.length).toBe(0);
+    });
+
+    it('should evaluate areExtrasEqual correctly for edge cases', () => {
+        const extraOne: OrderItem = { id: '100', name: 'A', category: 'extras', price: 0, amount: 1 };
+        const extraTwo: OrderItem = { id: '101', name: 'B', category: 'extras', price: 0, amount: 1 };
+        expect(areExtrasEqual(undefined, [])).toBeTrue();
+        expect(areExtrasEqual([], undefined)).toBeTrue();
+        expect(areExtrasEqual([extraOne, extraTwo], [extraTwo, extraOne])).toBeTrue();
+        expect(areExtrasEqual([extraOne], [extraTwo])).toBeFalse();
     });
 });

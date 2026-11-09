@@ -18,6 +18,13 @@ export interface CartItem extends OrderItem {
     quantity: number;
 }
 
+export function areExtrasEqual(extrasA?: OrderItem[], extrasB?: OrderItem[]): boolean {
+    const idsA = (extrasA || []).map(extra => String(extra.id)).sort();
+    const idsB = (extrasB || []).map(extra => String(extra.id)).sort();
+    if (idsA.length !== idsB.length) return false;
+    return idsA.every((id, index) => id === idsB[index]);
+}
+
 @Injectable({ providedIn: 'root' })
 export class OrderService {
     private readonly orderArchiveService: OrderArchiveService = inject(OrderArchiveService);
@@ -61,7 +68,7 @@ export class OrderService {
 
     private mergeItemIntoCart(cartItems: CartItem[], itemToAdd: OrderItem, currentExtras: OrderItem[]): CartItem[] {
         const existingItem = cartItems.find(cartItem => 
-            cartItem.id === itemToAdd.id && JSON.stringify(cartItem.selectedExtras) === JSON.stringify(currentExtras)
+            cartItem.id === itemToAdd.id && areExtrasEqual(cartItem.selectedExtras, currentExtras)
         );
         if (!existingItem) {
             return [...cartItems, { ...itemToAdd, quantity: 1, selectedExtras: currentExtras }];
@@ -155,7 +162,10 @@ export class OrderService {
     private loadCartFromStorage(): CartItem[] {
         const savedCart = localStorage.getItem(this.CART_STORAGE_KEY);
         try {
-            return savedCart ? JSON.parse(savedCart) : [];
+            const parsed = savedCart ? JSON.parse(savedCart) : [];
+            return Array.isArray(parsed) 
+                ? parsed.map(item => ({ ...item, selectedExtras: item.selectedExtras ?? [] }))
+                : [];
         } catch {
             return [];
         }

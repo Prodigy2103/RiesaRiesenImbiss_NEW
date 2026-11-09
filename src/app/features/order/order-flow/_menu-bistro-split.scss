@@ -1,0 +1,248 @@
+@use '../../../../../public/styles/all_styles.scss' as all;
+
+@mixin bistro-split-styles {
+    .bistro-split-layout {
+        display: flex;
+        gap: 1.5rem;
+        flex: 1;
+        overflow: hidden;
+        padding: 1rem 2rem 1.5rem 2rem;
+
+        @include all.tablet {
+            flex-direction: column;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .flyer-menu-list {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            background: rgba(18, 22, 31, 0.95);
+            border: 1px solid all.$imbiss-border-dark;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.5);
+
+            .flyer-list-header {
+                padding: 1.2rem 1.6rem;
+                background: rgba(22, 28, 38, 0.8);
+                border-bottom: 1px solid rgba(all.$white, 0.08);
+
+                h3 {
+                    font: 700 1.5rem 'Orbitron Medium', serif;
+                    color: all.$imbiss-orange;
+                    margin-bottom: 0.3rem;
+                }
+
+                .category-description {
+                    font: 400 0.88rem 'Segoe UI', sans-serif;
+                    color: all.$text-muted;
+                    font-style: italic;
+                    line-height: 1.35;
+                }
+            }
+
+            .flyer-rows-scroll {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0.8rem 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+
+                &::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: all.$imbiss-border-dark;
+                    border-radius: 3px;
+                }
+            }
+
+            .flyer-row {
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                padding: 0.75rem 1rem;
+                background: rgba(22, 28, 38, 0.5);
+                border: 1px solid rgba(all.$white, 0.04);
+                border-radius: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+                &:hover {
+                    background: rgba(28, 36, 50, 0.8);
+                    border-color: rgba(all.$imbiss-orange, 0.4);
+                    transform: translateX(3px);
+                }
+
+                &.selected {
+                    background: rgba(32, 43, 61, 0.95);
+                    border-color: all.$imbiss-orange;
+                    transform: translateX(5px);
+                    box-shadow: 0 0.4rem 1.4rem rgba(232, 137, 42, 0.25);
+
+                    .item-number {
+                        background: all.$imbiss-orange;
+                        border-color: all.$imbiss-orange;
+                        color: all.$white;
+                    }
+
+                    .choose-btn {
+                        filter: brightness(1.15);
+                    }
+                }
+
+                .item-number {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 1.9rem;
+                    width: auto;
+                    height: 1.8rem;
+                    padding: 0 0.4rem;
+                    border-radius: 0.4rem;
+                    background: all.$imbiss-card-dark;
+                    border: 1px solid rgba(all.$imbiss-orange, 0.35);
+                    color: all.$imbiss-orange;
+                    font: 700 0.82rem 'Orbitron Medium', sans-serif;
+                    flex-shrink: 0;
+                    transition: all 0.2s;
+                }
+
+                .item-text-group {
+                    flex-shrink: 1;
+                    min-width: 0;
+
+                    .item-title {
+                        font: 600 0.95rem 'Segoe UI', sans-serif;
+                        color: all.$white;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: block;
+                    }
+                }
+
+                .dot-leader {
+                    flex: 1;
+                    min-width: 1rem;
+                    border-bottom: 1px dotted rgba(255, 255, 255, 0.25);
+                    margin: 0 0.5rem;
+                    height: 1px;
+                }
+
+                .item-price {
+                    font: 700 1.05rem 'Orbitron Medium', sans-serif;
+                    color: all.$imbiss-orange-glow;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                }
+
+                .choose-btn {
+                    flex-shrink: 0;
+                    font-size: 0.8rem;
+                    display: none;
+
+                    @include all.tablet {
+                        display: inline-flex;
+                    }
+                }
+            }
+        }
+
+        .bistro-hero-card {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            background: rgba(18, 22, 31, 0.95);
+            border: 1px solid all.$imbiss-border-dark;
+            border-radius: 1.2rem;
+            padding: 1.4rem;
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+
+            @include all.tablet {
+                display: none;
+            }
+
+            .hero-image-wrapper {
+                position: relative;
+                width: 100%;
+                height: 220px;
+                border-radius: 0.9rem;
+                overflow: hidden;
+                background: all.$imbiss-bg-dark;
+                border: 1px solid rgba(all.$white, 0.08);
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    padding: 0.8rem;
+                    transition: transform 0.4s ease;
+                }
+
+                .hero-badge {
+                    position: absolute;
+                    top: 0.8rem;
+                    left: 0.8rem;
+                    background: all.$imbiss-orange;
+                    color: all.$white;
+                    font: 700 0.85rem 'Orbitron Medium', sans-serif;
+                    padding: 0.2rem 0.6rem;
+                    border-radius: 0.4rem;
+                    box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.4);
+                }
+            }
+
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+                margin-top: 1.2rem;
+                flex: 1;
+
+                h4 {
+                    font: 700 1.4rem 'Orbitron Medium', serif;
+                    color: all.$white;
+                    margin-bottom: 0.4rem;
+                }
+
+                .hero-price {
+                    font: 700 1.5rem 'Orbitron Medium', sans-serif;
+                    color: all.$imbiss-orange-glow;
+                    margin-bottom: 1rem;
+                }
+
+                .hero-ingredients {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.4rem;
+                    align-items: center;
+                    margin-bottom: 1.4rem;
+                    padding: 0.8rem;
+                    background: rgba(22, 28, 38, 0.6);
+                    border-radius: 0.6rem;
+
+                    .ing-label {
+                        font: 600 0.82rem 'Segoe UI', sans-serif;
+                        color: all.$imbiss-orange;
+                        margin-right: 0.2rem;
+                    }
+
+                    .ing-pill {
+                        font: 400 0.82rem 'Segoe UI', sans-serif;
+                        color: all.$text-muted;
+                    }
+                }
+
+                app-neon-button {
+                    margin-top: auto;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
