@@ -94,6 +94,8 @@
             width: fit-content;
             letter-spacing: 0.05rem;
             animation: pulse-number-one 2s infinite;
+            will-change: transform, opacity;
+            box-shadow: 0 0 8px rgba(all.$imbiss-orange, 0.4);
 
             @media(max-width: 1440px) {
                 display: none;

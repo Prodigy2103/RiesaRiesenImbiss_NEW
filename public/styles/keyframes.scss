@@ -221,15 +221,18 @@
 
 @keyframes pulse-green {
     0% {
-        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+        transform: scale(1);
+        opacity: 1;
     }
 
-    70% {
-        box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+    50% {
+        transform: scale(1.25);
+        opacity: 0.7;
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
@@ -251,29 +254,39 @@
 }
 
 @keyframes pulse-number-one {
-    0% {
-        box-shadow: 0 0 0 0 rgba(234, 152, 12, 0.7);
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
     }
 
-    70% {
-        box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    50% {
+        transform: scale(1.03);
+        opacity: 0.85;
     }
 }
 
 @keyframes pulse-glow {
-	0% {
-		box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.4);
+	0%, 100% {
+		transform: scale(1);
+		opacity: 1;
 	}
 
-	70% {
-		box-shadow: 0 0 0 12px rgba(255, 165, 0, 0);
+	50% {
+		transform: scale(1.15);
+		opacity: 0.65;
 	}
 
 	100% {
 		box-shadow: 0 0 0 0 rgba(255, 165, 0, 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
 	}
 }

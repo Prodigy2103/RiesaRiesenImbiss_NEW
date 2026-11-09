@@ -105,7 +105,9 @@
 
 	&.open .status-dot {
 		background: #4ade80;
+		box-shadow: 0 0 6px #4ade80;
 		animation: pulse-green 2s infinite;
+		will-change: transform, opacity;
 	}
 
 	&.closing-soon {
@@ -114,7 +116,9 @@
 
 		.status-dot {
 			background: #ffca28;
+			box-shadow: 0 0 6px #ffca28;
 			animation: pulse-orange 1.5s infinite;
+			will-change: transform, opacity;
 		}
 	}
 

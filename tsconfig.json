@@ -26,6 +26,14 @@
       "node"
     ]
   },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "e2e/**/*",
+    "node_modules",
+    "dist"
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

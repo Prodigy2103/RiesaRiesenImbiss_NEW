@@ -196,4 +196,5 @@ p {
 	color: all.$imbiss-teal;
 	text-shadow: 0 0 0.8rem #ff4444;
 	animation: pulse-glow 1.5s infinite ease-in-out;
+	will-change: transform, opacity;
 }

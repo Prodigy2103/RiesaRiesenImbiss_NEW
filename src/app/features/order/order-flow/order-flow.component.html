@@ -71,15 +71,19 @@
                     @for (item of filteredItems(); track item.id; let itemIndex = $index) {
                     <div class="flyer-row" [class.selected]="activeHeroItem()?.id === item.id"
                         (click)="setPreviewItem(item)">
-                        <span class="item-number">{{ getItemNumber(item, itemIndex) }}</span>
-                        <div class="item-text-group">
-                            <span class="item-title">{{ getCleanItemName(item) }}</span>
+                        <div class="flyer-row-header">
+                            <span class="item-number">{{ getItemNumber(item, itemIndex) }}</span>
+                            <div class="item-text-group">
+                                <span class="item-title">{{ getCleanItemName(item) }}</span>
+                            </div>
                         </div>
                         <span class="dot-leader" aria-hidden="true"></span>
-                        <span class="item-price">{{ item.price | number:'1.2-2' }} €</span>
-                        <app-neon-button variant="primary" class="choose-btn" (click)="openExtras(item, $event)">
-                            Wählen +
-                        </app-neon-button>
+                        <div class="flyer-row-actions">
+                            <span class="item-price">{{ item.price | number:'1.2-2' }} €</span>
+                            <app-neon-button variant="primary" class="choose-btn" (click)="openExtras(item, $event)">
+                                Wählen +
+                            </app-neon-button>
+                        </div>
                     </div>
                     }
                 </div>

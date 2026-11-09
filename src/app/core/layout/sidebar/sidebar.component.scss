@@ -47,8 +47,10 @@
 		position: absolute;
 		inset: -0.25rem;
 		border-radius: 50%;
-		border: 1px solid rgba(all.$imbiss-orange, 0.2);
+		border: 1px solid rgba(all.$imbiss-orange, 0.4);
+		box-shadow: 0 0 10px rgba(all.$imbiss-orange, 0.35);
 		animation: rotateGlow 8s linear infinite;
+		will-change: transform, opacity;
 		z-index: 1;
 	}
 
