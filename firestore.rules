@@ -35,7 +35,12 @@ service cloud.firestore {
       allow read, update, delete: if true;
     }
 
-    // Archivierte Bestellungen: Abruf für Admin-Dashboard
+    // Archivierte Bestellungen: Abruf für Admin-Dashboard (beide Schreibweisen abgesichert)
+    match /archivedOrders/{archiveId} {
+      allow create, read: if true;
+      allow update, delete: if false;
+    }
+
     match /archived-orders/{archiveId} {
       allow create, read: if true;
       allow update, delete: if false;
