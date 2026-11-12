@@ -55,7 +55,7 @@ describe('OrderFlowComponent', () => {
   });
 
   it('should load SAUCE_INFO_LIST into the signal when taco category is clicked', () => {
-    const tacoCategory = { id: 'CVnnpJ5lvCwIeOHeEc0Z' } as Category;
+    const tacoCategory = { id: 'tacos' } as Category;
     const clickEvent = new MouseEvent('click');
 
     component.handleDescriptionClick(tacoCategory, clickEvent);

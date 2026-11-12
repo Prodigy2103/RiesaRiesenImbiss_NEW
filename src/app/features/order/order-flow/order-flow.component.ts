@@ -23,7 +23,7 @@ export class OrderFlowComponent {
   categories = this.dataService.categories;
 
   readonly EXTRAS = signal<OrderItem[]>(EXTRAS_LIST);
-  readonly TACO_ID = 'CVnnpJ5lvCwIeOHeEc0Z';
+  readonly TACO_ID = 'tacos';
 
   selectedItem = signal<OrderItem | null>(null);
   selectedIngredientInfo = signal<IngredientDetail[] | null>(null);
