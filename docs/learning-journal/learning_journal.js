@@ -1,5 +1,48 @@
 const learningJournalData = [
   {
+    date: "2026-11-12",
+    title: "Firestore-Synchronisation menuItems_New, Kategorien-Restrukturierung mit festen Slugs & Archivierungs-Fix",
+    tasks: [
+      "Behebung des Permission-Fehlers bei der Bestell-Archivierung (OrderArchiveService): firestore.rules um CamelCase-Collection archivedOrders erweitert und live deployed",
+      "Vollständige Analyse der neuen Speisekarte anhand des Kundenfotos (83 nummerierte Gerichte in 15 Speisekategorien)",
+      "Befüllung & Bereinigung von menuItems_New in Firestore: 65 alte/gestrichene Dokumente gelöscht, 104 finale Gerichte und Getränke konsistent mit festen IDs ({nr}-{slug}) eingepflegt",
+      "Integration von 6 Neuzugängen: Pide mit Schafskäse & Pizzakäse, Pide Thunfisch, Pide Veggie, Taco Thunfisch, Pommes (klein/groß) und Pizza Hähnchenfleisch",
+      "Restrukturierung der categories-Sammlung: Ersetzung aller 17 Zufalls-IDs durch sprechende Slugs nach label (doener, salat, tacos, etc.) und lückenlose Reihenfolge (order: 1 bis 17) nach dem neuen Flyer",
+      "Aktualisierung von TACO_ID in OrderFlowComponent und Unit-Tests auf den neuen festen Slug 'tacos' (59/59 Tests grün)",
+      "Wiederherstellung des Read-Only Schreibschutzes für menuItems_New und categories in firestore.rules"
+    ],
+    learnings: [
+      "Atomare Firestore-Batches & Security Rules: Schlägt eine einzelne Operation im writeBatch fehl (hier set auf archivedOrders wegen Kebab-Case Diskrepanz), scheitert der gesamte Batch inklusive des delete auf orders. Rules müssen exakt dem Code-Schema entsprechen.",
+      "Sprechende Dokument-IDs statt Zufalls-Hashes: Feste Slugs wie {nr}-{slug} für Menüartikel und label-Slugs für Kategorien erleichtern das Debugging, machen DB-Lookups transparent und verhindern hardcodierte Magic-Strings wie TACO_ID = 'CVnnpJ5lvCwIeOHeEc0Z'.",
+      "Strikte Branch- und Feature-Isolierung: Durch die saubere Trennung von Schema-Updates (menuItems_New_create) und UI-Experimenten (test_newDesign_pickCard) kann die Datenbasis unabhängig vom Freigabestatus neuer Benutzeroberflächen gepflegt werden."
+    ],
+    openTodos: [
+      "Kunden-Feedback zur neuen Speisekarte im laufenden Betrieb beobachten",
+      "Nach Kundenabnahme des neuen Bistro-Split Designs: Integration in den Hauptentwicklungszweig"
+    ]
+  },
+  {
+    date: "2026-11-09",
+    title: "Lighthouse 100/100 Audit-Loop, Bistro-Split Menü-Redesign, Responsive Title Fix & Branch-Separation",
+    tasks: [
+      "Playwright-Lighthouse Audit-Loop (Regel 17): Erfolgreicher Lauf mit 100/100 Accessibility, 100/100 Best Practices und 100/100 SEO",
+      "Asset- & Performance-Optimierung: Logo von 2.9 MB auf 141 KB und TikTok-Icon von 211 KB auf 2.4 KB komprimiert; GPU-kompatible Transitions statt endloser Box-Shadow-Keyframes",
+      "TypeScript- & CSS-Konfigurations-Bereinigung: e2e-Ausschluss in root tsconfig.json, separates e2e/tsconfig.json und standardkonformes line-clamp: 2",
+      "Neues Bistro-Split Menü-Design auf Branch test_newDesign_pickCard: Split-Ansicht mit Sticky Hero-Karte und kompakter Flyer-Liste",
+      "Behebung des Titel-Abschneidens in der Flyer-Liste (460px, 768px, 1211px): 2-Zeilen-Layout auf Mobile/Tablet (Titel volle Breite oben, Preis + Button unten), flexibler 2-Zeilen-Umbruch auf Desktop",
+      "Firestore-Migration menuItems_New & saubere Branch-Trennung: Klassisches 8-Karten-Design auf menuItems_New_create gepflegt, getestet und nach GitHub gepusht; Neues Design separat auf test_newDesign_pickCard gesichert"
+    ],
+    learnings: [
+      "Responsive Dot-Leader & Flexbox: Punktelinien (border-bottom: dotted) in einzeiligen Flex-Containern erzwingen bei langen Titeln extremes Abschneiden. Auf Mobilgeräten (<= 768px) ist ein zweizeiliges Grid/Flex-Layout mit voller Titelbreite oben und Preis/CTA unten die barriereärmste und lesbarste Lösung.",
+      "Lighthouse Best Practices & Asset-Größen: Hochauflösende Rohgrafiken belasten LCP und Transfer massiv. Präzise Dimensionierung und Komprimierung heben Performance und Best-Practices-Scores sofort auf das 100er-Niveau.",
+      "Branching-Hygiene bei Kundenabnahmen: Wenn ein Design-Redesign erst durch den Kunden freigegeben werden muss, dürfen Schema-Änderungen (neue Firestore-Kollektion menuItems_New) das alte Design nicht blockieren. Die Trennung in test_newDesign_pickCard und menuItems_New_create garantiert sofortige Rollout-Fähigkeit."
+    ],
+    openTodos: [
+      "Feedback und finale Abnahme des neuen Bistro-Split Menüs durch den Kunden einholen",
+      "Nach Kundenfreigabe: Merge von test_newDesign_pickCard in den Hauptentwicklungszweig"
+    ]
+  },
+  {
     date: "2026-11-03",
     title: "Tagesabschluss-Bon Aufteilung (Option 2), Lieferzeiten-Verlängerung & Card-Line-Clamping",
     tasks: [
