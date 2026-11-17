@@ -40,6 +40,11 @@ export class FooterComponent {
       title: 'Lieferservice ab 02.11.2026',
       description: 'Wartezeit vorbei: Ab dem 02.11.2026 ist unser Lieferservice wieder für dich da! Freu dich auf gewohnte Qualität, blitzschnelle Lieferung und puren Genuss direkt an deiner Haustür.',
       urgent: true
+    },
+    {
+      title: 'Ab Dezember 2026 Sonntags geschlossen',
+      description: 'Bitte beachte unsere neuen Öffnungszeiten: Ab Dezember 2026 bleibt unser Betrieb sonntags geschlossen. Bestelle deine Favoriten einfach von Montag bis Samstag – gewohnt frisch und direkt an deine Haustür.',
+      urgent: true
     }
   ];
 
